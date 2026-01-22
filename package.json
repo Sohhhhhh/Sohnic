@@ -19,6 +19,7 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "morgan": "^1.10.1",
+    "pg": "^8.17.2",
     "postgres": "^3.4.8",
     "zod": "^4.3.5"
   },
@@ -27,6 +28,7 @@
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.0.9",
+    "@types/pg": "^8.16.0",
     "drizzle-kit": "^0.31.8",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
