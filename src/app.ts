@@ -1,9 +1,19 @@
-import express from 'express';
 import morgan from 'morgan';
+import express from 'express';
+
+import env from './config/env';
+import { apiRoutes } from './routes';
+import notFound from './middlewares/notFound';
+import healthCheck from './middlewares/healthCheck';
 
 const app = express();
 
 app.use(express.json());
-app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
+app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
+
+app.use('/api', apiRoutes);
+app.use('/health-check', healthCheck);
+
+app.all(/.*/, notFound);
 
 export default app;

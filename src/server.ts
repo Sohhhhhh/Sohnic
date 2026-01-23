@@ -1,9 +1,5 @@
 import app from './app';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const PORT = parseInt(process.env.PORT || '3000', 10);
+import env from './config/env';
 
 process.on('uncaughtException', (err: Error) => {
   console.error('UNCAUGHT EXCEPTION. Shutting down...', err);
@@ -11,8 +7,8 @@ process.on('uncaughtException', (err: Error) => {
   process.exit(1);
 });
 
-export const server = app.listen(PORT, () => {
-  console.info(`Server is running on port: ${PORT}`);
+export const server = app.listen(env.PORT, () => {
+  console.info(`Server is running on port: ${env.PORT}`);
 });
 
 process.on('unhandledRejection', (err: Error) => {
