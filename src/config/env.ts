@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import path from 'path';
 import { config } from 'dotenv';
 
-config({ quiet: true });
+config({ quiet: true, path: path.join(process.cwd(), '.env') });
 
 const envConfig = z
   .object({
