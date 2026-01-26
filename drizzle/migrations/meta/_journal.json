@@ -15,6 +15,13 @@
       "when": 1769305618470,
       "tag": "0001_organic_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769396321375,
+      "tag": "0002_brown_sharon_ventura",
+      "breakpoints": true
     }
   ]
 }

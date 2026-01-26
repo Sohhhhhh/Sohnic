@@ -16,7 +16,7 @@ export const users = pgTable('users', {
   firstName: varchar('first_name', { length: 255 }),
   lastName: varchar('last_name', { length: 255 }),
   password: varchar('password', { length: 255 }),
-  phone: varchar('phone', { length: 50 }).unique().notNull(),
+  phone: varchar('phone', { length: 50 }).unique(),
   dateOfBirth: date('date_of_birth'),
   isActive: boolean('is_active').notNull().default(false),
   roleId: uuid('role_id').notNull(),

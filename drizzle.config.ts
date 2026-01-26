@@ -5,7 +5,7 @@ export default defineConfig({
   out: `./drizzle/migrations`,
   schema: `./drizzle/schema/*`,
   dbCredentials: {
-    url: env.DATABASE_URL!,
+    url: env.DATABASE_URL,
   },
   verbose: true,
   strict: true,
