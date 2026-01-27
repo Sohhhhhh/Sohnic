@@ -4,12 +4,12 @@ import UserRepository from '../repositories/users.repository';
 import { generatePassword } from '../utils/generatePassword';
 
 class AuthService {
-  createUser = (dto: CreateUserDto): APIResponse => {
+  createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
     const password = generatePassword();
     // send email with username/email and password
 
     const { username, email, roleId, branchId } = dto;
-    const user = UserRepository.createUser(
+    const user = await UserRepository.createUser(
       username,
       email,
       roleId,

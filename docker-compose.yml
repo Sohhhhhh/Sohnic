@@ -31,11 +31,26 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+      - /app/dist
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - sohnic-network
+  studio:
+    build:
+      context: .
+      target: development
+    container_name: sohnic-studio
+    ports:
+      - '4983:4983'
+    command: npm run db:studio
+    env_file:
+      - .env
+    depends_on:
+      - db
     networks:
       - sohnic-network
 
