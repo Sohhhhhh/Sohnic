@@ -6,7 +6,7 @@ type AsyncHandler = (
   next: NextFunction,
 ) => Promise<any>;
 
-module.exports =
-  (fn: AsyncHandler) => (req: Request, res: Response, next: NextFunction) => {
+export default (fn: AsyncHandler) =>
+  (req: Request, res: Response, next: NextFunction) => {
     fn(req, res, next).catch(next);
   };
