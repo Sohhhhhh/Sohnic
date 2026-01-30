@@ -1,27 +1,41 @@
-import bcrypt from 'bcrypt';
+import { db } from '../config/drizzle';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
-import { generatePassword } from '../utils/generatePassword';
+import { generateSetPasswordToken } from '../utils/token';
 import UserRepository from '../repositories/users.repository';
 import BranchRepository from '../repositories/branches.repository';
-import { db } from '../config/drizzle';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
     const existing = await Promise.all([
       UserRepository.getUserByUsername(dto.username),
       UserRepository.getUserByEmail(dto.email),
+      UserRepository.getUserByPhone(dto.phone),
     ]);
 
-    if (existing[0] || existing[1]) {
+    if (existing[0]) {
       return {
         statusCode: 409,
         status: 'CONFLICT',
-        message: 'A user with this username/email already exists.',
+        message: 'A user with this username already exists.',
       };
     }
 
-    const password = generatePassword();
+    if (existing[1]) {
+      return {
+        statusCode: 409,
+        status: 'CONFLICT',
+        message: 'A user with this email already exists.',
+      };
+    }
+
+    if (existing[2]) {
+      return {
+        statusCode: 409,
+        status: 'CONFLICT',
+        message: 'A user with this phone number already exists.',
+      };
+    }
 
     // check if branchId and roleId are valid ids
     const [branch, role] = await Promise.all([
@@ -42,33 +56,25 @@ class AuthService {
         message: 'No role found with this id',
       };
 
-    // hash password
-    const hash = await bcrypt.hash(password, 10);
+    const token = generateSetPasswordToken();
 
     try {
-      const result = await db.transaction(async (tx) => {
-        const { username, email, roleId, branchId } = dto;
+      const user = await db.transaction(async (tx) => {
+        const user = await UserRepository.createUser(dto, tx);
+        await UserRepository.createSetPasswordToken(token, user.id, tx);
 
-        const user = await UserRepository.createUser(
-          username,
-          email,
-          roleId,
-          branchId,
-          hash,
-          tx,
-        );
-
-        // send email with username/email and password
+        // send email with the link including the token as a parameter
 
         return user;
       });
 
       return {
-        statusCode: 200,
+        statusCode: 201,
         status: 'success',
-        data: result,
+        data: { user },
       };
     } catch (error) {
+      console.error('Failed to create user:', error);
       return {
         statusCode: 500,
         status: 'error',

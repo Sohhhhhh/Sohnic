@@ -36,7 +36,6 @@ services:
       - sohnic-network
     depends_on:
       - db
-
   app:
     build:
       context: .

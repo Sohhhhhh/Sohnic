@@ -13,14 +13,15 @@ export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 255 }).unique().notNull(),
   username: varchar('username', { length: 255 }).unique().notNull(),
-  firstName: varchar('first_name', { length: 255 }),
-  lastName: varchar('last_name', { length: 255 }),
-  password: varchar('password', { length: 255 }),
-  phone: varchar('phone', { length: 50 }).unique(),
-  dateOfBirth: date('date_of_birth'),
-  isActive: boolean('is_active').notNull().default(false),
+  firstName: varchar('first_name', { length: 255 }).notNull(),
+  lastName: varchar('last_name', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 50 }).unique().notNull(),
+  dateOfBirth: date('date_of_birth').notNull(),
   roleId: uuid('role_id').notNull(),
   branchId: uuid('branch_id').notNull(),
+  password: varchar('password', { length: 255 }),
+  hasSetPassword: boolean('has_set_password').notNull().default(false),
+  isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -38,6 +39,17 @@ export const refreshTokens = pgTable('refresh_tokens', {
   token: text('token').notNull(),
   revocationReason: refreshTokensRevocationReason('revocation_reason'),
   revokedAt: timestamp('revoked_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+});
+
+export const setPasswordTokens = pgTable('set_password_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  token: text('token').notNull().unique(),
+  isUsed: boolean('is_used').notNull().default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   expiresAt: timestamp('expires_at').notNull(),
 });
