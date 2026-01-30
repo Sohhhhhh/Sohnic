@@ -4,6 +4,7 @@ import { CreateUserDto } from '../dtos/createUser.dto';
 import { generateSetPasswordToken } from '../utils/token';
 import UserRepository from '../repositories/users.repository';
 import BranchRepository from '../repositories/branches.repository';
+import { sendSetPasswordEmail } from '../utils/sendEmail';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
@@ -56,14 +57,18 @@ class AuthService {
         message: 'No role found with this id',
       };
 
-    const token = generateSetPasswordToken();
+    const setPasswordToken = generateSetPasswordToken();
 
     try {
       const user = await db.transaction(async (tx) => {
         const user = await UserRepository.createUser(dto, tx);
-        await UserRepository.createSetPasswordToken(token, user.id, tx);
+        const { token } = await UserRepository.createSetPasswordToken(
+          setPasswordToken,
+          user.id,
+          tx,
+        );
 
-        // send email with the link including the token as a parameter
+        await sendSetPasswordEmail(user.email, token);
 
         return user;
       });
