@@ -1,10 +1,14 @@
+import {
+  encodeForUrl,
+  generateSetPasswordToken,
+  hashToken,
+} from '../utils/token';
 import { db } from '../config/drizzle';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
-import { generateSetPasswordToken } from '../utils/token';
+import { sendSetPasswordEmail } from '../utils/sendEmail';
 import UserRepository from '../repositories/users.repository';
 import BranchRepository from '../repositories/branches.repository';
-import { sendSetPasswordEmail } from '../utils/sendEmail';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
@@ -57,20 +61,20 @@ class AuthService {
         message: 'No role found with this id',
       };
 
-    const setPasswordToken = generateSetPasswordToken();
+    const rawToken = generateSetPasswordToken();
+    const hashedToken = hashToken(rawToken);
+    const encodedParam = encodeForUrl(rawToken);
 
     try {
       const user = await db.transaction(async (tx) => {
         const user = await UserRepository.createUser(dto, tx);
-        const { token } = await UserRepository.createSetPasswordToken(
-          setPasswordToken,
-          user.id,
-          tx,
-        );
-
-        await sendSetPasswordEmail(user.email, token);
+        await UserRepository.createSetPasswordToken(hashedToken, user.id, tx);
 
         return user;
+      });
+
+      sendSetPasswordEmail(user.email, encodedParam).catch((error) => {
+        console.error('Failed to send email:', error);
       });
 
       return {

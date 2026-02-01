@@ -52,16 +52,11 @@ class UserRepository {
     const client = tx || db;
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
-    const setPasswordToken = await client
-      .insert(setPasswordTokens)
-      .values({
-        token,
-        userId,
-        expiresAt,
-      })
-      .returning();
-
-    return setPasswordToken[0];
+    await client.insert(setPasswordTokens).values({
+      token,
+      userId,
+      expiresAt,
+    });
   }
 }
 
