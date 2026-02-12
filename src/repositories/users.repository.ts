@@ -19,6 +19,18 @@ class UserRepository {
     return sanitizeUser(user[0]);
   }
 
+  async updateUserPassword(userId: string, password: string, tx?: any) {
+    const client = tx || db;
+
+    const user = await client
+      .update(users)
+      .set({ password, hasSetPassword: true })
+      .where(eq(users.id, userId))
+      .returning();
+
+    return sanitizeUser(user[0]);
+  }
+
   async getUserByUsername(username: string) {
     const user = await db.query.users.findFirst({
       where: eq(users.username, username),
@@ -57,6 +69,24 @@ class UserRepository {
       userId,
       expiresAt,
     });
+  }
+
+  async getSetPasswordToken(token: string, tx?: any) {
+    const client = tx || db;
+    const result = await client.query.setPasswordTokens.findFirst({
+      where: eq(setPasswordTokens.token, token),
+    });
+
+    if (!result || result.expiresAt < new Date()) return null;
+
+    return result;
+  }
+
+  async deleteSetPasswordToken(userId: string, tx?: any) {
+    const client = tx || db;
+    await client
+      .delete(setPasswordTokens)
+      .where(eq(setPasswordTokens.userId, userId));
   }
 }
 
