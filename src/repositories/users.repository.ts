@@ -60,7 +60,7 @@ class UserRepository {
     return role;
   }
 
-  async createSetPasswordToken(token: string, userId: string, tx: any) {
+  async createSetPasswordToken(token: string, userId: string, tx?: any) {
     const client = tx || db;
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);

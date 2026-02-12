@@ -13,6 +13,7 @@ import { SetPasswordBodyDto } from '../dtos/setPassword.dto';
 import UserRepository from '../repositories/users.repository';
 import BranchRepository from '../repositories/branches.repository';
 import { hashPassword } from '../utils/password';
+import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
@@ -84,6 +85,7 @@ class AuthService {
       return {
         statusCode: STATUS_CODES.Created,
         status: 'success',
+        message: 'A set password email has been sent to your email',
         data: { user, token: rawToken },
       };
     } catch (error) {
@@ -137,6 +139,35 @@ class AuthService {
       statusCode: STATUS_CODES.OK,
       message: 'Password updated successfully',
       data: updatedUser,
+    };
+  };
+
+  forgetPassword = async (dto: ForgetPasswordDto): Promise<APIResponse> => {
+    const { usernameOrEmail } = dto;
+
+    const user = await (usernameOrEmail.includes('@')
+      ? UserRepository.getUserByEmail(usernameOrEmail)
+      : UserRepository.getUserByUsername(usernameOrEmail));
+    if (!user)
+      return {
+        status: 'not found',
+        statusCode: STATUS_CODES.NotFound,
+        message: 'No user found with this email/username',
+      };
+
+    const rawToken = generateSetPasswordToken();
+    const hashedToken = hashToken(rawToken);
+    const encodedParam = encodeForUrl(rawToken);
+    sendSetPasswordEmail(user.email, encodedParam).catch((error) => {
+      console.error('Failed to send email:', error);
+    });
+
+    await UserRepository.createSetPasswordToken(hashedToken, user.id);
+
+    return {
+      status: 'success',
+      statusCode: STATUS_CODES.OK,
+      message: 'A set password email has been sent to your email',
     };
   };
 }
