@@ -25,3 +25,8 @@ export const forgetPassword: RequestHandler<ForgetPasswordDto> = async (
   const result = await authService.forgetPassword(req.body);
   sendResponse(res, result);
 };
+
+export const changePassword: RequestHandler = async (req, res) => {
+  const result = await authService.changePassword(req.body);
+  sendResponse(res, result);
+};

@@ -6,14 +6,16 @@ import {
 } from '../utils/token';
 import { db } from '../config/drizzle';
 import STATUS_CODES from '../utils/statusCodes';
+import { comparePassword, hashPassword } from '../utils/password';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { sendSetPasswordEmail } from '../utils/sendEmail';
 import { SetPasswordBodyDto } from '../dtos/setPassword.dto';
 import UserRepository from '../repositories/users.repository';
-import BranchRepository from '../repositories/branches.repository';
-import { hashPassword } from '../utils/password';
 import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
+import { ChangePasswordDto } from '../dtos/changePassword.dto';
+import BranchRepository from '../repositories/branches.repository';
+import usersRepository from '../repositories/users.repository';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
@@ -148,26 +150,50 @@ class AuthService {
     const user = await (usernameOrEmail.includes('@')
       ? UserRepository.getUserByEmail(usernameOrEmail)
       : UserRepository.getUserByUsername(usernameOrEmail));
-    if (!user)
-      return {
-        status: 'not found',
-        statusCode: STATUS_CODES.NotFound,
-        message: 'No user found with this email/username',
-      };
+    if (user) {
+      const rawToken = generateSetPasswordToken();
+      const hashedToken = hashToken(rawToken);
+      const encodedParam = encodeForUrl(rawToken);
+      sendSetPasswordEmail(user.email, encodedParam).catch((error) => {
+        console.error('Failed to send email:', error);
+      });
 
-    const rawToken = generateSetPasswordToken();
-    const hashedToken = hashToken(rawToken);
-    const encodedParam = encodeForUrl(rawToken);
-    sendSetPasswordEmail(user.email, encodedParam).catch((error) => {
-      console.error('Failed to send email:', error);
-    });
-
-    await UserRepository.createSetPasswordToken(hashedToken, user.id);
+      await UserRepository.createSetPasswordToken(hashedToken, user.id);
+    }
 
     return {
       status: 'success',
       statusCode: STATUS_CODES.OK,
       message: 'A set password email has been sent to your email',
+    };
+  };
+
+  changePassword = async (dto: ChangePasswordDto): Promise<APIResponse> => {
+    const { oldPassword, password } = dto;
+
+    const userId = '01480a28-7828-435a-bf67-ff45b2f92828';
+    const userPassword = await usersRepository.getUserPassword(userId);
+
+    const isCorrect = await comparePassword(oldPassword, userPassword!);
+    if (!isCorrect) {
+      return {
+        status: 'bad request',
+        statusCode: STATUS_CODES.BadRequest,
+        message: 'Old password is wrong',
+      };
+    }
+
+    const hashedPassword = await hashPassword(password);
+    const updatedUser = await usersRepository.updateUserPassword(
+      userId,
+      hashedPassword,
+    );
+
+    return {
+      status: 'success',
+      statusCode: STATUS_CODES.OK,
+      message: 'Password changed successfully',
+      data: updatedUser,
     };
   };
 }

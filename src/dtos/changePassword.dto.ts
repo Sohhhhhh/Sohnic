@@ -1,13 +1,9 @@
 import { z } from 'zod';
 
-export const setPasswordSchema = z.object({
-  params: z
-    .object({
-      encodedToken: z.string().min(1, 'Encoded token is required').base64url(),
-    })
-    .strict(),
+export const changePasswordSchema = z.object({
   body: z
     .object({
+      oldPassword: z.string().min(1, 'Old password is required'),
       password: z
         .string()
         .min(8, { message: 'Password must contain at least 8 characters' })
@@ -29,8 +25,10 @@ export const setPasswordSchema = z.object({
     .strict()
     .refine((d) => d.password === d.confirmPassword, {
       message: 'Passwords do not match',
+    })
+    .refine((d) => d.oldPassword !== d.password, {
+      message: 'Old password cannot equal new password',
     }),
 });
 
-export type EncodedToken = z.output<typeof setPasswordSchema>['params'];
-export type SetPasswordBodyDto = z.output<typeof setPasswordSchema>['body'];
+export type ChangePasswordDto = z.output<typeof changePasswordSchema>['body'];

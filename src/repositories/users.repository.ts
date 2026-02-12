@@ -55,12 +55,22 @@ class UserRepository {
     return user ? sanitizeUser(user) : undefined;
   }
 
+  async getUserPassword(userId: string) {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+    });
+
+    return user?.password;
+  }
+
   async getRoleById(id: string) {
     const role = await db.query.roles.findFirst({ where: eq(roles.id, id) });
     return role;
   }
 
   async createSetPasswordToken(token: string, userId: string, tx?: any) {
+    await this.deleteSetPasswordToken(userId, tx);
+
     const client = tx || db;
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
