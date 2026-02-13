@@ -1,8 +1,13 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../config/drizzle';
-import { roles, setPasswordTokens, users } from '../../drizzle/schema';
+import {
+  refreshTokens,
+  roles,
+  setPasswordTokens,
+  users,
+} from '../../drizzle/schema';
 import { CreateUserDto } from '../dtos/createUser.dto';
-import { sanitizeUser } from '../utils/sanitize';
+import { sanitizeUser, User } from '../utils/sanitize';
 
 class UserRepository {
   async createUser(dto: CreateUserDto, tx?: any) {
@@ -55,12 +60,12 @@ class UserRepository {
     return user ? sanitizeUser(user) : undefined;
   }
 
-  async getUserPassword(userId: string) {
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, userId),
+  async getUnsanitizedUser(usernameOrEmail: string): Promise<User | undefined> {
+    return db.query.users.findFirst({
+      where: usernameOrEmail.includes('@')
+        ? eq(users.email, usernameOrEmail)
+        : eq(users.username, usernameOrEmail),
     });
-
-    return user?.password;
   }
 
   async getRoleById(id: string) {
@@ -97,6 +102,18 @@ class UserRepository {
     await client
       .delete(setPasswordTokens)
       .where(eq(setPasswordTokens.userId, userId));
+  }
+
+  async createRefreshToken(token: string, userId: string, tx?: any) {
+    const client = tx || db;
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    await client.insert(refreshTokens).values({
+      token,
+      userId,
+      expiresAt,
+    });
   }
 }
 

@@ -1,12 +1,14 @@
 import {
   decodeFromUrl,
   encodeForUrl,
+  generateAccessToken,
+  generateRefreshToken,
   generateSetPasswordToken,
   hashToken,
 } from '../utils/token';
 import { db } from '../config/drizzle';
+import { loginDto } from '../dtos/login.dto';
 import STATUS_CODES from '../utils/statusCodes';
-import { comparePassword, hashPassword } from '../utils/password';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { sendSetPasswordEmail } from '../utils/sendEmail';
@@ -14,8 +16,10 @@ import { SetPasswordBodyDto } from '../dtos/setPassword.dto';
 import UserRepository from '../repositories/users.repository';
 import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/changePassword.dto';
+import { comparePassword, hashPassword } from '../utils/password';
 import BranchRepository from '../repositories/branches.repository';
-import usersRepository from '../repositories/users.repository';
+import { AccessTokenPayload, RefreshTokenPayload } from '../dtos/token.dto';
+import { sanitizeUser } from '../utils/sanitize';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
@@ -171,10 +175,19 @@ class AuthService {
   changePassword = async (dto: ChangePasswordDto): Promise<APIResponse> => {
     const { oldPassword, password } = dto;
 
-    const userId = '01480a28-7828-435a-bf67-ff45b2f92828';
-    const userPassword = await usersRepository.getUserPassword(userId);
+    const username = 'soh';
 
-    const isCorrect = await comparePassword(oldPassword, userPassword!);
+    const user = await UserRepository.getUnsanitizedUser(username);
+    const userId = '01480a28-7828-435a-bf67-ff45b2f92828';
+
+    if (!user!.password)
+      return {
+        status: 'bad request',
+        statusCode: STATUS_CODES.BadRequest,
+        message: 'Complete your setup to login',
+      };
+
+    const isCorrect = await comparePassword(oldPassword, user!.password!);
     if (!isCorrect) {
       return {
         status: 'bad request',
@@ -184,7 +197,7 @@ class AuthService {
     }
 
     const hashedPassword = await hashPassword(password);
-    const updatedUser = await usersRepository.updateUserPassword(
+    const updatedUser = await UserRepository.updateUserPassword(
       userId,
       hashedPassword,
     );
@@ -194,6 +207,61 @@ class AuthService {
       statusCode: STATUS_CODES.OK,
       message: 'Password changed successfully',
       data: updatedUser,
+    };
+  };
+
+  login = async (dto: loginDto): Promise<APIResponse> => {
+    const { usernameOrEmail, password } = dto;
+    const user = await UserRepository.getUnsanitizedUser(usernameOrEmail);
+
+    if (!user)
+      return {
+        status: 'not found',
+        statusCode: STATUS_CODES.NotFound,
+        message: 'Wrong username/email or password',
+      };
+
+    if (!user.hasSetPassword)
+      return {
+        status: 'bad request',
+        statusCode: STATUS_CODES.BadRequest,
+        message: 'Complete your setup to login',
+      };
+
+    const isCorrectPass = await comparePassword(password, user.password!);
+    if (!isCorrectPass) {
+      return {
+        status: 'not found',
+        statusCode: STATUS_CODES.NotFound,
+        message: 'Wrong username/email or password',
+      };
+    }
+
+    const accessTokenPayload: AccessTokenPayload = {
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      roleId: user.roleId,
+    };
+    const refreshTokenPayload: RefreshTokenPayload = {
+      userId: user.id,
+      roleId: user.roleId,
+    };
+
+    const accessToken = generateAccessToken(accessTokenPayload);
+    const refreshToken = generateRefreshToken(refreshTokenPayload);
+    const hashedRefreshToken = hashToken(refreshToken);
+    await UserRepository.createRefreshToken(hashedRefreshToken, user.id);
+
+    return {
+      status: 'success',
+      statusCode: STATUS_CODES.OK,
+      message: 'Logged in successfully',
+      data: {
+        user: sanitizeUser(user),
+      },
+      accessToken,
+      refreshToken,
     };
   };
 }

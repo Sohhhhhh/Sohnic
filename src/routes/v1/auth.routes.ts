@@ -4,8 +4,10 @@ import {
   setPassword,
   forgetPassword,
   changePassword,
+  login,
 } from '../../controllers/auth.controller';
 import validate from '../../middlewares/validate';
+import { loginSchema } from '../../dtos/login.dto';
 import { createUserSchema } from '../../dtos/createUser.dto';
 import { setPasswordSchema } from '../../dtos/setPassword.dto';
 import { forgetPasswordSchema } from '../../dtos/forgetPassword.dto';
@@ -19,8 +21,8 @@ router.post(
   validate(setPasswordSchema),
   setPassword,
 );
+router.post('/login', validate(loginSchema), login);
 router.post('/forget-password', validate(forgetPasswordSchema), forgetPassword);
 router.post('/change-password', validate(changePasswordSchema), changePassword);
-// router.post('/login', login);
 
 export const authRoutes = router;
