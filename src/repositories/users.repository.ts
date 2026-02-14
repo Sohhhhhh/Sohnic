@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '../config/drizzle';
 import {
   refreshTokens,
@@ -114,6 +114,23 @@ class UserRepository {
       userId,
       expiresAt,
     });
+  }
+
+  async revokeRefreshByUserId(
+    userId: string,
+    revocationReason?: string,
+    tx?: any,
+  ) {
+    const client = tx || db;
+    await client
+      .update(refreshTokens)
+      .set({
+        revokedAt: new Date(),
+        revocationReason: revocationReason || 'logout',
+      })
+      .where(
+        and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)),
+      );
   }
 }
 

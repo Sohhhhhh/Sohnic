@@ -41,20 +41,29 @@ export const setPassword: RequestHandler<EncodedToken> = async (req, res) => {
 export const forgetPassword: RequestHandler<ForgetPasswordDto> = async (
   req,
   res,
+  next,
 ) => {
   const result = await authService.forgetPassword(req.body);
   sendResponse(res, result);
 };
 
-export const changePassword: RequestHandler = async (req, res) => {
+export const changePassword: RequestHandler = async (req, res, next) => {
   const result = await authService.changePassword(req.body);
   sendResponse(res, result);
 };
 
-export const login: RequestHandler = async (req, res) => {
+export const login: RequestHandler = async (req, res, next) => {
   const result = await authService.login(req.body);
   setRefreshTokenCookie(res, 'refreshToken', result.refreshToken!);
   delete result.refreshToken;
+
+  sendResponse(res, result);
+};
+
+export const logout: RequestHandler = async (req, res, next) => {
+  const refreshToken = req.cookies?.['refreshToken'];
+  const result = await authService.logout(refreshToken);
+  clearRefreshTokenCookie(res);
 
   sendResponse(res, result);
 };
@@ -70,14 +79,15 @@ const setRefreshTokenCookie = (res: Response, name: string, token: string) => {
 
   if (name === 'refreshToken')
     options.maxAge = parseExpiresInMs(`${env.REFRESH_TOKEN_EXPIRES_IN_DAYS}d`);
+
   res.cookie(name, token, options);
 };
 
-// const clearRefreshTokenCookie = (res: Response) => {
-//   res.clearCookie('refreshToken', {
-//     httpOnly: true,
-//     secure: env.NODE_ENV === 'production',
-//     sameSite: 'lax',
-//     path: '/',
-//   });
-// };
+const clearRefreshTokenCookie = (res: Response) => {
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+  });
+};

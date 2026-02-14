@@ -1,14 +1,16 @@
 import {
-  decodeFromUrl,
+  hashToken,
   encodeForUrl,
+  decodeFromUrl,
+  verifyRefreshToken,
   generateAccessToken,
   generateRefreshToken,
   generateSetPasswordToken,
-  hashToken,
 } from '../utils/token';
 import { db } from '../config/drizzle';
 import { loginDto } from '../dtos/login.dto';
 import STATUS_CODES from '../utils/statusCodes';
+import { sanitizeUser } from '../utils/sanitize';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { sendSetPasswordEmail } from '../utils/sendEmail';
@@ -19,7 +21,6 @@ import { ChangePasswordDto } from '../dtos/changePassword.dto';
 import { comparePassword, hashPassword } from '../utils/password';
 import BranchRepository from '../repositories/branches.repository';
 import { AccessTokenPayload, RefreshTokenPayload } from '../dtos/token.dto';
-import { sanitizeUser } from '../utils/sanitize';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
@@ -262,6 +263,27 @@ class AuthService {
       },
       accessToken,
       refreshToken,
+    };
+  };
+
+  logout = async (token: string): Promise<APIResponse> => {
+    const verified = verifyRefreshToken(token);
+
+    if (!verified) {
+      return {
+        status: 'bad request',
+        statusCode: STATUS_CODES.BadRequest,
+        message: 'Invalid or expired token',
+      };
+    }
+
+    const { userId } = verified;
+    await UserRepository.revokeRefreshByUserId(userId);
+
+    return {
+      status: 'no content',
+      statusCode: STATUS_CODES.NoContent,
+      message: 'Logged out successfully',
     };
   };
 }
