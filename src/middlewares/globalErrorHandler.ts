@@ -1,10 +1,11 @@
-import { NextFunction, Request, Response } from 'express';
-import APIError from '../utils/APIError';
-import statusCodes from '../utils/statusCodes';
-import env from '../config/env';
 import { ZodError } from 'zod';
-import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { PostgresError } from 'postgres';
+import { NextFunction, Request, Response } from 'express';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+
+import APIError from '../utils/APIError';
+import STATUS_CODES from '../utils/statusCodes';
+import env from '../config/env';
 
 const sendErrorDev = (err: APIError, res: Response) => {
   res.status(err.statusCode).json({
@@ -22,8 +23,8 @@ const sendErrorProd = (err: APIError, res: Response) => {
       message: err.message,
     });
 
-  return res.status(statusCodes.InternalServerError).json({
-    statusCode: statusCodes.InternalServerError,
+  return res.status(STATUS_CODES.InternalServerError).json({
+    statusCode: STATUS_CODES.InternalServerError,
     message: 'Something went wrong, Please try again later.',
   });
 };
@@ -49,21 +50,21 @@ const handleZodError = (err: ZodError): APIError => {
   const message = err.errors
     .map((e) => `${e.path.join('.')}: ${e.message}`)
     .join(', ');
-  return new APIError(`Validation error: ${message}`, statusCodes.BadRequest);
+  return new APIError(`Validation error: ${message}`, STATUS_CODES.BadRequest);
 };
 
 // Handle JWT errors
 const handleJWTError = (): APIError => {
   return new APIError(
     'Invalid token. Please log in again.',
-    statusCodes.Unauthorized,
+    STATUS_CODES.Unauthorized,
   );
 };
 
 const handleJWTExpiredError = (): APIError => {
   return new APIError(
     'Token expired. Please log in again.',
-    statusCodes.Unauthorized,
+    STATUS_CODES.Unauthorized,
   );
 };
 
@@ -71,20 +72,20 @@ const handleJWTExpiredError = (): APIError => {
 const handleDatabaseError = (err: PostgresError): APIError => {
   // Postgres unique constraint violation
   if (err.code === '23505') {
-    return new APIError('Duplicate field value entered', statusCodes.Conflict);
+    return new APIError('Duplicate field value entered', STATUS_CODES.Conflict);
   }
 
   // Postgres foreign key violation
   if (err.code === '23503') {
     return new APIError(
       'Invalid reference to related data',
-      statusCodes.BadRequest,
+      STATUS_CODES.BadRequest,
     );
   }
 
   return new APIError(
     'Database error occurred',
-    statusCodes.InternalServerError,
+    STATUS_CODES.InternalServerError,
   );
 };
 
@@ -95,6 +96,6 @@ const convertToAPIError = (err: unknown): APIError => {
   else if (err instanceof PostgresError) return handleDatabaseError(err);
   else if (err instanceof APIError) return err;
   else if (err instanceof Error)
-    return new APIError(err.message, statusCodes.InternalServerError);
-  else return new APIError('Unknown error', statusCodes.InternalServerError);
+    return new APIError(err.message, STATUS_CODES.InternalServerError);
+  else return new APIError('Unknown error', STATUS_CODES.InternalServerError);
 };

@@ -1,9 +1,14 @@
+import { SafeUser } from '../utils/sanitize';
+
 declare global {
   namespace Express {
     interface Request {
       params: {
         encodedToken?: string;
       };
+    }
+    interface Request {
+      user?: SafeUser;
     }
   }
 }

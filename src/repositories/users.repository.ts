@@ -60,6 +60,14 @@ class UserRepository {
     return user ? sanitizeUser(user) : undefined;
   }
 
+  async getUserById(id: string) {
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, id),
+    });
+
+    return user ? sanitizeUser(user) : undefined;
+  }
+
   async getUnsanitizedUser(usernameOrEmail: string): Promise<User | undefined> {
     return db.query.users.findFirst({
       where: usernameOrEmail.includes('@')

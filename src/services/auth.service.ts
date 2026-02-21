@@ -8,6 +8,7 @@ import {
   generateSetPasswordToken,
 } from '../utils/token';
 import { db } from '../config/drizzle';
+import APIError from '../utils/APIError';
 import { loginDto } from '../dtos/login.dto';
 import STATUS_CODES from '../utils/statusCodes';
 import { sanitizeUser } from '../utils/sanitize';
@@ -21,7 +22,6 @@ import { ChangePasswordDto } from '../dtos/changePassword.dto';
 import { comparePassword, hashPassword } from '../utils/password';
 import BranchRepository from '../repositories/branches.repository';
 import { AccessTokenPayload, RefreshTokenPayload } from '../dtos/token.dto';
-import APIError from '../utils/APIError';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
