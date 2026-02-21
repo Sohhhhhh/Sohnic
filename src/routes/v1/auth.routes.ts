@@ -6,6 +6,7 @@ import {
   changePassword,
   login,
   logout,
+  // refreshToken,
 } from '../../controllers/auth.controller';
 import validate from '../../middlewares/validate';
 import { loginSchema } from '../../dtos/login.dto';
@@ -23,6 +24,7 @@ router.post(
   setPassword,
 );
 router.post('/logout', logout);
+// router.post('/refresh-token', refreshToken);
 router.post('/login', validate(loginSchema), login);
 router.post('/forget-password', validate(forgetPasswordSchema), forgetPassword);
 router.post('/change-password', validate(changePasswordSchema), changePassword);

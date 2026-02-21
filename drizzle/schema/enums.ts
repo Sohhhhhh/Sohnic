@@ -20,6 +20,7 @@ export const refreshTokensRevocationReason = pgEnum(
     'password_reset',
     'deletion',
     'security',
+    'new_login_from_another_device',
     'other',
   ],
 );

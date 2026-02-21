@@ -116,6 +116,29 @@ class UserRepository {
     });
   }
 
+  async getRefreshToken(userId: string, hashedToken: string, tx?: any) {
+    const client = tx || db;
+    const token = await client.query.refreshTokens.findFirst({
+      where: and(
+        eq(refreshTokens.userId, userId),
+        eq(refreshTokens.token, hashedToken),
+        isNull(refreshTokens.revocationReason),
+      ),
+    });
+    return token;
+  }
+
+  async getRefreshTokenByUserId(userId: string, tx?: any) {
+    const client = tx || db;
+    const token = await client.query.refreshTokens.findFirst({
+      where: and(
+        eq(refreshTokens.userId, userId),
+        isNull(refreshTokens.revocationReason),
+      ),
+    });
+    return token;
+  }
+
   async revokeRefreshByUserId(
     userId: string,
     revocationReason?: string,

@@ -6,6 +6,7 @@ import { apiRoutes } from './routes';
 import cookieParser from 'cookie-parser';
 import notFound from './middlewares/notFound';
 import healthCheck from './middlewares/healthCheck';
+import globalErrorHandler from './middlewares/globalErrorHandler';
 
 const app = express();
 
@@ -19,5 +20,6 @@ app.use('/api', apiRoutes);
 app.use('/health-check', healthCheck);
 
 app.all(/.*/, notFound);
+app.use(globalErrorHandler);
 
 export default app;

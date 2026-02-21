@@ -21,6 +21,7 @@ import { ChangePasswordDto } from '../dtos/changePassword.dto';
 import { comparePassword, hashPassword } from '../utils/password';
 import BranchRepository from '../repositories/branches.repository';
 import { AccessTokenPayload, RefreshTokenPayload } from '../dtos/token.dto';
+import APIError from '../utils/APIError';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
@@ -30,29 +31,23 @@ class AuthService {
       UserRepository.getUserByPhone(dto.phone),
     ]);
 
-    if (existingUsername) {
-      return {
-        statusCode: STATUS_CODES.Conflict,
-        status: 'CONFLICT',
-        message: 'A user with this username already exists.',
-      };
-    }
+    if (existingUsername)
+      throw new APIError(
+        'A user with this username already exists.',
+        STATUS_CODES.Conflict,
+      );
 
-    if (existingEmail) {
-      return {
-        statusCode: STATUS_CODES.Conflict,
-        status: 'CONFLICT',
-        message: 'A user with this email already exists.',
-      };
-    }
+    if (existingEmail)
+      throw new APIError(
+        'A user with this email already exists.',
+        STATUS_CODES.Conflict,
+      );
 
-    if (existingPhone) {
-      return {
-        statusCode: STATUS_CODES.Conflict,
-        status: 'CONFLICT',
-        message: 'A user with this phone number already exists.',
-      };
-    }
+    if (existingPhone)
+      throw new APIError(
+        'A user with this phone number already exists.',
+        STATUS_CODES.Conflict,
+      );
 
     // check if branchId and roleId are valid ids
     const [branch, role] = await Promise.all([
@@ -61,48 +56,31 @@ class AuthService {
     ]);
 
     if (!branch)
-      return {
-        statusCode: STATUS_CODES.NotFound,
-        status: 'NOT FOUND',
-        message: 'No branch found with this id',
-      };
+      throw new APIError('No branch found with this id', STATUS_CODES.NotFound);
+
     if (!role)
-      return {
-        statusCode: STATUS_CODES.NotFound,
-        status: 'NOT FOUND',
-        message: 'No role found with this id',
-      };
+      throw new APIError('No role found with this id', STATUS_CODES.NotFound);
 
     const rawToken = generateSetPasswordToken();
     const hashedToken = hashToken(rawToken);
     const encodedParam = encodeForUrl(rawToken);
 
-    try {
-      const user = await db.transaction(async (tx) => {
-        const user = await UserRepository.createUser(dto, tx);
-        await UserRepository.createSetPasswordToken(hashedToken, user.id, tx);
+    const user = await db.transaction(async (tx) => {
+      const user = await UserRepository.createUser(dto, tx);
+      await UserRepository.createSetPasswordToken(hashedToken, user.id, tx);
 
-        return user;
-      });
+      return user;
+    });
 
-      sendSetPasswordEmail(user.email, encodedParam).catch((error) => {
-        console.error('Failed to send email:', error);
-      });
+    sendSetPasswordEmail(user.email, encodedParam).catch((error) => {
+      console.error('Failed to send email:', error);
+    });
 
-      return {
-        statusCode: STATUS_CODES.Created,
-        status: 'success',
-        message: 'A set password email has been sent to your email',
-        data: { user, token: rawToken },
-      };
-    } catch (error) {
-      console.error('Failed to create user:', error);
-      return {
-        statusCode: STATUS_CODES.InternalServerError,
-        status: 'error',
-        message: 'Failed to create user',
-      };
-    }
+    return {
+      statusCode: STATUS_CODES.Created,
+      message: 'A set password email has been sent to your email',
+      data: { user, token: rawToken },
+    };
   };
 
   setPassword = async (
@@ -112,27 +90,20 @@ class AuthService {
     // get token from url
     const token = decodeFromUrl(encodedToken);
     if (!token)
-      return {
-        statusCode: STATUS_CODES.BadRequest,
-        status: 'bad request',
-        message: 'Invalid or expired token',
-      };
+      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
 
     // check token in the db
     const hashedToken = hashToken(token);
     const storedTokenRecord =
       await UserRepository.getSetPasswordToken(hashedToken);
-    if (!storedTokenRecord) {
-      return {
-        statusCode: STATUS_CODES.BadRequest,
-        status: 'bad request',
-        message: 'Invalid or expired token',
-      };
-    }
+    if (!storedTokenRecord)
+      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
 
     // update user password and delete token
     const { userId } = storedTokenRecord;
     const hashedPassword = await hashPassword(dto.password);
+    await UserRepository.revokeRefreshByUserId(userId, 'password_reset');
+
     const updatedUser = await UserRepository.updateUserPassword(
       userId,
       hashedPassword,
@@ -142,7 +113,6 @@ class AuthService {
     });
 
     return {
-      status: 'success',
       statusCode: STATUS_CODES.OK,
       message: 'Password updated successfully',
       data: updatedUser,
@@ -167,7 +137,6 @@ class AuthService {
     }
 
     return {
-      status: 'success',
       statusCode: STATUS_CODES.OK,
       message: 'A set password email has been sent to your email',
     };
@@ -182,29 +151,24 @@ class AuthService {
     const userId = '01480a28-7828-435a-bf67-ff45b2f92828';
 
     if (!user!.password)
-      return {
-        status: 'bad request',
-        statusCode: STATUS_CODES.BadRequest,
-        message: 'Complete your setup to login',
-      };
+      throw new APIError(
+        'Complete your setup to login',
+        STATUS_CODES.BadRequest,
+      );
 
     const isCorrect = await comparePassword(oldPassword, user!.password!);
-    if (!isCorrect) {
-      return {
-        status: 'bad request',
-        statusCode: STATUS_CODES.BadRequest,
-        message: 'Old password is wrong',
-      };
-    }
+    if (!isCorrect)
+      throw new APIError('Old password is wrong', STATUS_CODES.BadRequest);
 
     const hashedPassword = await hashPassword(password);
+    await UserRepository.revokeRefreshByUserId(userId, 'password_change');
+
     const updatedUser = await UserRepository.updateUserPassword(
       userId,
       hashedPassword,
     );
 
     return {
-      status: 'success',
       statusCode: STATUS_CODES.OK,
       message: 'Password changed successfully',
       data: updatedUser,
@@ -216,27 +180,28 @@ class AuthService {
     const user = await UserRepository.getUnsanitizedUser(usernameOrEmail);
 
     if (!user)
-      return {
-        status: 'not found',
-        statusCode: STATUS_CODES.NotFound,
-        message: 'Wrong username/email or password',
-      };
+      throw new APIError(
+        'Wrong username/email or password',
+        STATUS_CODES.NotFound,
+      );
 
     if (!user.hasSetPassword)
-      return {
-        status: 'bad request',
-        statusCode: STATUS_CODES.BadRequest,
-        message: 'Complete your setup to login',
-      };
+      throw new APIError(
+        'Complete your setup to login',
+        STATUS_CODES.BadRequest,
+      );
 
     const isCorrectPass = await comparePassword(password, user.password!);
-    if (!isCorrectPass) {
-      return {
-        status: 'not found',
-        statusCode: STATUS_CODES.NotFound,
-        message: 'Wrong username/email or password',
-      };
-    }
+    if (!isCorrectPass)
+      throw new APIError(
+        'Wrong username/email or password',
+        STATUS_CODES.NotFound,
+      );
+
+    await UserRepository.revokeRefreshByUserId(
+      user.id,
+      'new_login_from_another_device',
+    );
 
     const accessTokenPayload: AccessTokenPayload = {
       userId: user.id,
@@ -255,7 +220,6 @@ class AuthService {
     await UserRepository.createRefreshToken(hashedRefreshToken, user.id);
 
     return {
-      status: 'success',
       statusCode: STATUS_CODES.OK,
       message: 'Logged in successfully',
       data: {
@@ -269,23 +233,38 @@ class AuthService {
   logout = async (token: string): Promise<APIResponse> => {
     const verified = verifyRefreshToken(token);
 
-    if (!verified) {
-      return {
-        status: 'bad request',
-        statusCode: STATUS_CODES.BadRequest,
-        message: 'Invalid or expired token',
-      };
-    }
+    if (!verified)
+      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
 
     const { userId } = verified;
-    await UserRepository.revokeRefreshByUserId(userId);
+    const hashedToken = hashToken(token);
 
+    const tokenExists = await UserRepository.getRefreshToken(
+      userId,
+      hashedToken,
+    );
+
+    if (!tokenExists)
+      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
+
+    await UserRepository.revokeRefreshByUserId(userId, 'logout');
     return {
-      status: 'no content',
       statusCode: STATUS_CODES.NoContent,
       message: 'Logged out successfully',
     };
   };
+
+  // refreshToken = async (token: string): Promise<APIResponse> => {
+  //   const verified = verifyRefreshToken(token);
+
+  //   if (!verified) {
+  //     return {
+  //       status: 'bad request',
+  //       statusCode: STATUS_CODES.BadRequest,
+  //       message: 'Invalid or expired token',
+  //     };
+  //   }
+  // };
 }
 
 export default new AuthService();

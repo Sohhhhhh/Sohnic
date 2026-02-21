@@ -1,0 +1,1 @@
+ALTER TYPE "public"."refreshTokensRevocationReason" ADD VALUE 'new_login_from_another_device' BEFORE 'other';
