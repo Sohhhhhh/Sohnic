@@ -130,7 +130,6 @@ class UserRepository {
       where: and(
         eq(refreshTokens.userId, userId),
         eq(refreshTokens.token, hashedToken),
-        isNull(refreshTokens.revocationReason),
       ),
     });
     return token;
@@ -139,10 +138,7 @@ class UserRepository {
   async getRefreshTokenByUserId(userId: string, tx?: any) {
     const client = tx || db;
     const token = await client.query.refreshTokens.findFirst({
-      where: and(
-        eq(refreshTokens.userId, userId),
-        isNull(refreshTokens.revocationReason),
-      ),
+      where: and(eq(refreshTokens.userId, userId)),
     });
     return token;
   }
@@ -162,6 +158,21 @@ class UserRepository {
       .where(
         and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)),
       );
+  }
+
+  async revokeRefreshByHash(
+    token: string,
+    revocationReason?: string,
+    tx?: any,
+  ) {
+    const client = tx || db;
+    await client
+      .update(refreshTokens)
+      .set({
+        revokedAt: new Date(),
+        revocationReason: revocationReason || 'logout',
+      })
+      .where(and(eq(refreshTokens.token, token)));
   }
 }
 

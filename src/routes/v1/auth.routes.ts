@@ -6,16 +6,16 @@ import {
   changePassword,
   login,
   logout,
-  // refreshToken,
+  refreshToken,
 } from '../../controllers/auth.controller';
 import validate from '../../middlewares/validate';
 import { loginSchema } from '../../dtos/login.dto';
 import { createUserSchema } from '../../dtos/createUser.dto';
+import { isAuthorized } from '../../middlewares/isAuthorized';
 import { setPasswordSchema } from '../../dtos/setPassword.dto';
+import isAuthenticated from '../../middlewares/isAuthenticated';
 import { forgetPasswordSchema } from '../../dtos/forgetPassword.dto';
 import { changePasswordSchema } from '../../dtos/changePassword.dto';
-import isAuthenticated from '../../middlewares/isAuthenticated';
-import { isAuthorized } from '../../middlewares/isAuthorized';
 
 const router = Router();
 
@@ -31,9 +31,9 @@ router.post(
   validate(setPasswordSchema),
   setPassword,
 );
-router.post('/logout', isAuthenticated, logout);
-// router.post('/refresh-token', refreshToken);
 router.post('/login', validate(loginSchema), login);
+router.post('/logout', isAuthenticated, logout);
+router.post('/refresh-token', refreshToken);
 router.post('/forget-password', validate(forgetPasswordSchema), forgetPassword);
 router.post(
   '/change-password',

@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import env from '../config/env';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { AccessTokenPayload, RefreshTokenPayload } from '../dtos/token.dto';
 
 const generateJWT = <T extends object>(
@@ -32,11 +32,14 @@ export const generateRefreshToken = (data: RefreshTokenPayload): string => {
 const verifyJWT = <T>(
   token: string,
   secret: string,
-): (T & JwtPayload) | false => {
+): (T & JwtPayload) | null => {
   try {
     return jwt.verify(token, secret) as T & JwtPayload;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      return jwt.decode(token) as T & JwtPayload;
+    }
+    return null;
   }
 };
 

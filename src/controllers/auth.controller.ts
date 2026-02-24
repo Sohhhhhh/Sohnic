@@ -62,18 +62,21 @@ export const login: RequestHandler = async (req, res, next) => {
 
 export const logout: RequestHandler = async (req, res, next) => {
   const refreshToken = req.cookies?.['refreshToken'];
-  const result = await authService.logout(refreshToken);
+  const { id } = req.user!;
+  const result = await authService.logout(refreshToken, id);
   clearRefreshTokenCookie(res);
 
   sendResponse(res, result);
 };
 
-// export const refreshToken: RequestHandler = async (req, res, next) => {
-//   const refreshToken = req.cookies?.['refreshToken'];
-//   const result = await authService.refreshToken(refreshToken);
+export const refreshToken: RequestHandler = async (req, res, next) => {
+  const refreshToken = req.cookies?.['refreshToken'];
+  const result = await authService.refreshToken(refreshToken);
+  setRefreshTokenCookie(res, 'refreshToken', result.refreshToken!);
+  delete result.refreshToken;
 
-//   sendResponse(res, result);
-// };
+  sendResponse(res, result);
+};
 
 const setRefreshTokenCookie = (res: Response, name: string, token: string) => {
   const options: CookieOptions = {

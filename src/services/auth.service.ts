@@ -2,16 +2,16 @@ import {
   hashToken,
   encodeForUrl,
   decodeFromUrl,
-  verifyRefreshToken,
   generateAccessToken,
   generateRefreshToken,
   generateSetPasswordToken,
+  verifyRefreshToken,
 } from '../utils/token';
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
 import { loginDto } from '../dtos/login.dto';
 import STATUS_CODES from '../utils/statusCodes';
-import { sanitizeUser } from '../utils/sanitize';
+import { SafeUser, sanitizeUser } from '../utils/sanitize';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { sendSetPasswordEmail } from '../utils/sendEmail';
@@ -203,6 +203,79 @@ class AuthService {
       'new_login_from_another_device',
     );
 
+    const { accessToken, refreshToken } = await this.generateAuthTokens(
+      sanitizeUser(user),
+    );
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      message: 'Logged in successfully',
+      data: {
+        user: sanitizeUser(user),
+      },
+      accessToken,
+      refreshToken,
+    };
+  };
+
+  logout = async (token: string, userId: string): Promise<APIResponse> => {
+    const hashedToken = hashToken(token);
+    const tokenExists = await UserRepository.getRefreshToken(
+      userId,
+      hashedToken,
+    );
+
+    if (
+      !tokenExists ||
+      tokenExists.revokedAt ||
+      tokenExists.expiresAt < new Date()
+    )
+      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
+
+    await UserRepository.revokeRefreshByHash(hashedToken, 'logout');
+    return {
+      statusCode: STATUS_CODES.NoContent,
+      message: 'Logged out successfully',
+    };
+  };
+
+  refreshToken = async (token: string): Promise<APIResponse> => {
+    const verified = verifyRefreshToken(token);
+    if (!verified || !verified.userId)
+      throw new APIError('Invalid or expired token', STATUS_CODES.Unauthorized);
+
+    const { userId } = verified;
+    const hashedToken = hashToken(token);
+    const tokenExists = await UserRepository.getRefreshToken(
+      userId,
+      hashedToken,
+    );
+    if (
+      !tokenExists ||
+      tokenExists.revokedAt ||
+      tokenExists.expiresAt < new Date()
+    )
+      throw new APIError('Invalid or expired token', STATUS_CODES.Unauthorized);
+
+    const user = await UserRepository.getUserById(userId);
+    if (!user) throw new APIError('User not found', STATUS_CODES.NotFound);
+    if (!user.isActive)
+      throw new APIError(
+        'This user is no longer active. Please contact IT.',
+        STATUS_CODES.Unauthorized,
+      );
+    await UserRepository.revokeRefreshByHash(hashedToken, 'rotation');
+    const { accessToken, refreshToken } = await this.generateAuthTokens(user);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      accessToken,
+      refreshToken,
+    };
+  };
+
+  // ----- Helpers -------
+  private async generateAuthTokens(user: SafeUser) {
     const accessTokenPayload: AccessTokenPayload = {
       userId: user.id,
       username: user.username,
@@ -221,51 +294,10 @@ class AuthService {
     await UserRepository.createRefreshToken(hashedRefreshToken, user.id);
 
     return {
-      statusCode: STATUS_CODES.OK,
-      message: 'Logged in successfully',
-      data: {
-        user: sanitizeUser(user),
-      },
       accessToken,
       refreshToken,
     };
-  };
-
-  logout = async (token: string): Promise<APIResponse> => {
-    const verified = verifyRefreshToken(token);
-
-    if (!verified)
-      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
-
-    const { userId } = verified;
-    const hashedToken = hashToken(token);
-
-    const tokenExists = await UserRepository.getRefreshToken(
-      userId,
-      hashedToken,
-    );
-
-    if (!tokenExists)
-      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
-
-    await UserRepository.revokeRefreshByUserId(userId, 'logout');
-    return {
-      statusCode: STATUS_CODES.NoContent,
-      message: 'Logged out successfully',
-    };
-  };
-
-  // refreshToken = async (token: string): Promise<APIResponse> => {
-  //   const verified = verifyRefreshToken(token);
-
-  //   if (!verified) {
-  //     return {
-  //       status: 'bad request',
-  //       statusCode: STATUS_CODES.BadRequest,
-  //       message: 'Invalid or expired token',
-  //     };
-  //   }
-  // };
+  }
 }
 
 export default new AuthService();
