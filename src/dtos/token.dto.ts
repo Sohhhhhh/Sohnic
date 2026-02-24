@@ -6,6 +6,7 @@ export const AccessTokenPayloadSchema = z
     username: z.string().min(1, 'Username is required'),
     email: z.string().min(1, 'Email is required'),
     roleId: z.string().min(1, 'Role id is required'),
+    isActive: z.boolean(),
   })
   .strict();
 

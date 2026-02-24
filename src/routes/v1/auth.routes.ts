@@ -14,19 +14,32 @@ import { createUserSchema } from '../../dtos/createUser.dto';
 import { setPasswordSchema } from '../../dtos/setPassword.dto';
 import { forgetPasswordSchema } from '../../dtos/forgetPassword.dto';
 import { changePasswordSchema } from '../../dtos/changePassword.dto';
+import isAuthenticated from '../../middlewares/isAuthenticated';
+import { isAuthorized } from '../../middlewares/isAuthorized';
 
 const router = Router();
 
-router.post('/create-user', validate(createUserSchema), createUser);
+router.post(
+  '/create-user',
+  isAuthenticated,
+  isAuthorized('super_admin', 'hr'),
+  validate(createUserSchema),
+  createUser,
+);
 router.post(
   '/set-password/:encodedToken',
   validate(setPasswordSchema),
   setPassword,
 );
-router.post('/logout', logout);
+router.post('/logout', isAuthenticated, logout);
 // router.post('/refresh-token', refreshToken);
 router.post('/login', validate(loginSchema), login);
 router.post('/forget-password', validate(forgetPasswordSchema), forgetPassword);
-router.post('/change-password', validate(changePasswordSchema), changePassword);
+router.post(
+  '/change-password',
+  isAuthenticated,
+  validate(changePasswordSchema),
+  changePassword,
+);
 
 export const authRoutes = router;

@@ -1,4 +1,4 @@
-import { SafeUser } from '../utils/sanitize';
+import { AuthenticatedUser } from '../utils/sanitize';
 
 declare global {
   namespace Express {
@@ -8,7 +8,7 @@ declare global {
       };
     }
     interface Request {
-      user?: SafeUser;
+      user?: AuthenticatedUser;
     }
   }
 }

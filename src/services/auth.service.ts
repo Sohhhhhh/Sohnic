@@ -208,6 +208,7 @@ class AuthService {
       username: user.username,
       email: user.email,
       roleId: user.roleId,
+      isActive: user.isActive,
     };
     const refreshTokenPayload: RefreshTokenPayload = {
       userId: user.id,

@@ -23,13 +23,26 @@ export default async (req: Request, res: Response, next: NextFunction) => {
   if (!verified)
     throw new APIError('Invalid or expired token', STATUS_CODES.Unauthorized);
 
-  const user = await UserRepository.getUserById(verified.userId);
+  const [user, role] = await Promise.all([
+    UserRepository.getUserById(verified.userId),
+    UserRepository.getRoleById(verified.roleId),
+  ]);
+
   if (!user)
     throw new APIError(
       'This user does no longer exist',
       STATUS_CODES.Unauthorized,
     );
 
-  req.user = user;
+  if (!user.isActive)
+    throw new APIError(
+      'This user is no longer active. Please contact IT.',
+      STATUS_CODES.Unauthorized,
+    );
+
+  if (!role)
+    throw new APIError('Invalid or expired token', STATUS_CODES.Unauthorized);
+
+  req.user = { ...user, role };
   next();
 };
