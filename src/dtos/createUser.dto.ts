@@ -3,7 +3,12 @@ import { z } from 'zod';
 export const createUserSchema = z.object({
   body: z
     .object({
-      username: z.string().min(1, 'Username cannot be empty'),
+      username: z
+        .string()
+        .min(1, 'Username cannot be empty')
+        .refine((username) => !/[!@#$%^&*]/.test(username), {
+          message: 'Username must not contain special characters',
+        }),
       email: z
         .string()
         .min(1, 'Email cannot be empty')

@@ -1,5 +1,7 @@
 import crypto from 'crypto';
 import env from '../config/env';
+import { SafeUser, User } from './sanitize';
+import UserRepository from '../repositories/users.repository';
 import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { AccessTokenPayload, RefreshTokenPayload } from '../dtos/token.dto';
 
@@ -71,4 +73,28 @@ export const decodeFromUrl = (encoded: string): string | null => {
   } catch {
     return null;
   }
+};
+
+export const generateAuthTokens = async (user: SafeUser | User) => {
+  const accessTokenPayload: AccessTokenPayload = {
+    userId: user.id,
+    username: user.username,
+    email: user.email,
+    roleId: user.roleId,
+    isActive: user.isActive,
+  };
+  const refreshTokenPayload: RefreshTokenPayload = {
+    userId: user.id,
+    roleId: user.roleId,
+  };
+
+  const accessToken = generateAccessToken(accessTokenPayload);
+  const refreshToken = generateRefreshToken(refreshTokenPayload);
+  const hashedRefreshToken = hashToken(refreshToken);
+  await UserRepository.createRefreshToken(hashedRefreshToken, user.id);
+
+  return {
+    accessToken,
+    refreshToken,
+  };
 };

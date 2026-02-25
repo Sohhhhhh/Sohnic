@@ -2,10 +2,9 @@ import {
   hashToken,
   encodeForUrl,
   decodeFromUrl,
-  generateAccessToken,
-  generateRefreshToken,
   generateSetPasswordToken,
   verifyRefreshToken,
+  generateAuthTokens,
 } from '../utils/token';
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
@@ -21,59 +20,24 @@ import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/changePassword.dto';
 import { comparePassword, hashPassword } from '../utils/password';
 import BranchRepository from '../repositories/branches.repository';
-import { AccessTokenPayload, RefreshTokenPayload } from '../dtos/token.dto';
 
 class AuthService {
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
-    const [existingUsername, existingEmail, existingPhone] = await Promise.all([
-      UserRepository.getUserByUsername(dto.username),
-      UserRepository.getUserByEmail(dto.email),
-      UserRepository.getUserByPhone(dto.phone),
-    ]);
-
-    if (existingUsername)
-      throw new APIError(
-        'A user with this username already exists.',
-        STATUS_CODES.Conflict,
-      );
-
-    if (existingEmail)
-      throw new APIError(
-        'A user with this email already exists.',
-        STATUS_CODES.Conflict,
-      );
-
-    if (existingPhone)
-      throw new APIError(
-        'A user with this phone number already exists.',
-        STATUS_CODES.Conflict,
-      );
+    await this.checkExistingUser(dto.username, dto.email, dto.phone);
 
     // check if branchId and roleId are valid ids
-    const [branch, role] = await Promise.all([
-      BranchRepository.getBranchById(dto.branchId),
-      UserRepository.getRoleById(dto.roleId),
+    await Promise.all([
+      this.checkExistingBranch(dto.branchId),
+      this.checkExistingRole(dto.roleId),
     ]);
 
-    if (!branch)
-      throw new APIError('No branch found with this id', STATUS_CODES.NotFound);
-
-    if (!role)
-      throw new APIError('No role found with this id', STATUS_CODES.NotFound);
-
-    const rawToken = generateSetPasswordToken();
-    const hashedToken = hashToken(rawToken);
-    const encodedParam = encodeForUrl(rawToken);
+    const { rawToken, hashedToken } = this.generateURLTokens(dto.email);
 
     const user = await db.transaction(async (tx) => {
       const user = await UserRepository.createUser(dto, tx);
       await UserRepository.createSetPasswordToken(hashedToken, user.id, tx);
 
       return user;
-    });
-
-    sendSetPasswordEmail(user.email, encodedParam).catch((error) => {
-      console.error('Failed to send email:', error);
     });
 
     return {
@@ -126,13 +90,7 @@ class AuthService {
       ? UserRepository.getUserByEmail(usernameOrEmail)
       : UserRepository.getUserByUsername(usernameOrEmail));
     if (user) {
-      const rawToken = generateSetPasswordToken();
-      const hashedToken = hashToken(rawToken);
-      const encodedParam = encodeForUrl(rawToken);
-      sendSetPasswordEmail(user.email, encodedParam).catch((error) => {
-        console.error('Failed to send email:', error);
-      });
-
+      const { hashedToken } = this.generateURLTokens(user.email);
       await UserRepository.createSetPasswordToken(hashedToken, user.id);
     }
 
@@ -142,29 +100,27 @@ class AuthService {
     };
   };
 
-  changePassword = async (dto: ChangePasswordDto): Promise<APIResponse> => {
+  changePassword = async (
+    dto: ChangePasswordDto,
+    user: SafeUser,
+  ): Promise<APIResponse> => {
     const { oldPassword, password } = dto;
+    const unsanitizedUser = await UserRepository.getUnsanitizedUser(
+      user.username,
+    );
 
-    const username = 'soh';
-
-    const user = await UserRepository.getUnsanitizedUser(username);
-    const userId = '01480a28-7828-435a-bf67-ff45b2f92828';
-
-    if (!user!.password)
-      throw new APIError(
-        'Complete your setup to login',
-        STATUS_CODES.BadRequest,
-      );
-
-    const isCorrect = await comparePassword(oldPassword, user!.password!);
+    const isCorrect = await comparePassword(
+      oldPassword,
+      unsanitizedUser!.password!,
+    );
     if (!isCorrect)
       throw new APIError('Old password is wrong', STATUS_CODES.BadRequest);
 
     const hashedPassword = await hashPassword(password);
-    await UserRepository.revokeRefreshByUserId(userId, 'password_change');
+    await UserRepository.revokeRefreshByUserId(user.id, 'password_change');
 
     const updatedUser = await UserRepository.updateUserPassword(
-      userId,
+      user.id,
       hashedPassword,
     );
 
@@ -203,9 +159,7 @@ class AuthService {
       'new_login_from_another_device',
     );
 
-    const { accessToken, refreshToken } = await this.generateAuthTokens(
-      sanitizeUser(user),
-    );
+    const { accessToken, refreshToken } = await generateAuthTokens(user);
 
     return {
       statusCode: STATUS_CODES.OK,
@@ -219,18 +173,7 @@ class AuthService {
   };
 
   logout = async (token: string, userId: string): Promise<APIResponse> => {
-    const hashedToken = hashToken(token);
-    const tokenExists = await UserRepository.getRefreshToken(
-      userId,
-      hashedToken,
-    );
-
-    if (
-      !tokenExists ||
-      tokenExists.revokedAt ||
-      tokenExists.expiresAt < new Date()
-    )
-      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
+    const hashedToken = await this.checkExistingRefreshToken(token, userId);
 
     await UserRepository.revokeRefreshByHash(hashedToken, 'logout');
     return {
@@ -245,17 +188,7 @@ class AuthService {
       throw new APIError('Invalid or expired token', STATUS_CODES.Unauthorized);
 
     const { userId } = verified;
-    const hashedToken = hashToken(token);
-    const tokenExists = await UserRepository.getRefreshToken(
-      userId,
-      hashedToken,
-    );
-    if (
-      !tokenExists ||
-      tokenExists.revokedAt ||
-      tokenExists.expiresAt < new Date()
-    )
-      throw new APIError('Invalid or expired token', STATUS_CODES.Unauthorized);
+    const hashedToken = await this.checkExistingRefreshToken(token, userId);
 
     const user = await UserRepository.getUserById(userId);
     if (!user) throw new APIError('User not found', STATUS_CODES.NotFound);
@@ -265,7 +198,8 @@ class AuthService {
         STATUS_CODES.Unauthorized,
       );
     await UserRepository.revokeRefreshByHash(hashedToken, 'rotation');
-    const { accessToken, refreshToken } = await this.generateAuthTokens(user);
+
+    const { accessToken, refreshToken } = await generateAuthTokens(user);
 
     return {
       statusCode: STATUS_CODES.OK,
@@ -275,28 +209,77 @@ class AuthService {
   };
 
   // ----- Helpers -------
-  private async generateAuthTokens(user: SafeUser) {
-    const accessTokenPayload: AccessTokenPayload = {
-      userId: user.id,
-      username: user.username,
-      email: user.email,
-      roleId: user.roleId,
-      isActive: user.isActive,
-    };
-    const refreshTokenPayload: RefreshTokenPayload = {
-      userId: user.id,
-      roleId: user.roleId,
-    };
 
-    const accessToken = generateAccessToken(accessTokenPayload);
-    const refreshToken = generateRefreshToken(refreshTokenPayload);
-    const hashedRefreshToken = hashToken(refreshToken);
-    await UserRepository.createRefreshToken(hashedRefreshToken, user.id);
+  private async checkExistingUser(
+    username: string,
+    email: string,
+    phone: string,
+  ) {
+    const [existingUsername, existingEmail, existingPhone] = await Promise.all([
+      UserRepository.getUserByUsername(username),
+      UserRepository.getUserByEmail(email),
+      UserRepository.getUserByPhone(phone),
+    ]);
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    if (existingUsername)
+      throw new APIError(
+        'A user with this username already exists.',
+        STATUS_CODES.Conflict,
+      );
+
+    if (existingEmail)
+      throw new APIError(
+        'A user with this email already exists.',
+        STATUS_CODES.Conflict,
+      );
+
+    if (existingPhone)
+      throw new APIError(
+        'A user with this phone number already exists.',
+        STATUS_CODES.Conflict,
+      );
+  }
+
+  private async checkExistingBranch(branchId: string) {
+    const branch = await BranchRepository.getBranchById(branchId);
+
+    if (!branch)
+      throw new APIError('No branch found with this id', STATUS_CODES.NotFound);
+  }
+
+  private async checkExistingRole(roleId: string) {
+    const role = await UserRepository.getRoleById(roleId);
+
+    if (!role)
+      throw new APIError('No role found with this id', STATUS_CODES.NotFound);
+  }
+
+  private generateURLTokens(email: string) {
+    const rawToken = generateSetPasswordToken();
+    const hashedToken = hashToken(rawToken);
+    const encodedParam = encodeForUrl(rawToken);
+
+    sendSetPasswordEmail(email, encodedParam).catch((error) => {
+      console.error('Failed to send email:', error);
+    });
+
+    return { rawToken, hashedToken };
+  }
+
+  private async checkExistingRefreshToken(token: string, userId: string) {
+    const hashedToken = hashToken(token);
+    const tokenExists = await UserRepository.getRefreshToken(
+      userId,
+      hashedToken,
+    );
+
+    if (
+      !tokenExists ||
+      tokenExists.revokedAt ||
+      tokenExists.expiresAt < new Date()
+    )
+      throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
+    return hashedToken;
   }
 }
 

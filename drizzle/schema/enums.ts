@@ -24,6 +24,8 @@ export const refreshTokensRevocationReason = pgEnum(
     'other',
   ],
 );
+export type RefreshTokensRevocationReason =
+  typeof refreshTokensRevocationReason;
 
 export const branchType = pgEnum('branchType', ['main', 'sub']);
 

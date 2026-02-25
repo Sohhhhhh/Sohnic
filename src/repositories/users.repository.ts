@@ -153,7 +153,7 @@ class UserRepository {
       .update(refreshTokens)
       .set({
         revokedAt: new Date(),
-        revocationReason: revocationReason || 'logout',
+        revocationReason: revocationReason ?? 'logout',
       })
       .where(
         and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)),
