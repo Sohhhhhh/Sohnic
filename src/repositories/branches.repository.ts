@@ -1,14 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../config/drizzle';
 import { branches } from '../../drizzle/schema';
+import { IBranchRepository } from '../interfaces/repositories';
 
-class BranchRepository {
-  async getBranchById(id: string) {
-    const branch = await db.query.branches.findFirst({
+export class BranchRepository implements IBranchRepository {
+  async getById(id: string) {
+    return db.query.branches.findFirst({
       where: eq(branches.id, id),
     });
-    return branch;
   }
 }
-
-export default new BranchRepository();

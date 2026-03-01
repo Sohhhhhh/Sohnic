@@ -1,15 +1,11 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db } from '../config/drizzle';
-import {
-  refreshTokens,
-  roles,
-  setPasswordTokens,
-  users,
-} from '../../drizzle/schema';
+import { users } from '../../drizzle/schema';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { sanitizeUser, User } from '../utils/sanitize';
+import { IUserRepository } from '../interfaces/repositories';
 
-class UserRepository {
+export class UserRepository implements IUserRepository {
   async createUser(dto: CreateUserDto, tx?: any) {
     const client = tx || db;
 
@@ -68,112 +64,13 @@ class UserRepository {
     return user ? sanitizeUser(user) : undefined;
   }
 
-  async getUnsanitizedUser(usernameOrEmail: string): Promise<User | undefined> {
+  async getUserWithPassword(
+    usernameOrEmail: string,
+  ): Promise<User | undefined> {
     return db.query.users.findFirst({
       where: usernameOrEmail.includes('@')
         ? eq(users.email, usernameOrEmail)
         : eq(users.username, usernameOrEmail),
     });
   }
-
-  async getRoleById(id: string) {
-    const role = await db.query.roles.findFirst({ where: eq(roles.id, id) });
-    return role;
-  }
-
-  async createSetPasswordToken(token: string, userId: string, tx?: any) {
-    await this.deleteSetPasswordToken(userId, tx);
-
-    const client = tx || db;
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 24);
-    await client.insert(setPasswordTokens).values({
-      token,
-      userId,
-      expiresAt,
-    });
-  }
-
-  async getSetPasswordToken(token: string, tx?: any) {
-    const client = tx || db;
-    const result = await client.query.setPasswordTokens.findFirst({
-      where: eq(setPasswordTokens.token, token),
-    });
-
-    if (!result || result.expiresAt < new Date()) return null;
-
-    return result;
-  }
-
-  async deleteSetPasswordToken(userId: string, tx?: any) {
-    const client = tx || db;
-    await client
-      .delete(setPasswordTokens)
-      .where(eq(setPasswordTokens.userId, userId));
-  }
-
-  async createRefreshToken(token: string, userId: string, tx?: any) {
-    const client = tx || db;
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
-
-    await client.insert(refreshTokens).values({
-      token,
-      userId,
-      expiresAt,
-    });
-  }
-
-  async getRefreshToken(userId: string, hashedToken: string, tx?: any) {
-    const client = tx || db;
-    const token = await client.query.refreshTokens.findFirst({
-      where: and(
-        eq(refreshTokens.userId, userId),
-        eq(refreshTokens.token, hashedToken),
-      ),
-    });
-    return token;
-  }
-
-  async getRefreshTokenByUserId(userId: string, tx?: any) {
-    const client = tx || db;
-    const token = await client.query.refreshTokens.findFirst({
-      where: and(eq(refreshTokens.userId, userId)),
-    });
-    return token;
-  }
-
-  async revokeRefreshByUserId(
-    userId: string,
-    revocationReason?: string,
-    tx?: any,
-  ) {
-    const client = tx || db;
-    await client
-      .update(refreshTokens)
-      .set({
-        revokedAt: new Date(),
-        revocationReason: revocationReason ?? 'logout',
-      })
-      .where(
-        and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)),
-      );
-  }
-
-  async revokeRefreshByHash(
-    token: string,
-    revocationReason?: string,
-    tx?: any,
-  ) {
-    const client = tx || db;
-    await client
-      .update(refreshTokens)
-      .set({
-        revokedAt: new Date(),
-        revocationReason: revocationReason || 'logout',
-      })
-      .where(and(eq(refreshTokens.token, token)));
-  }
 }
-
-export default new UserRepository();

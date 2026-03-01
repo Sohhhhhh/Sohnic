@@ -13,15 +13,32 @@ import STATUS_CODES from '../utils/statusCodes';
 import { SafeUser, sanitizeUser } from '../utils/sanitize';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
-import { sendSetPasswordEmail } from '../utils/sendEmail';
 import { SetPasswordBodyDto } from '../dtos/setPassword.dto';
-import UserRepository from '../repositories/users.repository';
 import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/changePassword.dto';
 import { comparePassword, hashPassword } from '../utils/password';
-import BranchRepository from '../repositories/branches.repository';
+import {
+  IAuthService,
+  IEmailService,
+  IUserRepository,
+  IBranchRepository,
+  IRefreshTokenRepository,
+  ISetPasswordTokenRepository,
+  IRoleRepository,
+} from '../interfaces';
 
-class AuthService {
+export class AuthService implements IAuthService {
+  constructor(
+    private readonly userRepo: IUserRepository,
+    private readonly setPasswordTokenRepo: ISetPasswordTokenRepository,
+    private readonly refreshTokenRepo: IRefreshTokenRepository,
+    private readonly roleRepo: IRoleRepository,
+    private readonly emailService: IEmailService,
+    private readonly branchRepo: IBranchRepository,
+  ) {}
+
+  // --- Registration ---
+
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
     await this.checkExistingUser(dto.username, dto.email, dto.phone);
 
@@ -31,11 +48,16 @@ class AuthService {
       this.checkExistingRole(dto.roleId),
     ]);
 
-    const { rawToken, hashedToken } = this.generateURLTokens(dto.email);
+    const { rawToken, hashedToken, encodedParam } = this.generateURLTokens();
+    this.emailService
+      .sendSetPasswordEmail(dto.email, encodedParam)
+      .catch((error) => {
+        console.error('Failed to send email:', error);
+      });
 
-    const user = await db.transaction(async (tx) => {
-      const user = await UserRepository.createUser(dto, tx);
-      await UserRepository.createSetPasswordToken(hashedToken, user.id, tx);
+    const user = await db.transaction(async (tx: any) => {
+      const user = await this.userRepo.createUser(dto, tx);
+      await this.setPasswordTokenRepo.create(hashedToken, user.id, tx);
 
       return user;
     });
@@ -46,6 +68,8 @@ class AuthService {
       data: { user, token: rawToken },
     };
   };
+
+  // --- Password ---
 
   setPassword = async (
     encodedToken: string,
@@ -59,20 +83,20 @@ class AuthService {
     // check token in the db
     const hashedToken = hashToken(token);
     const storedTokenRecord =
-      await UserRepository.getSetPasswordToken(hashedToken);
+      await this.setPasswordTokenRepo.getByToken(hashedToken);
     if (!storedTokenRecord)
       throw new APIError('Invalid or expired token', STATUS_CODES.BadRequest);
 
     // update user password and delete token
     const { userId } = storedTokenRecord;
     const hashedPassword = await hashPassword(dto.password);
-    await UserRepository.revokeRefreshByUserId(userId, 'password_reset');
+    await this.refreshTokenRepo.revokeByUserId(userId, 'password_reset');
 
-    const updatedUser = await UserRepository.updateUserPassword(
+    const updatedUser = await this.userRepo.updateUserPassword(
       userId,
       hashedPassword,
     );
-    UserRepository.deleteSetPasswordToken(userId).catch((error) => {
+    this.setPasswordTokenRepo.deleteByUserId(userId).catch((error) => {
       console.error('Failed to delete token:', error);
     });
 
@@ -87,11 +111,16 @@ class AuthService {
     const { usernameOrEmail } = dto;
 
     const user = await (usernameOrEmail.includes('@')
-      ? UserRepository.getUserByEmail(usernameOrEmail)
-      : UserRepository.getUserByUsername(usernameOrEmail));
+      ? this.userRepo.getUserByEmail(usernameOrEmail)
+      : this.userRepo.getUserByUsername(usernameOrEmail));
     if (user) {
-      const { hashedToken } = this.generateURLTokens(user.email);
-      await UserRepository.createSetPasswordToken(hashedToken, user.id);
+      const { hashedToken, encodedParam } = this.generateURLTokens();
+      this.emailService
+        .sendSetPasswordEmail(user.email, encodedParam)
+        .catch((error) => {
+          console.error('Failed to send email:', error);
+        });
+      await this.setPasswordTokenRepo.create(hashedToken, user.id);
     }
 
     return {
@@ -105,21 +134,21 @@ class AuthService {
     user: SafeUser,
   ): Promise<APIResponse> => {
     const { oldPassword, password } = dto;
-    const unsanitizedUser = await UserRepository.getUnsanitizedUser(
+    const userWithPassword = await this.userRepo.getUserWithPassword(
       user.username,
     );
 
     const isCorrect = await comparePassword(
       oldPassword,
-      unsanitizedUser!.password!,
+      userWithPassword!.password!,
     );
     if (!isCorrect)
       throw new APIError('Old password is wrong', STATUS_CODES.BadRequest);
 
     const hashedPassword = await hashPassword(password);
-    await UserRepository.revokeRefreshByUserId(user.id, 'password_change');
+    await this.refreshTokenRepo.revokeByUserId(user.id, 'password_change');
 
-    const updatedUser = await UserRepository.updateUserPassword(
+    const updatedUser = await this.userRepo.updateUserPassword(
       user.id,
       hashedPassword,
     );
@@ -131,9 +160,11 @@ class AuthService {
     };
   };
 
+  // --- Login / Logout ---
+
   login = async (dto: loginDto): Promise<APIResponse> => {
     const { usernameOrEmail, password } = dto;
-    const user = await UserRepository.getUnsanitizedUser(usernameOrEmail);
+    const user = await this.userRepo.getUserWithPassword(usernameOrEmail);
 
     if (!user)
       throw new APIError(
@@ -154,12 +185,14 @@ class AuthService {
         STATUS_CODES.NotFound,
       );
 
-    await UserRepository.revokeRefreshByUserId(
+    await this.refreshTokenRepo.revokeByUserId(
       user.id,
       'new_login_from_another_device',
     );
 
-    const { accessToken, refreshToken } = await generateAuthTokens(user);
+    const { accessToken, refreshToken, hashedRefreshToken } =
+      generateAuthTokens(user);
+    await this.refreshTokenRepo.create(hashedRefreshToken, user.id);
 
     return {
       statusCode: STATUS_CODES.OK,
@@ -175,12 +208,14 @@ class AuthService {
   logout = async (token: string, userId: string): Promise<APIResponse> => {
     const hashedToken = await this.checkExistingRefreshToken(token, userId);
 
-    await UserRepository.revokeRefreshByHash(hashedToken, 'logout');
+    await this.refreshTokenRepo.revokeByHash(hashedToken, 'logout');
     return {
       statusCode: STATUS_CODES.NoContent,
       message: 'Logged out successfully',
     };
   };
+
+  // --- Tokens ---
 
   refreshToken = async (token: string): Promise<APIResponse> => {
     const verified = verifyRefreshToken(token);
@@ -190,16 +225,18 @@ class AuthService {
     const { userId } = verified;
     const hashedToken = await this.checkExistingRefreshToken(token, userId);
 
-    const user = await UserRepository.getUserById(userId);
+    const user = await this.userRepo.getUserById(userId);
     if (!user) throw new APIError('User not found', STATUS_CODES.NotFound);
     if (!user.isActive)
       throw new APIError(
         'This user is no longer active. Please contact IT.',
         STATUS_CODES.Unauthorized,
       );
-    await UserRepository.revokeRefreshByHash(hashedToken, 'rotation');
+    await this.refreshTokenRepo.revokeByHash(hashedToken, 'rotation');
 
-    const { accessToken, refreshToken } = await generateAuthTokens(user);
+    const { accessToken, refreshToken, hashedRefreshToken } =
+      generateAuthTokens(user);
+    await this.refreshTokenRepo.create(hashedRefreshToken, user.id);
 
     return {
       statusCode: STATUS_CODES.OK,
@@ -208,7 +245,7 @@ class AuthService {
     };
   };
 
-  // ----- Helpers -------
+  // --- Helpers ---
 
   private async checkExistingUser(
     username: string,
@@ -216,9 +253,9 @@ class AuthService {
     phone: string,
   ) {
     const [existingUsername, existingEmail, existingPhone] = await Promise.all([
-      UserRepository.getUserByUsername(username),
-      UserRepository.getUserByEmail(email),
-      UserRepository.getUserByPhone(phone),
+      this.userRepo.getUserByUsername(username),
+      this.userRepo.getUserByEmail(email),
+      this.userRepo.getUserByPhone(phone),
     ]);
 
     if (existingUsername)
@@ -241,34 +278,30 @@ class AuthService {
   }
 
   private async checkExistingBranch(branchId: string) {
-    const branch = await BranchRepository.getBranchById(branchId);
+    const branch = await this.branchRepo.getById(branchId);
 
     if (!branch)
       throw new APIError('No branch found with this id', STATUS_CODES.NotFound);
   }
 
   private async checkExistingRole(roleId: string) {
-    const role = await UserRepository.getRoleById(roleId);
+    const role = await this.roleRepo.getById(roleId);
 
     if (!role)
       throw new APIError('No role found with this id', STATUS_CODES.NotFound);
   }
 
-  private generateURLTokens(email: string) {
+  private generateURLTokens() {
     const rawToken = generateSetPasswordToken();
     const hashedToken = hashToken(rawToken);
     const encodedParam = encodeForUrl(rawToken);
 
-    sendSetPasswordEmail(email, encodedParam).catch((error) => {
-      console.error('Failed to send email:', error);
-    });
-
-    return { rawToken, hashedToken };
+    return { rawToken, hashedToken, encodedParam };
   }
 
   private async checkExistingRefreshToken(token: string, userId: string) {
     const hashedToken = hashToken(token);
-    const tokenExists = await UserRepository.getRefreshToken(
+    const tokenExists = await this.refreshTokenRepo.getByUserAndHash(
       userId,
       hashedToken,
     );
@@ -282,5 +315,3 @@ class AuthService {
     return hashedToken;
   }
 }
-
-export default new AuthService();
