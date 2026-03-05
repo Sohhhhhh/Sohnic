@@ -34,6 +34,7 @@ export interface IUsersRepository {
   getUserByPhone(phone: string): Promise<SafeUser | undefined>;
   getUserById(id: string): Promise<SafeUser | undefined>;
   getUserWithPassword(usernameOrEmail: string): Promise<User | undefined>;
+  findAll(branchId?: string): Promise<SafeUser[]>;
 }
 
 export interface IRefreshTokensRepository {

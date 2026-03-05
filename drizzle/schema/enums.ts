@@ -24,8 +24,6 @@ export const refreshTokensRevocationReason = pgEnum(
     'other',
   ],
 );
-export type RefreshTokensRevocationReason =
-  typeof refreshTokensRevocationReason;
 
 export const branchType = pgEnum('branchType', ['main', 'sub']);
 
@@ -112,3 +110,25 @@ export const productCategory = pgEnum('productCategory', [
   'interface_conversion',
   'audio_signal_processing',
 ]);
+
+export type UserRole = (typeof userRole.enumValues)[number];
+export type RefreshTokensRevocationReason =
+  (typeof refreshTokensRevocationReason.enumValues)[number];
+export type BranchType = (typeof branchType.enumValues)[number];
+export type PurchaseRequestStatus =
+  (typeof purchaseRequestStatus.enumValues)[number];
+export type PurchaseOrderStatus =
+  (typeof purchaseOrderStatus.enumValues)[number];
+export type ManufacturingOrderStatus =
+  (typeof manufacturingOrderStatus.enumValues)[number];
+export type DeliveryStatus = (typeof deliveryStatus.enumValues)[number];
+export type TransferRequestStatus =
+  (typeof transferRequestStatus.enumValues)[number];
+export type InspectionStatus = (typeof inspectionStatus.enumValues)[number];
+export type ReturnRequestStatus =
+  (typeof returnRequestStatus.enumValues)[number];
+export type ReturnRequestType = (typeof returnRequestType.enumValues)[number];
+export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
+export type CustomerType = (typeof customerType.enumValues)[number];
+export type SellableItemType = (typeof sellableItemType.enumValues)[number];
+export type ProductCategory = (typeof productCategory.enumValues)[number];

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../config/drizzle';
 import { users } from '../../drizzle/schema';
 import { CreateUserDto } from '../dtos/createUser.dto';
-import { sanitizeUser, User } from '../utils/sanitize';
+import { SafeUser, sanitizeUser, User } from '../utils/sanitize';
 import { IUsersRepository } from '../interfaces/repositories';
 
 export class UsersRepository implements IUsersRepository {
@@ -71,6 +71,15 @@ export class UsersRepository implements IUsersRepository {
       where: usernameOrEmail.includes('@')
         ? eq(users.email, usernameOrEmail)
         : eq(users.username, usernameOrEmail),
+    });
+  }
+
+  async findAll(branchId?: string): Promise<SafeUser[]> {
+    return db.query.users.findMany({
+      where: branchId ? eq(users.branchId, branchId) : undefined,
+      columns: {
+        password: false,
+      },
     });
   }
 }

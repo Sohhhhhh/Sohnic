@@ -1,4 +1,4 @@
-import { SafeUser } from '../utils/sanitize';
+import { AuthenticatedUser, SafeUser } from '../utils/sanitize';
 import { loginDto } from '../dtos/login.dto';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
@@ -21,7 +21,9 @@ export interface IAuthService {
   refreshToken(token: string): Promise<APIResponse>;
 }
 
-export interface IUsersService {}
+export interface IUsersService {
+  findAll(user: AuthenticatedUser): Promise<APIResponse>;
+}
 
 // ----- Utility Interfaces -----
 
