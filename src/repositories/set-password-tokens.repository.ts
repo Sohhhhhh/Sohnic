@@ -2,11 +2,11 @@ import { eq } from 'drizzle-orm';
 import { db } from '../config/drizzle';
 import { setPasswordTokens } from '../../drizzle/schema';
 import {
-  ISetPasswordTokenRepository,
+  ISetPasswordTokensRepository,
   SetPasswordTokenRecord,
 } from '../interfaces/repositories';
 
-export class SetPasswordTokenRepository implements ISetPasswordTokenRepository {
+export class SetPasswordTokensRepository implements ISetPasswordTokensRepository {
   async create(token: string, userId: string, tx?: any): Promise<void> {
     await this.deleteByUserId(userId, tx);
 

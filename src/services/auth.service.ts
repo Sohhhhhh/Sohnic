@@ -20,21 +20,21 @@ import { comparePassword, hashPassword } from '../utils/password';
 import {
   IAuthService,
   IEmailService,
-  IUserRepository,
-  IBranchRepository,
-  IRefreshTokenRepository,
-  ISetPasswordTokenRepository,
-  IRoleRepository,
+  IUsersRepository,
+  IBranchesRepository,
+  IRefreshTokensRepository,
+  ISetPasswordTokensRepository,
+  IRolesRepository,
 } from '../interfaces';
 
 export class AuthService implements IAuthService {
   constructor(
-    private readonly userRepo: IUserRepository,
-    private readonly setPasswordTokenRepo: ISetPasswordTokenRepository,
-    private readonly refreshTokenRepo: IRefreshTokenRepository,
-    private readonly roleRepo: IRoleRepository,
+    private readonly userRepo: IUsersRepository,
+    private readonly setPasswordTokenRepo: ISetPasswordTokensRepository,
+    private readonly refreshTokenRepo: IRefreshTokensRepository,
+    private readonly roleRepo: IRolesRepository,
     private readonly emailService: IEmailService,
-    private readonly branchRepo: IBranchRepository,
+    private readonly branchRepo: IBranchesRepository,
   ) {}
 
   // --- Registration ---

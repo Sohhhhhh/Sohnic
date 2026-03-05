@@ -3,9 +3,9 @@ import { db } from '../config/drizzle';
 import { users } from '../../drizzle/schema';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { sanitizeUser, User } from '../utils/sanitize';
-import { IUserRepository } from '../interfaces/repositories';
+import { IUsersRepository } from '../interfaces/repositories';
 
-export class UserRepository implements IUserRepository {
+export class UsersRepository implements IUsersRepository {
   async createUser(dto: CreateUserDto, tx?: any) {
     const client = tx || db;
 

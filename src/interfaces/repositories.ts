@@ -22,7 +22,7 @@ export type TX = typeof db | PostgresJsTransaction<any, any>;
 
 // ----- Repository Interfaces -----
 
-export interface IUserRepository {
+export interface IUsersRepository {
   createUser(dto: CreateUserDto, tx?: any): Promise<SafeUser>;
   updateUserPassword(
     userId: string,
@@ -36,7 +36,7 @@ export interface IUserRepository {
   getUserWithPassword(usernameOrEmail: string): Promise<User | undefined>;
 }
 
-export interface IRefreshTokenRepository {
+export interface IRefreshTokensRepository {
   create(token: string, userId: string, tx?: TX): Promise<void>;
   getByUserAndHash(
     userId: string,
@@ -47,17 +47,17 @@ export interface IRefreshTokenRepository {
   revokeByHash(token: string, reason?: string, tx?: TX): Promise<void>;
 }
 
-export interface ISetPasswordTokenRepository {
+export interface ISetPasswordTokensRepository {
   create(token: string, userId: string, tx?: TX): Promise<void>;
   getByToken(token: string, tx?: TX): Promise<SetPasswordTokenRecord | null>;
   deleteByUserId(userId: string, tx?: TX): Promise<void>;
 }
 
-export interface IRoleRepository {
+export interface IRolesRepository {
   getById(id: string): Promise<Role | undefined>;
 }
 
-export interface IBranchRepository {
+export interface IBranchesRepository {
   getById(id: string): Promise<Record<string, unknown> | undefined>;
 }
 

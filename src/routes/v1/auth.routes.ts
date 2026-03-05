@@ -4,12 +4,10 @@ import { loginSchema } from '../../dtos/login.dto';
 import { createUserSchema } from '../../dtos/createUser.dto';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { setPasswordSchema } from '../../dtos/setPassword.dto';
-import {
-  authController,
-  isAuthenticated,
-} from '../../containers/auth.container';
+import { authController } from '../../containers/auth.container';
 import { forgetPasswordSchema } from '../../dtos/forgetPassword.dto';
 import { changePasswordSchema } from '../../dtos/changePassword.dto';
+import { isAuthenticated } from '../../containers/middleware.container';
 
 const router = Router();
 

@@ -3,11 +3,11 @@ import { NextFunction, Request, Response } from 'express';
 import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { verifyAccessToken } from '../utils/token';
-import { IRoleRepository, IUserRepository } from '../interfaces';
+import { IRolesRepository, IUsersRepository } from '../interfaces';
 
 export const createAuthMiddleware = (
-  userRepo: IUserRepository,
-  roleRepo: IRoleRepository,
+  userRepo: IUsersRepository,
+  roleRepo: IRolesRepository,
 ) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (

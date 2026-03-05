@@ -2,11 +2,11 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '../config/drizzle';
 import { refreshTokens } from '../../drizzle/schema';
 import {
-  IRefreshTokenRepository,
+  IRefreshTokensRepository,
   RefreshTokenRecord,
 } from '../interfaces/repositories';
 
-export class RefreshTokenRepository implements IRefreshTokenRepository {
+export class RefreshTokensRepository implements IRefreshTokensRepository {
   async create(token: string, userId: string, tx?: any): Promise<void> {
     const client = tx || db;
     const expiresAt = new Date();

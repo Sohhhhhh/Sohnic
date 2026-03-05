@@ -21,6 +21,8 @@ export interface IAuthService {
   refreshToken(token: string): Promise<APIResponse>;
 }
 
+export interface IUsersService {}
+
 // ----- Utility Interfaces -----
 
 export interface IEmailService {
