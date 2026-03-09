@@ -82,4 +82,17 @@ export class UsersRepository implements IUsersRepository {
       },
     });
   }
+
+  async updateBranch(
+    userId: string,
+    branchId: string,
+  ): Promise<SafeUser | undefined> {
+    const user = await db
+      .update(users)
+      .set({ branchId })
+      .where(eq(users.id, userId))
+      .returning();
+
+    return user ? sanitizeUser(user[0]) : undefined;
+  }
 }

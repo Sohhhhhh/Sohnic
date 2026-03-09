@@ -35,6 +35,7 @@ export interface IUsersRepository {
   getUserById(id: string): Promise<SafeUser | undefined>;
   getUserWithPassword(usernameOrEmail: string): Promise<User | undefined>;
   findAll(branchId?: string): Promise<SafeUser[]>;
+  updateBranch(userId: string, branchId: string): Promise<SafeUser | undefined>;
 }
 
 export interface IRefreshTokensRepository {

@@ -17,4 +17,14 @@ export class UsersController {
     const result: APIResponse = await this.usersService.findOne(req.user!, id);
     sendResponse(res, result);
   };
+
+  updateBranch: RequestHandler<IdDto> = async (req, res, next) => {
+    const { id } = req.params;
+    const { branchId } = req.body;
+    const result: APIResponse = await this.usersService.updateBranch(
+      id,
+      branchId,
+    );
+    sendResponse(res, result);
+  };
 }
