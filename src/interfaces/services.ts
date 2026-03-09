@@ -24,10 +24,18 @@ export interface IAuthService {
 export interface IUsersService {
   findAll(user: AuthenticatedUser): Promise<APIResponse>;
   findOne(user: AuthenticatedUser, userId: string): Promise<APIResponse>;
-  updateBranch(userId: string, branchId: string): Promise<APIResponse>;
-  updateRole(userId: string, roleId: string): Promise<APIResponse>;
+  updateBranch(
+    userId: string,
+    branchId: string,
+    requestingUserId: string,
+  ): Promise<APIResponse>;
+  updateRole(
+    userId: string,
+    roleId: string,
+    requestingUserId: string,
+  ): Promise<APIResponse>;
   activate(userId: string): Promise<APIResponse>;
-  deactivate(userId: string): Promise<APIResponse>;
+  deactivate(userId: string, requestingUserId: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

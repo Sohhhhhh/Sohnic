@@ -24,6 +24,7 @@ export class UsersController {
     const result: APIResponse = await this.usersService.updateBranch(
       id,
       branchId,
+      req.user!.id,
     );
     sendResponse(res, result);
   };
@@ -31,7 +32,11 @@ export class UsersController {
   updateRole: RequestHandler<IdDto> = async (req, res, next) => {
     const { id } = req.params;
     const { roleId } = req.body;
-    const result: APIResponse = await this.usersService.updateRole(id, roleId);
+    const result: APIResponse = await this.usersService.updateRole(
+      id,
+      roleId,
+      req.user!.id,
+    );
     sendResponse(res, result);
   };
 
@@ -43,7 +48,10 @@ export class UsersController {
 
   deactivate: RequestHandler<IdDto> = async (req, res, next) => {
     const { id } = req.params;
-    const result: APIResponse = await this.usersService.deactivate(id);
+    const result: APIResponse = await this.usersService.deactivate(
+      id,
+      req.user!.id,
+    );
     sendResponse(res, result);
   };
 }

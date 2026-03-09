@@ -8,13 +8,16 @@ import STATUS_CODES from '../utils/statusCodes';
 import { APIResponse } from '../types/api.types';
 import { AuthenticatedUser } from '../utils/sanitize';
 import APIError from '../utils/APIError';
+import { UsersBaseService } from './usersBase.service';
 
-export class UsersService implements IUsersService {
+export class UsersService extends UsersBaseService implements IUsersService {
   constructor(
-    private readonly usersRepo: IUsersRepository,
-    private readonly branchesRepo: IBranchesRepository,
-    private readonly rolesRepo: IRolesRepository,
-  ) {}
+    usersRepo: IUsersRepository,
+    branchesRepo: IBranchesRepository,
+    rolesRepo: IRolesRepository,
+  ) {
+    super(usersRepo, branchesRepo, rolesRepo);
+  }
   async findAll(user: AuthenticatedUser): Promise<APIResponse> {
     const branchId =
       user.role.role === 'branch_admin' ? user.branchId : undefined;
@@ -28,9 +31,7 @@ export class UsersService implements IUsersService {
   }
 
   async findOne(user: AuthenticatedUser, userId: string): Promise<APIResponse> {
-    const foundUser = await this.usersRepo.getUserById(userId);
-    if (!foundUser)
-      throw new APIError('No user found with this id', STATUS_CODES.NotFound);
+    const foundUser = await this.checkExistingUser(userId);
 
     if (
       user.role.role === 'branch_admin' &&
@@ -47,16 +48,22 @@ export class UsersService implements IUsersService {
     };
   }
 
-  async updateBranch(userId: string, branchId: string): Promise<APIResponse> {
-    const [user, branch] = await Promise.all([
-      this.usersRepo.getUserById(userId),
-      this.branchesRepo.getById(branchId),
+  async updateBranch(
+    userId: string,
+    branchId: string,
+    requestingUserId: string,
+  ): Promise<APIResponse> {
+    if (userId === requestingUserId)
+      throw new APIError(
+        'You cannot change your own branch',
+        STATUS_CODES.BadRequest,
+      );
+
+    const [user] = await Promise.all([
+      this.checkExistingUser(userId),
+      this.checkExistingBranch(branchId),
     ]);
 
-    if (!user)
-      throw new APIError('No user found with this id', STATUS_CODES.NotFound);
-    if (!branch)
-      throw new APIError('No branch found with this id', STATUS_CODES.NotFound);
     if (user.branchId === branchId)
       throw new APIError(
         'the user is already in this branch',
@@ -71,16 +78,27 @@ export class UsersService implements IUsersService {
     };
   }
 
-  async updateRole(userId: string, roleId: string): Promise<APIResponse> {
-    const [user, role] = await Promise.all([
-      this.usersRepo.getUserById(userId),
-      this.rolesRepo.getById(roleId),
-    ]);
+  async updateRole(
+    userId: string,
+    roleId: string,
+    requestingUserId: string,
+  ): Promise<APIResponse> {
+    if (userId === requestingUserId)
+      throw new APIError(
+        'You cannot change your own role',
+        STATUS_CODES.BadRequest,
+      );
 
-    if (!user)
-      throw new APIError('No user found with this id', STATUS_CODES.NotFound);
-    if (!role)
-      throw new APIError('No role found with this id', STATUS_CODES.NotFound);
+    const [user, role] = await Promise.all([
+      this.checkExistingUser(userId),
+      this.checkExistingRole(roleId),
+    ]);
+    if (role.role === 'super_admin')
+      throw new APIError(
+        'Cannot assign super_admin role',
+        STATUS_CODES.Forbidden,
+      );
+
     if (user.roleId === roleId)
       throw new APIError(
         'the user is already in this role',
@@ -96,11 +114,9 @@ export class UsersService implements IUsersService {
   }
 
   async activate(userId: string): Promise<APIResponse> {
-    const user = await this.usersRepo.getUserById(userId);
-    if (!user)
-      throw new APIError('No user found with this id', STATUS_CODES.NotFound);
+    const user = await this.checkExistingUser(userId);
     if (user.isActive)
-      throw new APIError('user is already active', STATUS_CODES.NotFound);
+      throw new APIError('user is already active', STATUS_CODES.BadRequest);
 
     await this.usersRepo.updateIsActive(userId, true);
     return {
@@ -109,12 +125,19 @@ export class UsersService implements IUsersService {
     };
   }
 
-  async deactivate(userId: string): Promise<APIResponse> {
-    const user = await this.usersRepo.getUserById(userId);
-    if (!user)
-      throw new APIError('No user found with this id', STATUS_CODES.NotFound);
+  async deactivate(
+    userId: string,
+    requestingUserId: string,
+  ): Promise<APIResponse> {
+    if (userId === requestingUserId)
+      throw new APIError(
+        'You cannot deactivate yourself',
+        STATUS_CODES.BadRequest,
+      );
+
+    const user = await this.checkExistingUser(userId);
     if (!user.isActive)
-      throw new APIError('user is already inactive', STATUS_CODES.NotFound);
+      throw new APIError('user is already inactive', STATUS_CODES.BadRequest);
 
     await this.usersRepo.updateIsActive(userId, false);
     return {

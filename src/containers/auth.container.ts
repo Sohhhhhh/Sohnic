@@ -19,11 +19,11 @@ const emailService: IEmailService = {
 // ----- Services -----
 
 export const authService = new AuthService(
-  usersRepository,
   setPasswordTokensRepository,
   refreshTokensRepository,
-  rolesRepository,
   emailService,
+  usersRepository,
+  rolesRepository,
   branchesRepository,
 );
 

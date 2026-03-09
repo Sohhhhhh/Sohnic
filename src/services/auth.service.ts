@@ -12,6 +12,7 @@ import { loginDto } from '../dtos/login.dto';
 import STATUS_CODES from '../utils/statusCodes';
 import { SafeUser, sanitizeUser } from '../utils/sanitize';
 import { APIResponse } from '../types/api.types';
+import { UsersBaseService } from './usersBase.service';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { SetPasswordBodyDto } from '../dtos/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
@@ -27,20 +28,22 @@ import {
   IRolesRepository,
 } from '../interfaces';
 
-export class AuthService implements IAuthService {
+export class AuthService extends UsersBaseService implements IAuthService {
   constructor(
-    private readonly userRepo: IUsersRepository,
     private readonly setPasswordTokenRepo: ISetPasswordTokensRepository,
     private readonly refreshTokenRepo: IRefreshTokensRepository,
-    private readonly roleRepo: IRolesRepository,
     private readonly emailService: IEmailService,
-    private readonly branchRepo: IBranchesRepository,
-  ) {}
+    usersRepo: IUsersRepository,
+    rolesRepo: IRolesRepository,
+    branchesRepo: IBranchesRepository,
+  ) {
+    super(usersRepo, branchesRepo, rolesRepo);
+  }
 
   // --- Registration ---
 
   createUser = async (dto: CreateUserDto): Promise<APIResponse> => {
-    await this.checkExistingUser(dto.username, dto.email, dto.phone);
+    await this.checkExistingCredentials(dto.username, dto.email, dto.phone);
 
     // check if branchId and roleId are valid ids
     await Promise.all([
@@ -56,7 +59,7 @@ export class AuthService implements IAuthService {
       });
 
     const user = await db.transaction(async (tx: any) => {
-      const user = await this.userRepo.createUser(dto, tx);
+      const user = await this.usersRepo.createUser(dto, tx);
       await this.setPasswordTokenRepo.create(hashedToken, user.id, tx);
 
       return user;
@@ -92,7 +95,7 @@ export class AuthService implements IAuthService {
     const hashedPassword = await hashPassword(dto.password);
     await this.refreshTokenRepo.revokeByUserId(userId, 'password_reset');
 
-    const updatedUser = await this.userRepo.updateUserPassword(
+    const updatedUser = await this.usersRepo.updateUserPassword(
       userId,
       hashedPassword,
     );
@@ -111,8 +114,8 @@ export class AuthService implements IAuthService {
     const { usernameOrEmail } = dto;
 
     const user = await (usernameOrEmail.includes('@')
-      ? this.userRepo.getUserByEmail(usernameOrEmail)
-      : this.userRepo.getUserByUsername(usernameOrEmail));
+      ? this.usersRepo.getUserByEmail(usernameOrEmail)
+      : this.usersRepo.getUserByUsername(usernameOrEmail));
     if (user) {
       const { hashedToken, encodedParam } = this.generateURLTokens();
       this.emailService
@@ -134,7 +137,7 @@ export class AuthService implements IAuthService {
     user: SafeUser,
   ): Promise<APIResponse> => {
     const { oldPassword, password } = dto;
-    const userWithPassword = await this.userRepo.getUserWithPassword(
+    const userWithPassword = await this.usersRepo.getUserWithPassword(
       user.username,
     );
 
@@ -148,7 +151,7 @@ export class AuthService implements IAuthService {
     const hashedPassword = await hashPassword(password);
     await this.refreshTokenRepo.revokeByUserId(user.id, 'password_change');
 
-    const updatedUser = await this.userRepo.updateUserPassword(
+    const updatedUser = await this.usersRepo.updateUserPassword(
       user.id,
       hashedPassword,
     );
@@ -164,12 +167,12 @@ export class AuthService implements IAuthService {
 
   login = async (dto: loginDto): Promise<APIResponse> => {
     const { usernameOrEmail, password } = dto;
-    const user = await this.userRepo.getUserWithPassword(usernameOrEmail);
+    const user = await this.usersRepo.getUserWithPassword(usernameOrEmail);
 
     if (!user)
       throw new APIError(
         'Wrong username/email or password',
-        STATUS_CODES.NotFound,
+        STATUS_CODES.Unauthorized,
       );
 
     if (!user.hasSetPassword)
@@ -178,11 +181,17 @@ export class AuthService implements IAuthService {
         STATUS_CODES.BadRequest,
       );
 
+    if (!user.isActive)
+      throw new APIError(
+        'Wrong username/email or password',
+        STATUS_CODES.Unauthorized,
+      );
+
     const isCorrectPass = await comparePassword(password, user.password!);
     if (!isCorrectPass)
       throw new APIError(
         'Wrong username/email or password',
-        STATUS_CODES.NotFound,
+        STATUS_CODES.Unauthorized,
       );
 
     await this.refreshTokenRepo.revokeByUserId(
@@ -225,7 +234,7 @@ export class AuthService implements IAuthService {
     const { userId } = verified;
     const hashedToken = await this.checkExistingRefreshToken(token, userId);
 
-    const user = await this.userRepo.getUserById(userId);
+    const user = await this.usersRepo.getUserById(userId);
     if (!user) throw new APIError('User not found', STATUS_CODES.NotFound);
     if (!user.isActive)
       throw new APIError(
@@ -246,16 +255,15 @@ export class AuthService implements IAuthService {
   };
 
   // --- Helpers ---
-
-  private async checkExistingUser(
+  private async checkExistingCredentials(
     username: string,
     email: string,
     phone: string,
   ) {
     const [existingUsername, existingEmail, existingPhone] = await Promise.all([
-      this.userRepo.getUserByUsername(username),
-      this.userRepo.getUserByEmail(email),
-      this.userRepo.getUserByPhone(phone),
+      this.usersRepo.getUserByUsername(username),
+      this.usersRepo.getUserByEmail(email),
+      this.usersRepo.getUserByPhone(phone),
     ]);
 
     if (existingUsername)
@@ -263,32 +271,16 @@ export class AuthService implements IAuthService {
         'A user with this username already exists.',
         STATUS_CODES.Conflict,
       );
-
     if (existingEmail)
       throw new APIError(
         'A user with this email already exists.',
         STATUS_CODES.Conflict,
       );
-
     if (existingPhone)
       throw new APIError(
         'A user with this phone number already exists.',
         STATUS_CODES.Conflict,
       );
-  }
-
-  private async checkExistingBranch(branchId: string) {
-    const branch = await this.branchRepo.getById(branchId);
-
-    if (!branch)
-      throw new APIError('No branch found with this id', STATUS_CODES.NotFound);
-  }
-
-  private async checkExistingRole(roleId: string) {
-    const role = await this.roleRepo.getById(roleId);
-
-    if (!role)
-      throw new APIError('No role found with this id', STATUS_CODES.NotFound);
   }
 
   private generateURLTokens() {
