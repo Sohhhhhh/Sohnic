@@ -27,5 +27,19 @@ router.patch(
   validate(idSchema.merge(branchIdSchema)),
   usersController.updateBranch,
 );
+router.patch(
+  '/:id/activate',
+  isAuthenticated,
+  isAuthorized('super_admin', 'hr'),
+  validate(idSchema),
+  usersController.activate,
+);
+router.patch(
+  '/:id/deactivate',
+  isAuthenticated,
+  isAuthorized('super_admin', 'hr'),
+  validate(idSchema),
+  usersController.deactivate,
+);
 
 export const usersRoutes = router;

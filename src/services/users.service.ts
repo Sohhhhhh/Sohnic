@@ -68,4 +68,32 @@ export class UsersService implements IUsersService {
       message: "user's branch updated successfully.",
     };
   }
+
+  async activate(userId: string): Promise<APIResponse> {
+    const user = await this.usersRepo.getUserById(userId);
+    if (!user)
+      throw new APIError('No user found with this id', STATUS_CODES.NotFound);
+    if (user.isActive)
+      throw new APIError('user is already active', STATUS_CODES.NotFound);
+
+    await this.usersRepo.updateIsActive(userId, true);
+    return {
+      statusCode: STATUS_CODES.OK,
+      message: 'user activated successfully',
+    };
+  }
+
+  async deactivate(userId: string): Promise<APIResponse> {
+    const user = await this.usersRepo.getUserById(userId);
+    if (!user)
+      throw new APIError('No user found with this id', STATUS_CODES.NotFound);
+    if (!user.isActive)
+      throw new APIError('user is already inactive', STATUS_CODES.NotFound);
+
+    await this.usersRepo.updateIsActive(userId, false);
+    return {
+      statusCode: STATUS_CODES.OK,
+      message: 'user deactivated successfully',
+    };
+  }
 }

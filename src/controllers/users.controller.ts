@@ -27,4 +27,16 @@ export class UsersController {
     );
     sendResponse(res, result);
   };
+
+  activate: RequestHandler<IdDto> = async (req, res, next) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.usersService.activate(id);
+    sendResponse(res, result);
+  };
+
+  deactivate: RequestHandler<IdDto> = async (req, res, next) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.usersService.deactivate(id);
+    sendResponse(res, result);
+  };
 }

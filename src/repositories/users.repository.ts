@@ -83,16 +83,23 @@ export class UsersRepository implements IUsersRepository {
     });
   }
 
-  async updateBranch(
-    userId: string,
-    branchId: string,
-  ): Promise<SafeUser | undefined> {
+  async updateBranch(userId: string, branchId: string): Promise<SafeUser> {
     const user = await db
       .update(users)
       .set({ branchId })
       .where(eq(users.id, userId))
       .returning();
 
-    return user ? sanitizeUser(user[0]) : undefined;
+    return user[0];
+  }
+
+  async updateIsActive(userId: string, isActive: boolean): Promise<SafeUser> {
+    const user = await db
+      .update(users)
+      .set({ isActive })
+      .where(eq(users.id, userId))
+      .returning();
+
+    return user[0];
   }
 }
