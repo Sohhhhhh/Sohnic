@@ -25,6 +25,7 @@ export interface IUsersService {
   findAll(user: AuthenticatedUser): Promise<APIResponse>;
   findOne(user: AuthenticatedUser, userId: string): Promise<APIResponse>;
   updateBranch(userId: string, branchId: string): Promise<APIResponse>;
+  updateRole(userId: string, roleId: string): Promise<APIResponse>;
   activate(userId: string): Promise<APIResponse>;
   deactivate(userId: string): Promise<APIResponse>;
 }

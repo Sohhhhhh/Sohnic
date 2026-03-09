@@ -1,5 +1,6 @@
 import {
   IBranchesRepository,
+  IRolesRepository,
   IUsersRepository,
   IUsersService,
 } from '../interfaces';
@@ -12,6 +13,7 @@ export class UsersService implements IUsersService {
   constructor(
     private readonly usersRepo: IUsersRepository,
     private readonly branchesRepo: IBranchesRepository,
+    private readonly rolesRepo: IRolesRepository,
   ) {}
   async findAll(user: AuthenticatedUser): Promise<APIResponse> {
     const branchId =
@@ -66,6 +68,30 @@ export class UsersService implements IUsersService {
     return {
       statusCode: STATUS_CODES.OK,
       message: "user's branch updated successfully.",
+    };
+  }
+
+  async updateRole(userId: string, roleId: string): Promise<APIResponse> {
+    const [user, role] = await Promise.all([
+      this.usersRepo.getUserById(userId),
+      this.rolesRepo.getById(roleId),
+    ]);
+
+    if (!user)
+      throw new APIError('No user found with this id', STATUS_CODES.NotFound);
+    if (!role)
+      throw new APIError('No role found with this id', STATUS_CODES.NotFound);
+    if (user.roleId === roleId)
+      throw new APIError(
+        'the user is already in this role',
+        STATUS_CODES.BadRequest,
+      );
+
+    await this.usersRepo.updateRole(userId, roleId);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      message: "user's role updated successfully.",
     };
   }
 

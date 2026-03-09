@@ -28,6 +28,13 @@ export class UsersController {
     sendResponse(res, result);
   };
 
+  updateRole: RequestHandler<IdDto> = async (req, res, next) => {
+    const { id } = req.params;
+    const { roleId } = req.body;
+    const result: APIResponse = await this.usersService.updateRole(id, roleId);
+    sendResponse(res, result);
+  };
+
   activate: RequestHandler<IdDto> = async (req, res, next) => {
     const { id } = req.params;
     const result: APIResponse = await this.usersService.activate(id);

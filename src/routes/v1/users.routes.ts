@@ -5,6 +5,7 @@ import { usersController } from '../../containers/users.container';
 import validate from '../../middlewares/validate';
 import { idSchema } from '../../dtos/id.dto';
 import { branchIdSchema } from '../../dtos/branchId.dto';
+import { roleIdSchema } from '../../dtos/roleId.dto';
 
 const router = Router();
 router.get(
@@ -21,11 +22,18 @@ router.get(
   usersController.findOne,
 );
 router.patch(
-  '/:id',
+  '/:id/branch',
   isAuthenticated,
   isAuthorized('super_admin', 'hr'),
   validate(idSchema.merge(branchIdSchema)),
   usersController.updateBranch,
+);
+router.patch(
+  '/:id/role',
+  isAuthenticated,
+  isAuthorized('super_admin'),
+  validate(idSchema.merge(roleIdSchema)),
+  usersController.updateRole,
 );
 router.patch(
   '/:id/activate',

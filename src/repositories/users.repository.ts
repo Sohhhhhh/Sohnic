@@ -93,6 +93,16 @@ export class UsersRepository implements IUsersRepository {
     return user[0];
   }
 
+  async updateRole(userId: string, roleId: string): Promise<SafeUser> {
+    const user = await db
+      .update(users)
+      .set({ roleId })
+      .where(eq(users.id, userId))
+      .returning();
+
+    return user[0];
+  }
+
   async updateIsActive(userId: string, isActive: boolean): Promise<SafeUser> {
     const user = await db
       .update(users)

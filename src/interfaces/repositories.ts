@@ -36,6 +36,7 @@ export interface IUsersRepository {
   getUserWithPassword(usernameOrEmail: string): Promise<User | undefined>;
   findAll(branchId?: string): Promise<SafeUser[]>;
   updateBranch(userId: string, branchId: string): Promise<SafeUser>;
+  updateRole(userId: string, branchId: string): Promise<SafeUser>;
   updateIsActive(userId: string, isActive: boolean): Promise<SafeUser>;
 }
 
