@@ -35,7 +35,9 @@ export const roles = pgTable('roles', {
 
 export const refreshTokens = pgTable('refresh_tokens', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').notNull(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   token: text('token').notNull(),
   revocationReason: refreshTokensRevocationReason('revocation_reason'),
   revokedAt: timestamp('revoked_at'),

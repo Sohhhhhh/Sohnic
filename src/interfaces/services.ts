@@ -1,10 +1,11 @@
-import { AuthenticatedUser, SafeUser } from '../utils/sanitize';
 import { loginDto } from '../dtos/login.dto';
 import { APIResponse } from '../types/api.types';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { SetPasswordBodyDto } from '../dtos/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/changePassword.dto';
+import { CreateSupplierDto } from '../dtos/createSupplier.dto';
+import { AuthenticatedUser, SafeUser } from '../types/app.types';
 
 // ----- Service Interfaces -----
 
@@ -38,7 +39,9 @@ export interface IUsersService {
   deactivate(userId: string, requestingUserId: string): Promise<APIResponse>;
 }
 
-export interface ISuppliersService {}
+export interface ISuppliersService {
+  create(dto: CreateSupplierDto): Promise<APIResponse>;
+}
 
 // ----- Utility Interfaces -----
 

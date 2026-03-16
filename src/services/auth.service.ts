@@ -9,8 +9,9 @@ import {
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
 import { loginDto } from '../dtos/login.dto';
+import { SafeUser } from '../types/app.types';
 import STATUS_CODES from '../utils/statusCodes';
-import { SafeUser, sanitizeUser } from '../utils/sanitize';
+import { sanitizeUser } from '../utils/sanitize';
 import { APIResponse } from '../types/api.types';
 import { UsersBaseService } from './usersBase.service';
 import { CreateUserDto } from '../dtos/createUser.dto';

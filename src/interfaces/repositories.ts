@@ -1,7 +1,8 @@
-import { Role, SafeUser, User } from '../utils/sanitize';
-import { CreateUserDto } from '../dtos/createUser.dto';
 import { db } from '../config/drizzle';
+import { CreateUserDto } from '../dtos/createUser.dto';
+import { CreateSupplierDto } from '../dtos/createSupplier.dto';
 import { PostgresJsTransaction } from 'drizzle-orm/postgres-js';
+import { Role, SafeUser, Supplier, User } from '../types/app.types';
 
 // ----- Record Types -----
 
@@ -65,8 +66,7 @@ export interface IBranchesRepository {
   getById(id: string): Promise<Record<string, unknown> | undefined>;
 }
 
-export interface ISuppliersRepository {}
-
-// ----- Transaction -----
-
-export type TransactionFn = <T>(fn: (tx: TX) => Promise<T>) => Promise<T>;
+export interface ISuppliersRepository {
+  create(dto: CreateSupplierDto): Promise<Supplier>;
+  getSupplierByEmail(email: string): Promise<Supplier | undefined>;
+}
