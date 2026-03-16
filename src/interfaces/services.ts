@@ -38,6 +38,8 @@ export interface IUsersService {
   deactivate(userId: string, requestingUserId: string): Promise<APIResponse>;
 }
 
+export interface ISuppliersService {}
+
 // ----- Utility Interfaces -----
 
 export interface IEmailService {

@@ -65,6 +65,8 @@ export interface IBranchesRepository {
   getById(id: string): Promise<Record<string, unknown> | undefined>;
 }
 
+export interface ISuppliersRepository {}
+
 // ----- Transaction -----
 
 export type TransactionFn = <T>(fn: (tx: TX) => Promise<T>) => Promise<T>;
