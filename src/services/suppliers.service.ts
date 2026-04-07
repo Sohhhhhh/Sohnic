@@ -17,6 +17,16 @@ export class SuppliersService implements ISuppliersService {
     };
   }
 
+  async findAll(): Promise<APIResponse> {
+    const suppliers = await this.suppliersRepo.findAll();
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: suppliers.length,
+      data: suppliers,
+    };
+  }
+
   // --- Helpers ---
   private async checkExistingSupplier(email: string) {
     const existing = await this.suppliersRepo.getSupplierByEmail(email);

@@ -24,4 +24,8 @@ export class SuppliersRepository implements ISuppliersRepository {
 
     return supplier;
   }
+
+  async findAll(): Promise<Supplier[]> {
+    return db.query.suppliers.findMany();
+  }
 }

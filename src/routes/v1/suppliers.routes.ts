@@ -13,5 +13,11 @@ router.post(
   validate(createSupplierSchema),
   suppliersController.create,
 );
+router.get(
+  '/',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin', 'storage_manager'),
+  suppliersController.findAll,
+);
 
 export const suppliersRoutes = router;

@@ -41,6 +41,7 @@ export interface IUsersService {
 
 export interface ISuppliersService {
   create(dto: CreateSupplierDto): Promise<APIResponse>;
+  findAll(): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

@@ -10,4 +10,9 @@ export class SuppliersController {
     const result: APIResponse = await this.suppliersService.create(req.body);
     sendResponse(res, result);
   };
+
+  findAll: RequestHandler = async (req, res) => {
+    const result: APIResponse = await this.suppliersService.findAll();
+    sendResponse(res, result);
+  };
 }
