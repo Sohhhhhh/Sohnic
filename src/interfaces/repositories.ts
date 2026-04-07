@@ -70,4 +70,5 @@ export interface ISuppliersRepository {
   create(dto: CreateSupplierDto): Promise<Supplier>;
   getSupplierByEmail(email: string): Promise<Supplier | undefined>;
   findAll(): Promise<Supplier[]>;
+  findOne(id: string): Promise<Supplier | undefined>;
 }

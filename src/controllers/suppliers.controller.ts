@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import { APIResponse } from '../types/api.types';
 import { ISuppliersService } from '../interfaces';
 import { sendResponse } from '../utils/sendResponse';
+import { IdDto } from '../dtos/id.dto';
 
 export class SuppliersController {
   constructor(private readonly suppliersService: ISuppliersService) {}
@@ -13,6 +14,12 @@ export class SuppliersController {
 
   findAll: RequestHandler = async (req, res) => {
     const result: APIResponse = await this.suppliersService.findAll();
+    sendResponse(res, result);
+  };
+
+  findOne: RequestHandler<IdDto> = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.suppliersService.findOne(id);
     sendResponse(res, result);
   };
 }

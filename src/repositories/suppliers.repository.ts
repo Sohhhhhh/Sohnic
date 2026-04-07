@@ -28,4 +28,12 @@ export class SuppliersRepository implements ISuppliersRepository {
   async findAll(): Promise<Supplier[]> {
     return db.query.suppliers.findMany();
   }
+
+  async findOne(id: string): Promise<Supplier | undefined> {
+    const supplier = await db.query.suppliers.findFirst({
+      where: eq(suppliers.id, id),
+    });
+
+    return supplier;
+  }
 }

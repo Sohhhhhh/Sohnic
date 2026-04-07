@@ -1,8 +1,8 @@
+import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { APIResponse } from '../types/api.types';
 import { CreateSupplierDto } from '../dtos/createSupplier.dto';
 import { ISuppliersRepository, ISuppliersService } from '../interfaces';
-import APIError from '../utils/APIError';
 
 export class SuppliersService implements ISuppliersService {
   constructor(private readonly suppliersRepo: ISuppliersRepository) {}
@@ -24,6 +24,21 @@ export class SuppliersService implements ISuppliersService {
       statusCode: STATUS_CODES.OK,
       size: suppliers.length,
       data: suppliers,
+    };
+  }
+
+  async findOne(supplierId: string): Promise<APIResponse> {
+    const supplier = await this.suppliersRepo.findOne(supplierId);
+    console.log(supplierId, supplier);
+    if (!supplier)
+      throw new APIError(
+        'No supplier found with this id.',
+        STATUS_CODES.NotFound,
+      );
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: supplier,
     };
   }
 
