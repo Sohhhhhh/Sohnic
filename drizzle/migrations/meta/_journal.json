@@ -43,6 +43,13 @@
       "when": 1773643156400,
       "tag": "0005_sturdy_bloodscream",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776128988780,
+      "tag": "0006_complete_thunderbird",
+      "breakpoints": true
     }
   ]
 }

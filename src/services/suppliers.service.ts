@@ -3,12 +3,13 @@ import STATUS_CODES from '../utils/statusCodes';
 import { APIResponse } from '../types/api.types';
 import { CreateSupplierDto } from '../dtos/createSupplier.dto';
 import { ISuppliersRepository, ISuppliersService } from '../interfaces';
+import { UpdateSupplierDto } from '../dtos/updateSupplier.dto';
 
 export class SuppliersService implements ISuppliersService {
   constructor(private readonly suppliersRepo: ISuppliersRepository) {}
 
   async create(dto: CreateSupplierDto): Promise<APIResponse> {
-    await this.checkExistingSupplier(dto.email);
+    await this.checkExistingSupplierByEmail(dto.email);
     const supplier = await this.suppliersRepo.create(dto);
 
     return {
@@ -28,13 +29,7 @@ export class SuppliersService implements ISuppliersService {
   }
 
   async findOne(supplierId: string): Promise<APIResponse> {
-    const supplier = await this.suppliersRepo.findOne(supplierId);
-    console.log(supplierId, supplier);
-    if (!supplier)
-      throw new APIError(
-        'No supplier found with this id.',
-        STATUS_CODES.NotFound,
-      );
+    const supplier = await this.checkExistingSupplierById(supplierId);
 
     return {
       statusCode: STATUS_CODES.OK,
@@ -42,14 +37,38 @@ export class SuppliersService implements ISuppliersService {
     };
   }
 
-  // --- Helpers ---
-  private async checkExistingSupplier(email: string) {
-    const existing = await this.suppliersRepo.getSupplierByEmail(email);
+  async update(
+    supplierId: string,
+    dto: UpdateSupplierDto,
+  ): Promise<APIResponse> {
+    await this.checkExistingSupplierById(supplierId);
+    const updatedSupplier = await this.suppliersRepo.update(supplierId, dto);
 
-    if (existing)
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: updatedSupplier,
+    };
+  }
+
+  // --- Helpers ---
+  private async checkExistingSupplierByEmail(email: string) {
+    const supplier = await this.suppliersRepo.getSupplierByEmail(email);
+
+    if (supplier)
       throw new APIError(
         'A supplier with this email already exists.',
         STATUS_CODES.Conflict,
       );
+  }
+
+  private async checkExistingSupplierById(supplierId: string) {
+    const supplier = await this.suppliersRepo.findOne(supplierId);
+    if (!supplier)
+      throw new APIError(
+        'No supplier found with this id.',
+        STATUS_CODES.NotFound,
+      );
+
+    return supplier;
   }
 }

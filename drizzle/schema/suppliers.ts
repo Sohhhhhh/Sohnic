@@ -17,6 +17,7 @@ export const suppliers = pgTable('suppliers', {
   name: varchar('name', { length: 255 }).notNull(),
   companyName: varchar('company_name', { length: 255 }),
   leadTimeDays: integer('lead_time_days'),
+  isActive: boolean('is_active').default(true).notNull(),
   email: varchar('email', { length: 255 }).unique().notNull(),
   phone: varchar('phone', { length: 50 }),
   country: varchar('country', { length: 255 }),

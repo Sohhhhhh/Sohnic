@@ -4,6 +4,7 @@ import { suppliers } from '../../drizzle/schema';
 import { ISuppliersRepository } from '../interfaces';
 import { CreateSupplierDto } from '../dtos/createSupplier.dto';
 import { eq } from 'drizzle-orm';
+import { UpdateSupplierDto } from '../dtos/updateSupplier.dto';
 
 export class SuppliersRepository implements ISuppliersRepository {
   async create(dto: CreateSupplierDto): Promise<Supplier> {
@@ -35,5 +36,15 @@ export class SuppliersRepository implements ISuppliersRepository {
     });
 
     return supplier;
+  }
+
+  async update(id: string, dto: UpdateSupplierDto): Promise<Supplier> {
+    const supplier = await db
+      .update(suppliers)
+      .set({ ...dto })
+      .where(eq(suppliers.id, id))
+      .returning();
+
+    return supplier[0];
   }
 }

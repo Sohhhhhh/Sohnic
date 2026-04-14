@@ -3,6 +3,7 @@ import { CreateUserDto } from '../dtos/createUser.dto';
 import { CreateSupplierDto } from '../dtos/createSupplier.dto';
 import { PostgresJsTransaction } from 'drizzle-orm/postgres-js';
 import { Role, SafeUser, Supplier, User } from '../types/app.types';
+import { UpdateSupplierDto } from '../dtos/updateSupplier.dto';
 
 // ----- Record Types -----
 
@@ -71,4 +72,5 @@ export interface ISuppliersRepository {
   getSupplierByEmail(email: string): Promise<Supplier | undefined>;
   findAll(): Promise<Supplier[]>;
   findOne(id: string): Promise<Supplier | undefined>;
+  update(id: string, dto: UpdateSupplierDto): Promise<Supplier>;
 }

@@ -22,4 +22,11 @@ export class SuppliersController {
     const result: APIResponse = await this.suppliersService.findOne(id);
     sendResponse(res, result);
   };
+
+  update: RequestHandler<IdDto> = async (req, res) => {
+    const { id } = req.params;
+    const dto = req.body;
+    const result: APIResponse = await this.suppliersService.update(id, dto);
+    sendResponse(res, result);
+  };
 }
