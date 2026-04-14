@@ -36,5 +36,18 @@ router.patch(
   validate(idSchema.merge(updateSupplierSchema)),
   suppliersController.update,
 );
-
+router.post(
+  '/:id/deactivate',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validate(idSchema),
+  suppliersController.deactivate,
+);
+router.post(
+  '/:id/activate',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validate(idSchema),
+  suppliersController.activate,
+);
 export const suppliersRoutes = router;

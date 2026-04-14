@@ -45,6 +45,8 @@ export interface ISuppliersService {
   findAll(): Promise<APIResponse>;
   findOne(supplierId: string): Promise<APIResponse>;
   update(supplierId: string, dto: UpdateSupplierDto): Promise<APIResponse>;
+  deactivate(supplierId: string): Promise<APIResponse>;
+  activate(supplierId: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

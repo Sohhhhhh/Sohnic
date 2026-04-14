@@ -29,4 +29,16 @@ export class SuppliersController {
     const result: APIResponse = await this.suppliersService.update(id, dto);
     sendResponse(res, result);
   };
+
+  deactivate: RequestHandler<IdDto> = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.suppliersService.deactivate(id);
+    sendResponse(res, result);
+  };
+
+  activate: RequestHandler<IdDto> = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.suppliersService.activate(id);
+    sendResponse(res, result);
+  };
 }

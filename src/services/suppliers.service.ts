@@ -50,6 +50,38 @@ export class SuppliersService implements ISuppliersService {
     };
   }
 
+  async deactivate(supplierId: string): Promise<APIResponse> {
+    const supplier = await this.checkExistingSupplierById(supplierId);
+    if (!supplier.isActive)
+      throw new APIError(
+        'The supplier is already deactivated.',
+        STATUS_CODES.Conflict,
+      );
+
+    const updatedSupplier = await this.suppliersRepo.deactivate(supplierId);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: updatedSupplier,
+    };
+  }
+
+  async activate(supplierId: string): Promise<APIResponse> {
+    const supplier = await this.checkExistingSupplierById(supplierId);
+    if (supplier.isActive)
+      throw new APIError(
+        'The supplier is already active.',
+        STATUS_CODES.Conflict,
+      );
+
+    const updatedSupplier = await this.suppliersRepo.activate(supplierId);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: updatedSupplier,
+    };
+  }
+
   // --- Helpers ---
   private async checkExistingSupplierByEmail(email: string) {
     const supplier = await this.suppliersRepo.getSupplierByEmail(email);

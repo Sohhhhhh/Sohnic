@@ -73,4 +73,6 @@ export interface ISuppliersRepository {
   findAll(): Promise<Supplier[]>;
   findOne(id: string): Promise<Supplier | undefined>;
   update(id: string, dto: UpdateSupplierDto): Promise<Supplier>;
+  deactivate(id: string): Promise<Supplier>;
+  activate(id: string): Promise<Supplier>;
 }

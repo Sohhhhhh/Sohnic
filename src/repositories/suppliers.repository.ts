@@ -47,4 +47,24 @@ export class SuppliersRepository implements ISuppliersRepository {
 
     return supplier[0];
   }
+
+  async deactivate(id: string): Promise<Supplier> {
+    const supplier = await db
+      .update(suppliers)
+      .set({ isActive: false })
+      .where(eq(suppliers.id, id))
+      .returning();
+
+    return supplier[0];
+  }
+
+  async activate(id: string): Promise<Supplier> {
+    const supplier = await db
+      .update(suppliers)
+      .set({ isActive: true })
+      .where(eq(suppliers.id, id))
+      .returning();
+
+    return supplier[0];
+  }
 }
