@@ -2,7 +2,10 @@ import crypto from 'crypto';
 import env from '../config/env';
 import { SafeUser, User } from '../types/app.types';
 import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
-import { AccessTokenPayload, RefreshTokenPayload } from '../dtos/token.dto';
+import {
+  AccessTokenPayload,
+  RefreshTokenPayload,
+} from '../dtos/users/token.dto';
 
 const generateJWT = <T extends object>(
   data: T,

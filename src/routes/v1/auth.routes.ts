@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import validate from '../../middlewares/validate';
-import { loginSchema } from '../../dtos/login.dto';
-import { createUserSchema } from '../../dtos/createUser.dto';
+import { loginSchema } from '../../dtos/users/login.dto';
+import { createUserSchema } from '../../dtos/users/createUser.dto';
 import { isAuthorized } from '../../middlewares/isAuthorized';
-import { setPasswordSchema } from '../../dtos/setPassword.dto';
+import { setPasswordSchema } from '../../dtos/users/setPassword.dto';
 import { authController } from '../../containers/auth.container';
-import { forgetPasswordSchema } from '../../dtos/forgetPassword.dto';
-import { changePasswordSchema } from '../../dtos/changePassword.dto';
+import { forgetPasswordSchema } from '../../dtos/users/forgetPassword.dto';
+import { changePasswordSchema } from '../../dtos/users/changePassword.dto';
 import { isAuthenticated } from '../../containers/middleware.container';
 
 const router = Router();

@@ -8,16 +8,16 @@ import {
 } from '../utils/token';
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
-import { loginDto } from '../dtos/login.dto';
+import { loginDto } from '../dtos/users/login.dto';
 import { SafeUser } from '../types/app.types';
 import STATUS_CODES from '../utils/statusCodes';
 import { sanitizeUser } from '../utils/sanitize';
 import { APIResponse } from '../types/api.types';
 import { UsersBaseService } from './usersBase.service';
-import { CreateUserDto } from '../dtos/createUser.dto';
-import { SetPasswordBodyDto } from '../dtos/setPassword.dto';
-import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
-import { ChangePasswordDto } from '../dtos/changePassword.dto';
+import { CreateUserDto } from '../dtos/users/createUser.dto';
+import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
+import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
+import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
 import { comparePassword, hashPassword } from '../utils/password';
 import {
   IAuthService,

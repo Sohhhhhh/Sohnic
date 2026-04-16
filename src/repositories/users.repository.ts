@@ -3,7 +3,7 @@ import { db } from '../config/drizzle';
 import { users } from '../../drizzle/schema';
 import { sanitizeUser } from '../utils/sanitize';
 import { SafeUser, User } from '../types/app.types';
-import { CreateUserDto } from '../dtos/createUser.dto';
+import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { IUsersRepository } from '../interfaces/repositories';
 
 export class UsersRepository implements IUsersRepository {

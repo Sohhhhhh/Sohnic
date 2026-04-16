@@ -1,9 +1,9 @@
 import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { APIResponse } from '../types/api.types';
-import { CreateSupplierDto } from '../dtos/createSupplier.dto';
+import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { ISuppliersRepository, ISuppliersService } from '../interfaces';
-import { UpdateSupplierDto } from '../dtos/updateSupplier.dto';
+import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 
 export class SuppliersService implements ISuppliersService {
   constructor(private readonly suppliersRepo: ISuppliersRepository) {}

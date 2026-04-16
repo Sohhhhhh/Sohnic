@@ -1,9 +1,9 @@
 import { db } from '../config/drizzle';
-import { CreateUserDto } from '../dtos/createUser.dto';
-import { CreateSupplierDto } from '../dtos/createSupplier.dto';
+import { CreateUserDto } from '../dtos/users/createUser.dto';
+import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { PostgresJsTransaction } from 'drizzle-orm/postgres-js';
 import { Role, SafeUser, Supplier, User } from '../types/app.types';
-import { UpdateSupplierDto } from '../dtos/updateSupplier.dto';
+import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 
 // ----- Record Types -----
 

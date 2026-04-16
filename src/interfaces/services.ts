@@ -1,12 +1,12 @@
-import { loginDto } from '../dtos/login.dto';
+import { loginDto } from '../dtos/users/login.dto';
 import { APIResponse } from '../types/api.types';
-import { CreateUserDto } from '../dtos/createUser.dto';
-import { SetPasswordBodyDto } from '../dtos/setPassword.dto';
-import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
-import { ChangePasswordDto } from '../dtos/changePassword.dto';
-import { CreateSupplierDto } from '../dtos/createSupplier.dto';
+import { CreateUserDto } from '../dtos/users/createUser.dto';
+import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
+import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
+import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
+import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { AuthenticatedUser, SafeUser } from '../types/app.types';
-import { UpdateSupplierDto } from '../dtos/updateSupplier.dto';
+import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 
 // ----- Service Interfaces -----
 

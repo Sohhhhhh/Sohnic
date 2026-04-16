@@ -50,6 +50,13 @@
       "when": 1776128988780,
       "tag": "0006_complete_thunderbird",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776376937823,
+      "tag": "0007_legal_hulk",
+      "breakpoints": true
     }
   ]
 }

@@ -1,10 +1,10 @@
 import { Router } from 'express';
 
-import { idSchema } from '../../dtos/id.dto';
+import { idSchema } from '../../dtos/common/id.dto';
 import validate from '../../middlewares/validate';
 import { isAuthorized } from '../../middlewares/isAuthorized';
-import { updateSupplierSchema } from '../../dtos/updateSupplier.dto';
-import { createSupplierSchema } from '../../dtos/createSupplier.dto';
+import { updateSupplierSchema } from '../../dtos/suppliers/updateSupplier.dto';
+import { createSupplierSchema } from '../../dtos/suppliers/createSupplier.dto';
 import { isAuthenticated } from '../../containers/middleware.container';
 import { suppliersController } from '../../containers/suppliers.container';
 

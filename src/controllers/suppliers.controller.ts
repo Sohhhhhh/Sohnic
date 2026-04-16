@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { APIResponse } from '../types/api.types';
 import { ISuppliersService } from '../interfaces';
 import { sendResponse } from '../utils/sendResponse';
-import { IdDto } from '../dtos/id.dto';
+import { IdDto } from '../dtos/common/id.dto';
 
 export class SuppliersController {
   constructor(private readonly suppliersService: ISuppliersService) {}

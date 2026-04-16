@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { IUsersService } from '../interfaces';
 import { APIResponse } from '../types/api.types';
 import { sendResponse } from '../utils/sendResponse';
-import { IdDto } from '../dtos/id.dto';
+import { IdDto } from '../dtos/common/id.dto';
 
 export class UsersController {
   constructor(private readonly usersService: IUsersService) {}

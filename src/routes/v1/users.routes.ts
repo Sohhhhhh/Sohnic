@@ -3,9 +3,9 @@ import { isAuthenticated } from '../../containers/middleware.container';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { usersController } from '../../containers/users.container';
 import validate from '../../middlewares/validate';
-import { idSchema } from '../../dtos/id.dto';
-import { branchIdSchema } from '../../dtos/branchId.dto';
-import { roleIdSchema } from '../../dtos/roleId.dto';
+import { idSchema } from '../../dtos/common/id.dto';
+import { branchIdSchema } from '../../dtos/common/branchId.dto';
+import { roleIdSchema } from '../../dtos/users/roleId.dto';
 
 const router = Router();
 router.get(

@@ -1,8 +1,8 @@
 import { CookieOptions, RequestHandler, Response } from 'express';
 import { APIResponse } from '../types/api.types';
 import { sendResponse } from '../utils/sendResponse';
-import { EncodedToken } from '../dtos/setPassword.dto';
-import { ForgetPasswordDto } from '../dtos/forgetPassword.dto';
+import { EncodedToken } from '../dtos/users/setPassword.dto';
+import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
 import { IAuthService } from '../interfaces/services';
 import env from '../config/env';
 
