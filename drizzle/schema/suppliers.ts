@@ -3,14 +3,12 @@ import {
   uuid,
   varchar,
   integer,
-  decimal,
+  numeric,
   boolean,
   timestamp,
   date,
   unique,
 } from 'drizzle-orm/pg-core';
-import { rawMaterials, sellableItems } from './products';
-import { purchaseRequests } from './purchasing';
 
 export const suppliers = pgTable('suppliers', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -23,39 +21,20 @@ export const suppliers = pgTable('suppliers', {
   country: varchar('country', { length: 255 }),
   city: varchar('city', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
-export const rawMaterialSuppliers = pgTable(
-  'raw_material_suppliers',
+export const itemSuppliers = pgTable(
+  'item_suppliers',
   {
     id: uuid('id').defaultRandom().primaryKey(),
-    materialId: uuid('material_id')
-      .notNull()
-      .references(() => rawMaterials.id),
-    supplierId: uuid('supplier_id')
-      .notNull()
-      .references(() => suppliers.id),
-    unitPrice: decimal('unit_price').notNull(),
+    itemId: uuid('item_id').notNull(),
+    supplierId: uuid('supplier_id').notNull(),
+    price: numeric('price', { precision: 10, scale: 2 }).notNull(),
     leadTimeDays: integer('lead_time_days'),
-    isPrimary: boolean('is_primary').default(false).notNull(),
-    createdAt: timestamp('created_at').defaultNow(),
-  },
-  (t) => [unique().on(t.materialId, t.supplierId)],
-);
-
-export const sellableItemSuppliers = pgTable(
-  'sellable_item_suppliers',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    itemId: uuid('item_id')
-      .notNull()
-      .references(() => sellableItems.id),
-    supplierId: uuid('supplier_id')
-      .notNull()
-      .references(() => suppliers.id),
-    purchasePrice: decimal('purchase_price').notNull(),
-    isPrimary: boolean('is_primary').default(false).notNull(),
+    isPrimary: boolean('is_primary').notNull().default(false),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (t) => [unique().on(t.itemId, t.supplierId)],
@@ -63,13 +42,9 @@ export const sellableItemSuppliers = pgTable(
 
 export const supplierQuotations = pgTable('supplier_quotations', {
   id: uuid('id').defaultRandom().primaryKey(),
-  purchaseRequestId: uuid('purchase_request_id')
-    .notNull()
-    .references(() => purchaseRequests.id),
-  supplierId: uuid('supplier_id')
-    .notNull()
-    .references(() => suppliers.id),
-  totalPrice: decimal('total_price').notNull(),
+  purchaseRequestId: uuid('purchase_request_id').notNull(),
+  supplierId: uuid('supplier_id').notNull(),
+  totalPrice: numeric('total_price', { precision: 12, scale: 2 }).notNull(),
   validUntil: date('valid_until').notNull(),
   leadTimeDays: integer('lead_time_days'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -77,12 +52,8 @@ export const supplierQuotations = pgTable('supplier_quotations', {
 
 export const quotationItems = pgTable('quotation_items', {
   id: uuid('id').defaultRandom().primaryKey(),
-  quotationId: uuid('quotation_id')
-    .notNull()
-    .references(() => supplierQuotations.id),
-  itemId: uuid('item_id')
-    .notNull()
-    .references(() => rawMaterials.id),
+  quotationId: uuid('quotation_id').notNull(),
+  itemId: uuid('item_id').notNull(),
   quantity: integer('quantity').notNull(),
-  unitPrice: decimal('unit_price').notNull(),
+  unitPrice: numeric('unit_price', { precision: 10, scale: 2 }).notNull(),
 });

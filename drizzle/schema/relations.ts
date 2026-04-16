@@ -1,17 +1,11 @@
 import { relations } from 'drizzle-orm';
-import { users, roles, refreshTokens } from './users';
+import { users, roles, refreshTokens, setPasswordTokens } from './users';
 import { branches, warehouses } from './locations';
+import { categories, items, billOfMaterials } from './products';
 import { customers, orders, orderItems } from './customers';
 import {
-  sellableItems,
-  rawMaterials,
-  categories,
-  billOfMaterials,
-} from './products';
-import {
   suppliers,
-  rawMaterialSuppliers,
-  sellableItemSuppliers,
+  itemSuppliers,
   supplierQuotations,
   quotationItems,
 } from './suppliers';
@@ -21,7 +15,7 @@ import {
   purchaseOrders,
   purchaseOrderItems,
 } from './purchasing';
-import { rawMaterialsInventory, sellableItemsInventory } from './inventory';
+import { inventory } from './inventory';
 import {
   manufacturers,
   manufacturingOrders,
@@ -32,29 +26,22 @@ import {
   transferRequestItems,
   transferOrders,
 } from './transfers';
-import { rawMaterialsInspection, itemsInspection } from './inspections';
-import {
-  returnRequests,
-  rawMaterialReturns,
-  finishedGoodsReturns,
-} from './returns';
+import { inspections } from './inspections';
+import { supplierReturns, manufacturerReturns } from './returns';
 
-// Users Relations
+// ─── Users ───
+
 export const usersRelations = relations(users, ({ one, many }) => ({
-  role: one(roles, {
-    fields: [users.roleId],
-    references: [roles.id],
-  }),
+  role: one(roles, { fields: [users.roleId], references: [roles.id] }),
   branch: one(branches, {
     fields: [users.branchId],
     references: [branches.id],
   }),
   refreshTokens: many(refreshTokens),
+  setPasswordTokens: many(setPasswordTokens),
   ordersAsCashier: many(orders),
-  purchaseRequestsAsOrderer: many(purchaseRequests, {
-    relationName: 'orderer',
-  }),
-  purchaseRequestsAsReviewer: many(purchaseRequests, {
+  purchaseRequestsOrdered: many(purchaseRequests, { relationName: 'orderer' }),
+  purchaseRequestsReviewed: many(purchaseRequests, {
     relationName: 'reviewer',
   }),
   purchaseOrdersCreated: many(purchaseOrders, { relationName: 'creator' }),
@@ -66,12 +53,19 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     relationName: 'approver',
   }),
   transferRequestsApproved: many(transferRequests),
-  rawMaterialInspections: many(rawMaterialsInspection),
-  itemInspections: many(itemsInspection),
-  returnRequestsAsInspector: many(returnRequests, {
+  inspections: many(inspections),
+  supplierReturnsAsInspector: many(supplierReturns, {
     relationName: 'inspector',
   }),
-  returnRequestsAsApprover: many(returnRequests, { relationName: 'approver' }),
+  supplierReturnsAsApprover: many(supplierReturns, {
+    relationName: 'approver',
+  }),
+  manufacturerReturnsAsInspector: many(manufacturerReturns, {
+    relationName: 'inspector',
+  }),
+  manufacturerReturnsAsApprover: many(manufacturerReturns, {
+    relationName: 'approver',
+  }),
 }));
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -79,26 +73,28 @@ export const rolesRelations = relations(roles, ({ many }) => ({
 }));
 
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
-  user: one(users, {
-    fields: [refreshTokens.userId],
-    references: [users.id],
-  }),
+  user: one(users, { fields: [refreshTokens.userId], references: [users.id] }),
 }));
 
-// Branches Relations
-export const branchesRelations = relations(branches, ({ one, many }) => ({
-  manager: one(users, {
-    fields: [branches.managerId],
-    references: [users.id],
+export const setPasswordTokensRelations = relations(
+  setPasswordTokens,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [setPasswordTokens.userId],
+      references: [users.id],
+    }),
   }),
+);
+
+// ─── Locations ───
+
+export const branchesRelations = relations(branches, ({ many }) => ({
   users: many(users),
   warehouses: many(warehouses),
   orders: many(orders),
   purchaseRequests: many(purchaseRequests),
-  transferRequestsRequested: many(transferRequests, {
-    relationName: 'requestedBy',
-  }),
-  transferRequestsRequestedFrom: many(transferRequests, {
+  transferRequestsBy: many(transferRequests, { relationName: 'requestedBy' }),
+  transferRequestsFrom: many(transferRequests, {
     relationName: 'requestedFrom',
   }),
 }));
@@ -108,11 +104,59 @@ export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
     fields: [warehouses.branchId],
     references: [branches.id],
   }),
-  rawMaterialsInventory: many(rawMaterialsInventory),
-  sellableItemsInventory: many(sellableItemsInventory),
+  inventory: many(inventory),
 }));
 
-// Customers Relations
+// ─── Products ───
+
+export const categoriesRelations = relations(categories, ({ one, many }) => ({
+  parentCategory: one(categories, {
+    fields: [categories.parentCategoryId],
+    references: [categories.id],
+    relationName: 'subcategories',
+  }),
+  subcategories: many(categories, { relationName: 'subcategories' }),
+  items: many(items),
+}));
+
+export const itemsRelations = relations(items, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [items.categoryId],
+    references: [categories.id],
+  }),
+  orderItems: many(orderItems),
+  itemSuppliers: many(itemSuppliers),
+  inventory: many(inventory),
+  billOfMaterialsAsProduct: many(billOfMaterials, { relationName: 'product' }),
+  billOfMaterialsAsComponent: many(billOfMaterials, {
+    relationName: 'component',
+  }),
+  quotationItems: many(quotationItems),
+  purchaseRequestItems: many(purchaseRequestItems),
+  purchaseOrderItems: many(purchaseOrderItems),
+  inspections: many(inspections),
+  transferRequestItems: many(transferRequestItems),
+  manufacturingOrders: many(manufacturingOrders),
+}));
+
+export const billOfMaterialsRelations = relations(
+  billOfMaterials,
+  ({ one }) => ({
+    product: one(items, {
+      fields: [billOfMaterials.itemId],
+      references: [items.id],
+      relationName: 'product',
+    }),
+    component: one(items, {
+      fields: [billOfMaterials.componentId],
+      references: [items.id],
+      relationName: 'component',
+    }),
+  }),
+);
+
+// ─── Customers & Sales ───
+
 export const customersRelations = relations(customers, ({ many }) => ({
   orders: many(orders),
 }));
@@ -126,112 +170,31 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     fields: [orders.customerId],
     references: [customers.id],
   }),
-  cashier: one(users, {
-    fields: [orders.cashierId],
-    references: [users.id],
-  }),
+  cashier: one(users, { fields: [orders.cashierId], references: [users.id] }),
   items: many(orderItems),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
-  order: one(orders, {
-    fields: [orderItems.orderId],
-    references: [orders.id],
-  }),
-  item: one(sellableItems, {
-    fields: [orderItems.itemId],
-    references: [sellableItems.id],
-  }),
+  order: one(orders, { fields: [orderItems.orderId], references: [orders.id] }),
+  item: one(items, { fields: [orderItems.itemId], references: [items.id] }),
 }));
 
-// Products Relations
-export const sellableItemsRelations = relations(
-  sellableItems,
-  ({ one, many }) => ({
-    category: one(categories, {
-      fields: [sellableItems.categoryId],
-      references: [categories.id],
-    }),
-    orderItems: many(orderItems),
-    suppliers: many(sellableItemSuppliers),
-    inventory: many(sellableItemsInventory),
-    billOfMaterials: many(billOfMaterials),
-    manufacturingOrders: many(manufacturingOrders),
-    transferRequestItems: many(transferRequestItems),
-    itemsInspections: many(itemsInspection),
-  }),
-);
+// ─── Suppliers ───
 
-export const rawMaterialsRelations = relations(rawMaterials, ({ many }) => ({
-  suppliers: many(rawMaterialSuppliers),
-  inventory: many(rawMaterialsInventory),
-  billOfMaterials: many(billOfMaterials),
-  quotationItems: many(quotationItems),
-  purchaseRequestItems: many(purchaseRequestItems),
-  purchaseOrderItems: many(purchaseOrderItems),
-  inspections: many(rawMaterialsInspection),
-}));
-
-export const categoriesRelations = relations(categories, ({ one, many }) => ({
-  parentCategory: one(categories, {
-    fields: [categories.parentCategoryId],
-    references: [categories.id],
-    relationName: 'subcategories',
-  }),
-  subcategories: many(categories, { relationName: 'subcategories' }),
-  items: many(sellableItems),
-}));
-
-export const billOfMaterialsRelations = relations(
-  billOfMaterials,
-  ({ one }) => ({
-    item: one(sellableItems, {
-      fields: [billOfMaterials.itemId],
-      references: [sellableItems.id],
-    }),
-    rawMaterial: one(rawMaterials, {
-      fields: [billOfMaterials.rawMaterialId],
-      references: [rawMaterials.id],
-    }),
-  }),
-);
-
-// Suppliers Relations
 export const suppliersRelations = relations(suppliers, ({ many }) => ({
-  rawMaterialSuppliers: many(rawMaterialSuppliers),
-  sellableItemSuppliers: many(sellableItemSuppliers),
+  itemSuppliers: many(itemSuppliers),
   quotations: many(supplierQuotations),
   purchaseOrders: many(purchaseOrders),
-  rawMaterialReturns: many(rawMaterialReturns),
+  returns: many(supplierReturns),
 }));
 
-export const rawMaterialSuppliersRelations = relations(
-  rawMaterialSuppliers,
-  ({ one }) => ({
-    material: one(rawMaterials, {
-      fields: [rawMaterialSuppliers.materialId],
-      references: [rawMaterials.id],
-    }),
-    supplier: one(suppliers, {
-      fields: [rawMaterialSuppliers.supplierId],
-      references: [suppliers.id],
-    }),
+export const itemSuppliersRelations = relations(itemSuppliers, ({ one }) => ({
+  item: one(items, { fields: [itemSuppliers.itemId], references: [items.id] }),
+  supplier: one(suppliers, {
+    fields: [itemSuppliers.supplierId],
+    references: [suppliers.id],
   }),
-);
-
-export const sellableItemSuppliersRelations = relations(
-  sellableItemSuppliers,
-  ({ one }) => ({
-    item: one(sellableItems, {
-      fields: [sellableItemSuppliers.itemId],
-      references: [sellableItems.id],
-    }),
-    supplier: one(suppliers, {
-      fields: [sellableItemSuppliers.supplierId],
-      references: [suppliers.id],
-    }),
-  }),
-);
+}));
 
 export const supplierQuotationsRelations = relations(
   supplierQuotations,
@@ -254,13 +217,11 @@ export const quotationItemsRelations = relations(quotationItems, ({ one }) => ({
     fields: [quotationItems.quotationId],
     references: [supplierQuotations.id],
   }),
-  item: one(rawMaterials, {
-    fields: [quotationItems.itemId],
-    references: [rawMaterials.id],
-  }),
+  item: one(items, { fields: [quotationItems.itemId], references: [items.id] }),
 }));
 
-// Purchasing Relations
+// ─── Purchasing ───
+
 export const purchaseRequestsRelations = relations(
   purchaseRequests,
   ({ one, many }) => ({
@@ -290,9 +251,9 @@ export const purchaseRequestItemsRelations = relations(
       fields: [purchaseRequestItems.purchaseRequestId],
       references: [purchaseRequests.id],
     }),
-    material: one(rawMaterials, {
-      fields: [purchaseRequestItems.materialId],
-      references: [rawMaterials.id],
+    item: one(items, {
+      fields: [purchaseRequestItems.itemId],
+      references: [items.id],
     }),
   }),
 );
@@ -319,8 +280,8 @@ export const purchaseOrdersRelations = relations(
       relationName: 'approver',
     }),
     items: many(purchaseOrderItems),
-    inspections: many(rawMaterialsInspection),
-    rawMaterialReturns: many(rawMaterialReturns),
+    inspections: many(inspections),
+    returns: many(supplierReturns),
   }),
 );
 
@@ -331,54 +292,36 @@ export const purchaseOrderItemsRelations = relations(
       fields: [purchaseOrderItems.orderId],
       references: [purchaseOrders.id],
     }),
-    item: one(rawMaterials, {
+    item: one(items, {
       fields: [purchaseOrderItems.itemId],
-      references: [rawMaterials.id],
+      references: [items.id],
     }),
   }),
 );
 
-// Inventory Relations
-export const rawMaterialsInventoryRelations = relations(
-  rawMaterialsInventory,
-  ({ one }) => ({
-    rawMaterial: one(rawMaterials, {
-      fields: [rawMaterialsInventory.rawMaterialId],
-      references: [rawMaterials.id],
-    }),
-    warehouse: one(warehouses, {
-      fields: [rawMaterialsInventory.warehouseId],
-      references: [warehouses.id],
-    }),
-  }),
-);
+// ─── inventory ───
 
-export const sellableItemsInventoryRelations = relations(
-  sellableItemsInventory,
-  ({ one }) => ({
-    sellableItem: one(sellableItems, {
-      fields: [sellableItemsInventory.sellableItemId],
-      references: [sellableItems.id],
-    }),
-    warehouse: one(warehouses, {
-      fields: [sellableItemsInventory.warehouseId],
-      references: [warehouses.id],
-    }),
+export const inventoryRelations = relations(inventory, ({ one }) => ({
+  item: one(items, { fields: [inventory.itemId], references: [items.id] }),
+  warehouse: one(warehouses, {
+    fields: [inventory.warehouseId],
+    references: [warehouses.id],
   }),
-);
+}));
 
-// Manufacturing Relations
+// ─── Manufacturing ───
+
 export const manufacturersRelations = relations(manufacturers, ({ many }) => ({
   manufacturingOrders: many(manufacturingOrders),
-  finishedGoodsReturns: many(finishedGoodsReturns),
+  returns: many(manufacturerReturns),
 }));
 
 export const manufacturingOrdersRelations = relations(
   manufacturingOrders,
   ({ one, many }) => ({
-    product: one(sellableItems, {
+    product: one(items, {
       fields: [manufacturingOrders.productId],
-      references: [sellableItems.id],
+      references: [items.id],
     }),
     createdBy: one(users, {
       fields: [manufacturingOrders.createdById],
@@ -395,7 +338,7 @@ export const manufacturingOrdersRelations = relations(
       references: [manufacturers.id],
     }),
     batches: many(manufacturingBatches),
-    finishedGoodsReturns: many(finishedGoodsReturns),
+    returns: many(manufacturerReturns),
   }),
 );
 
@@ -406,11 +349,12 @@ export const manufacturingBatchesRelations = relations(
       fields: [manufacturingBatches.manufacturingOrderId],
       references: [manufacturingOrders.id],
     }),
-    inspections: many(itemsInspection),
+    inspections: many(inspections),
   }),
 );
 
-// Transfers Relations
+// ─── Transfers ───
+
 export const transferRequestsRelations = relations(
   transferRequests,
   ({ one, many }) => ({
@@ -436,9 +380,9 @@ export const transferRequestsRelations = relations(
 export const transferRequestItemsRelations = relations(
   transferRequestItems,
   ({ one }) => ({
-    item: one(sellableItems, {
+    item: one(items, {
       fields: [transferRequestItems.itemId],
-      references: [sellableItems.id],
+      references: [items.id],
     }),
     transferRequest: one(transferRequests, {
       fields: [transferRequestItems.transferRequestId],
@@ -447,111 +391,101 @@ export const transferRequestItemsRelations = relations(
   }),
 );
 
-export const transferOrdersRelations = relations(transferOrders, ({ one }) => ({
-  transferRequest: one(transferRequests, {
-    fields: [transferOrders.transferRequestId],
-    references: [transferRequests.id],
+export const transferOrdersRelations = relations(
+  transferOrders,
+  ({ one, many }) => ({
+    transferRequest: one(transferRequests, {
+      fields: [transferOrders.transferRequestId],
+      references: [transferRequests.id],
+    }),
+    inspections: many(inspections),
+  }),
+);
+
+// ─── inspections ───
+
+export const inspectionsRelations = relations(inspections, ({ one }) => ({
+  purchaseOrder: one(purchaseOrders, {
+    fields: [inspections.orderId],
+    references: [purchaseOrders.id],
+  }),
+  manufacturingBatch: one(manufacturingBatches, {
+    fields: [inspections.manufacturingBatchId],
+    references: [manufacturingBatches.id],
+  }),
+  transferOrder: one(transferOrders, {
+    fields: [inspections.transferOrderId],
+    references: [transferOrders.id],
+  }),
+  item: one(items, { fields: [inspections.itemId], references: [items.id] }),
+  inspector: one(users, {
+    fields: [inspections.inspectorId],
+    references: [users.id],
   }),
 }));
 
-// Inspections Relations
-export const rawMaterialsInspectionRelations = relations(
-  rawMaterialsInspection,
-  ({ one, many }) => ({
-    order: one(purchaseOrders, {
-      fields: [rawMaterialsInspection.orderId],
-      references: [purchaseOrders.id],
-    }),
-    item: one(rawMaterials, {
-      fields: [rawMaterialsInspection.itemId],
-      references: [rawMaterials.id],
-    }),
-    inspector: one(users, {
-      fields: [rawMaterialsInspection.inspectorId],
-      references: [users.id],
-    }),
-    rawMaterialReturns: many(rawMaterialReturns),
-  }),
-);
+// ─── Returns ───
 
-export const itemsInspectionRelations = relations(
-  itemsInspection,
-  ({ one, many }) => ({
-    manufacturingBatch: one(manufacturingBatches, {
-      fields: [itemsInspection.manufacturingBatchId],
-      references: [manufacturingBatches.id],
-    }),
-    item: one(sellableItems, {
-      fields: [itemsInspection.itemId],
-      references: [sellableItems.id],
-    }),
+export const supplierReturnsRelations = relations(
+  supplierReturns,
+  ({ one }) => ({
     inspector: one(users, {
-      fields: [itemsInspection.inspectorId],
-      references: [users.id],
-    }),
-    finishedGoodsReturns: many(finishedGoodsReturns),
-  }),
-);
-
-// Returns Relations
-export const returnRequestsRelations = relations(
-  returnRequests,
-  ({ one, many }) => ({
-    inspector: one(users, {
-      fields: [returnRequests.inspectorId],
+      fields: [supplierReturns.inspectorId],
       references: [users.id],
       relationName: 'inspector',
     }),
     approver: one(users, {
-      fields: [returnRequests.approvedBy],
+      fields: [supplierReturns.approvedBy],
       references: [users.id],
       relationName: 'approver',
     }),
-    rawMaterialReturn: many(rawMaterialReturns),
-    finishedGoodsReturn: many(finishedGoodsReturns),
-  }),
-);
-
-export const rawMaterialReturnsRelations = relations(
-  rawMaterialReturns,
-  ({ one }) => ({
-    returnRequest: one(returnRequests, {
-      fields: [rawMaterialReturns.returnRequestId],
-      references: [returnRequests.id],
-    }),
-    rawMaterialInspection: one(rawMaterialsInspection, {
-      fields: [rawMaterialReturns.rawMaterialInspectionId],
-      references: [rawMaterialsInspection.id],
+    inspection: one(inspections, {
+      fields: [supplierReturns.inspectionId],
+      references: [inspections.id],
     }),
     supplier: one(suppliers, {
-      fields: [rawMaterialReturns.supplierId],
+      fields: [supplierReturns.supplierId],
       references: [suppliers.id],
     }),
     purchaseOrder: one(purchaseOrders, {
-      fields: [rawMaterialReturns.purchaseOrderId],
+      fields: [supplierReturns.purchaseOrderId],
       references: [purchaseOrders.id],
+    }),
+    item: one(items, {
+      fields: [supplierReturns.itemId],
+      references: [items.id],
     }),
   }),
 );
 
-export const finishedGoodsReturnsRelations = relations(
-  finishedGoodsReturns,
+export const manufacturerReturnsRelations = relations(
+  manufacturerReturns,
   ({ one }) => ({
-    returnRequest: one(returnRequests, {
-      fields: [finishedGoodsReturns.returnRequestId],
-      references: [returnRequests.id],
+    inspector: one(users, {
+      fields: [manufacturerReturns.inspectorId],
+      references: [users.id],
+      relationName: 'inspector',
     }),
-    finishedGoodsInspection: one(itemsInspection, {
-      fields: [finishedGoodsReturns.finishedGoodsInspectionId],
-      references: [itemsInspection.id],
+    approver: one(users, {
+      fields: [manufacturerReturns.approvedBy],
+      references: [users.id],
+      relationName: 'approver',
+    }),
+    inspection: one(inspections, {
+      fields: [manufacturerReturns.inspectionId],
+      references: [inspections.id],
     }),
     manufacturer: one(manufacturers, {
-      fields: [finishedGoodsReturns.manufacturerId],
+      fields: [manufacturerReturns.manufacturerId],
       references: [manufacturers.id],
     }),
     manufacturingOrder: one(manufacturingOrders, {
-      fields: [finishedGoodsReturns.manufacturingOrderId],
+      fields: [manufacturerReturns.manufacturingOrderId],
       references: [manufacturingOrders.id],
+    }),
+    item: one(items, {
+      fields: [manufacturerReturns.itemId],
+      references: [items.id],
     }),
   }),
 );

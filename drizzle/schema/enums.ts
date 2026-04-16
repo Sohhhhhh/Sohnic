@@ -69,6 +69,12 @@ export const inspectionStatus = pgEnum('inspectionStatus', [
   'needs_rework',
 ]);
 
+export const inspectionType = pgEnum('inspectionType', [
+  'order',
+  'manufacturing_batch',
+  'transfer',
+]);
+
 export const returnRequestStatus = pgEnum('returnRequestStatus', [
   'pending',
   'approved',
@@ -76,10 +82,7 @@ export const returnRequestStatus = pgEnum('returnRequestStatus', [
   'completed',
 ]);
 
-export const returnRequestType = pgEnum('returnRequestType', [
-  'sellable_item',
-  'raw_material',
-]);
+export const itemsType = pgEnum('itemsType', ['sellable_item', 'raw_material']);
 
 export const paymentMethod = pgEnum('paymentMethod', [
   'cash',
@@ -127,7 +130,7 @@ export type TransferRequestStatus =
 export type InspectionStatus = (typeof inspectionStatus.enumValues)[number];
 export type ReturnRequestStatus =
   (typeof returnRequestStatus.enumValues)[number];
-export type ReturnRequestType = (typeof returnRequestType.enumValues)[number];
+export type ItemsType = (typeof itemsType.enumValues)[number];
 export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
 export type CustomerType = (typeof customerType.enumValues)[number];
 export type SellableItemType = (typeof sellableItemType.enumValues)[number];

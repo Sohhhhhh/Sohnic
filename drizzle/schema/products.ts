@@ -3,46 +3,43 @@ import {
   uuid,
   varchar,
   integer,
-  doublePrecision,
+  numeric,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
-import { sellableItemType } from './enums';
-
-export const sellableItems = pgTable('sellable_items', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  name: varchar('name', { length: 255 }),
-  sku: varchar('sku', { length: 255 }).unique(),
-  categoryId: uuid('category_id'),
-  type: sellableItemType('type'),
-  salePrice: doublePrecision('sale_price'),
-  reorderPoint: integer('reorder_point'),
-  description: text('description'),
-  manufacturingCost: doublePrecision('manufacturing_cost'), // For type='finished'
-  purchasePrice: doublePrecision('purchase_price'), // For type='resale'
-  modelNumber: varchar('model_number', { length: 255 }),
-  createdAt: timestamp('created_at').defaultNow(),
-});
-
-export const rawMaterials = pgTable('raw_materials', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  name: varchar('name', { length: 255 }),
-  sku: varchar('sku', { length: 255 }).unique(),
-  unitOfMeasurement: varchar('unit_of_measurement', { length: 50 }),
-  reorderPoint: integer('reorder_point'),
-  standardPrice: doublePrecision('standard_price'),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+import { itemsType, sellableItemType } from './enums';
 
 export const categories = pgTable('categories', {
   id: uuid('id').defaultRandom().primaryKey(),
-  name: varchar('name', { length: 255 }),
+  name: varchar('name', { length: 255 }).notNull(),
   parentCategoryId: uuid('parent_category_id'),
+});
+
+export const items = pgTable('items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  sku: varchar('sku', { length: 255 }).unique().notNull(),
+  type: itemsType('type').notNull(), // 'sellable_item' | 'raw_material'
+  reorderPoint: integer('reorder_point'),
+  createdAt: timestamp('created_at').defaultNow(),
+
+  // sellable item only
+  categoryId: uuid('category_id'),
+  sellableType: sellableItemType('sellable_type'), // 'finished' | 'resale'
+  salePrice: numeric('sale_price', { precision: 10, scale: 2 }),
+  manufacturingCost: numeric('manufacturing_cost', { precision: 10, scale: 2 }),
+  purchasePrice: numeric('purchase_price', { precision: 10, scale: 2 }),
+  modelNumber: varchar('model_number', { length: 255 }),
+  description: text('description'),
+
+  // raw material only
+  unitOfMeasurement: varchar('unit_of_measurement', { length: 50 }),
+  standardPrice: numeric('standard_price', { precision: 10, scale: 2 }),
 });
 
 export const billOfMaterials = pgTable('bill_of_materials', {
   id: uuid('id').defaultRandom().primaryKey(),
-  itemId: uuid('item_id'),
-  rawMaterialId: uuid('raw_material_id'),
-  quantityPerUnit: integer('quantity_per_unit'),
+  itemId: uuid('item_id').notNull(), // the sellable output
+  componentId: uuid('component_id').notNull(), // the raw material input
+  quantityPerUnit: integer('quantity_per_unit').notNull(),
 });

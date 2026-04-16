@@ -1,34 +1,40 @@
 import { pgTable, uuid, text, integer, timestamp } from 'drizzle-orm/pg-core';
-import { returnRequestType, returnRequestStatus } from './enums';
+import { returnRequestStatus } from './enums';
 
-export const returnRequests = pgTable('return_requests', {
+export const supplierReturns = pgTable('supplier_returns', {
   id: uuid('id').defaultRandom().primaryKey(),
-  requestType: returnRequestType('request_type'),
+  supplierId: uuid('supplier_id').notNull(),
+  purchaseOrderId: uuid('purchase_order_id').notNull(),
+  itemId: uuid('item_id').notNull(),
+  quantity: integer('quantity').notNull(),
   reason: text('reason'),
-  quantity: integer('quantity'),
-  status: returnRequestStatus('status').default('pending'),
+  status: returnRequestStatus('status').notNull().default('pending'),
   inspectorId: uuid('inspector_id'),
   approvedBy: uuid('approved_by'),
+  inspectionId: uuid('inspection_id'),
   submissionDate: timestamp('submission_date').defaultNow(),
   reviewDate: timestamp('review_date'),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
-export const rawMaterialReturns = pgTable('raw_material_returns', {
+export const manufacturerReturns = pgTable('manufacturer_returns', {
   id: uuid('id').defaultRandom().primaryKey(),
-  returnRequestId: uuid('return_request_id').unique(),
-  rawMaterialInspectionId: uuid('raw_material_inspection_id'),
-  supplierId: uuid('supplier_id'),
-  purchaseOrderId: uuid('purchase_order_id'),
+  manufacturerId: uuid('manufacturer_id').notNull(),
+  manufacturingOrderId: uuid('manufacturing_order_id').notNull(),
+  itemId: uuid('item_id').notNull(),
+  quantity: integer('quantity').notNull(),
+  reason: text('reason'),
+  status: returnRequestStatus('status').notNull().default('pending'),
+  inspectorId: uuid('inspector_id'),
+  approvedBy: uuid('approved_by'),
+  inspectionId: uuid('inspection_id'),
+  submissionDate: timestamp('submission_date').defaultNow(),
+  reviewDate: timestamp('review_date'),
   createdAt: timestamp('created_at').defaultNow(),
-});
-
-export const finishedGoodsReturns = pgTable('finished_goods_returns', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  returnRequestId: uuid('return_request_id').unique(),
-  finishedGoodsInspectionId: uuid('finished_goods_inspection_id'),
-  manufacturerId: uuid('manufacturer_id'),
-  manufacturingOrderId: uuid('manufacturing_order_id'),
-  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
