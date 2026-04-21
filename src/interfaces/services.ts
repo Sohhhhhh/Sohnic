@@ -7,6 +7,7 @@ import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { AuthenticatedUser, SafeUser } from '../types/app.types';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
+import { addItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 
 // ----- Service Interfaces -----
 
@@ -47,6 +48,11 @@ export interface ISuppliersService {
   update(supplierId: string, dto: UpdateSupplierDto): Promise<APIResponse>;
   deactivate(supplierId: string): Promise<APIResponse>;
   activate(supplierId: string): Promise<APIResponse>;
+
+  addItemSupplier(
+    dto: addItemSupplierDto,
+    supplierId: string,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

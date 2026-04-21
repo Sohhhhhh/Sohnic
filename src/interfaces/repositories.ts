@@ -1,9 +1,17 @@
+import { PostgresJsTransaction } from 'drizzle-orm/postgres-js';
+
 import { db } from '../config/drizzle';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
+import {
+  ItemSupplier,
+  Role,
+  SafeUser,
+  Supplier,
+  User,
+} from '../types/app.types';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
-import { PostgresJsTransaction } from 'drizzle-orm/postgres-js';
-import { Role, SafeUser, Supplier, User } from '../types/app.types';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
+import { addItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 
 // ----- Record Types -----
 
@@ -75,4 +83,11 @@ export interface ISuppliersRepository {
   update(id: string, dto: UpdateSupplierDto): Promise<Supplier>;
   deactivate(id: string): Promise<Supplier>;
   activate(id: string): Promise<Supplier>;
+}
+
+export interface IItemSuppliersRepository {
+  addItemSupplier(
+    dto: addItemSupplierDto,
+    supplierId: string,
+  ): Promise<ItemSupplier>;
 }

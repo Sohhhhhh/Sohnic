@@ -1,9 +1,10 @@
+import { eq } from 'drizzle-orm';
+
 import { db } from '../config/drizzle';
 import { Supplier } from '../types/app.types';
 import { suppliers } from '../../drizzle/schema';
 import { ISuppliersRepository } from '../interfaces';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
-import { eq } from 'drizzle-orm';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 
 export class SuppliersRepository implements ISuppliersRepository {

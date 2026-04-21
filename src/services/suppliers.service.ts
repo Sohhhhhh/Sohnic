@@ -1,12 +1,20 @@
 import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { APIResponse } from '../types/api.types';
+import {
+  IItemSuppliersRepository,
+  ISuppliersRepository,
+  ISuppliersService,
+} from '../interfaces';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
-import { ISuppliersRepository, ISuppliersService } from '../interfaces';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
+import { addItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 
 export class SuppliersService implements ISuppliersService {
-  constructor(private readonly suppliersRepo: ISuppliersRepository) {}
+  constructor(
+    private readonly suppliersRepo: ISuppliersRepository,
+    private readonly itemSupplierRepo: IItemSuppliersRepository,
+  ) {}
 
   async create(dto: CreateSupplierDto): Promise<APIResponse> {
     await this.checkExistingSupplierByEmail(dto.email);
@@ -82,6 +90,18 @@ export class SuppliersService implements ISuppliersService {
     };
   }
 
+  async addItemSupplier(dto: addItemSupplierDto, supplierId: string) {
+    const { itemId } = dto;
+    await Promise.all([
+      this.checkExistingSupplierById(supplierId),
+      this.checkExistingItem(itemId),
+    ]);
+
+    const data = await this.itemSupplierRepo.addItemSupplier(dto, supplierId);
+
+    return { statusCode: STATUS_CODES.Created, data };
+  }
+
   // --- Helpers ---
   private async checkExistingSupplierByEmail(email: string) {
     const supplier = await this.suppliersRepo.getSupplierByEmail(email);
@@ -95,6 +115,7 @@ export class SuppliersService implements ISuppliersService {
 
   private async checkExistingSupplierById(supplierId: string) {
     const supplier = await this.suppliersRepo.findOne(supplierId);
+
     if (!supplier)
       throw new APIError(
         'No supplier found with this id.',
@@ -102,5 +123,10 @@ export class SuppliersService implements ISuppliersService {
       );
 
     return supplier;
+  }
+
+  // will do it when i create items module :)
+  private async checkExistingItem(itemId: string) {
+    return true;
   }
 }

@@ -41,4 +41,14 @@ export class SuppliersController {
     const result: APIResponse = await this.suppliersService.activate(id);
     sendResponse(res, result);
   };
+
+  addItemSupplier: RequestHandler<IdDto> = async (req, res) => {
+    const { id } = req.params;
+    const dto = req.body;
+    const result: APIResponse = await this.suppliersService.addItemSupplier(
+      dto,
+      id,
+    );
+    sendResponse(res, result);
+  };
 }

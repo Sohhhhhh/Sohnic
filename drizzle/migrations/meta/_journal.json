@@ -57,6 +57,20 @@
       "when": 1776376937823,
       "tag": "0007_legal_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1776783375405,
+      "tag": "0008_sudden_the_executioner",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1776785758912,
+      "tag": "0009_flippant_agent_brand",
+      "breakpoints": true
     }
   ]
 }
