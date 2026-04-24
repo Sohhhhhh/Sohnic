@@ -1,13 +1,14 @@
-import { loginDto } from '../dtos/users/login.dto';
 import { APIResponse } from '../types/api.types';
+import { loginDto } from '../dtos/users/login.dto';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
+import { AuthenticatedUser, SafeUser } from '../types/app.types';
 import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
-import { AuthenticatedUser, SafeUser } from '../types/app.types';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { addItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
+import { editItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 
 // ----- Service Interfaces -----
 
@@ -51,6 +52,10 @@ export interface ISuppliersService {
 
   addItemSupplier(
     dto: addItemSupplierDto,
+    supplierId: string,
+  ): Promise<APIResponse>;
+  editItemSupplier(
+    dto: editItemSupplierDto,
     supplierId: string,
   ): Promise<APIResponse>;
 }

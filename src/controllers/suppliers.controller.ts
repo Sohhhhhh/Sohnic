@@ -51,4 +51,14 @@ export class SuppliersController {
     );
     sendResponse(res, result);
   };
+
+  editItemSupplier: RequestHandler<IdDto> = async (req, res) => {
+    const { id } = req.params;
+    const dto = req.body;
+    const result: APIResponse = await this.suppliersService.editItemSupplier(
+      dto,
+      id,
+    );
+    sendResponse(res, result);
+  };
 }

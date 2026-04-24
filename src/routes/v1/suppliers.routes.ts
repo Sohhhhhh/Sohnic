@@ -8,6 +8,7 @@ import { suppliersController } from '../../containers/suppliers.container';
 import { updateSupplierSchema } from '../../dtos/suppliers/updateSupplier.dto';
 import { createSupplierSchema } from '../../dtos/suppliers/createSupplier.dto';
 import { addItemSupplierSchema } from '../../dtos/suppliers/addItemSupplier.dto';
+import { editItemSupplierSchema } from '../../dtos/suppliers/editItemSupplier.dto';
 
 const router = Router();
 
@@ -61,6 +62,14 @@ router.post(
   isAuthorized('super_admin', 'accountant'),
   validate(idSchema.merge(addItemSupplierSchema)),
   suppliersController.addItemSupplier,
+);
+
+router.patch(
+  '/:id/items',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validate(idSchema.merge(editItemSupplierSchema)),
+  suppliersController.editItemSupplier,
 );
 
 export const suppliersRoutes = router;

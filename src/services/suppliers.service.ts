@@ -9,6 +9,7 @@ import {
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { addItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
+import { editItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 
 export class SuppliersService implements ISuppliersService {
   constructor(
@@ -92,12 +93,28 @@ export class SuppliersService implements ISuppliersService {
 
   async addItemSupplier(dto: addItemSupplierDto, supplierId: string) {
     const { itemId } = dto;
-    await Promise.all([
+    const [itemSupplier] = await Promise.all([
+      this.itemSupplierRepo.findOne(supplierId, itemId),
       this.checkExistingSupplierById(supplierId),
       this.checkExistingItem(itemId),
     ]);
 
+    if (itemSupplier)
+      throw new APIError(
+        'This item supplier already exists',
+        STATUS_CODES.Conflict,
+      );
+
     const data = await this.itemSupplierRepo.addItemSupplier(dto, supplierId);
+
+    return { statusCode: STATUS_CODES.Created, data };
+  }
+
+  async editItemSupplier(dto: editItemSupplierDto, supplierId: string) {
+    const { itemId } = dto;
+    await this.checkExistingItemSupplier(supplierId, itemId);
+
+    const data = await this.itemSupplierRepo.editItemSupplier(supplierId, dto);
 
     return { statusCode: STATUS_CODES.Created, data };
   }
@@ -128,5 +145,20 @@ export class SuppliersService implements ISuppliersService {
   // will do it when i create items module :)
   private async checkExistingItem(itemId: string) {
     return true;
+  }
+
+  private async checkExistingItemSupplier(supplierId: string, itemId: string) {
+    const itemSupplier = await this.itemSupplierRepo.findOne(
+      supplierId,
+      itemId,
+    );
+
+    if (!itemSupplier)
+      throw new APIError(
+        'No Item supplier found with this id.',
+        STATUS_CODES.NotFound,
+      );
+
+    return itemSupplier;
   }
 }
