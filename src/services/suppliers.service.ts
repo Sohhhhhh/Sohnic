@@ -8,8 +8,8 @@ import {
 } from '../interfaces';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
-import { addItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
-import { editItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
+import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
+import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 
 export class SuppliersService implements ISuppliersService {
   constructor(
@@ -91,7 +91,10 @@ export class SuppliersService implements ISuppliersService {
     };
   }
 
-  async addItemSupplier(dto: addItemSupplierDto, supplierId: string) {
+  async addItemSupplier(
+    dto: AddItemSupplierDto,
+    supplierId: string,
+  ): Promise<APIResponse> {
     const { itemId } = dto;
     const [itemSupplier] = await Promise.all([
       this.itemSupplierRepo.findOne(supplierId, itemId),
@@ -110,13 +113,30 @@ export class SuppliersService implements ISuppliersService {
     return { statusCode: STATUS_CODES.Created, data };
   }
 
-  async editItemSupplier(dto: editItemSupplierDto, supplierId: string) {
+  async editItemSupplier(
+    dto: EditItemSupplierDto,
+    supplierId: string,
+  ): Promise<APIResponse> {
     const { itemId } = dto;
     await this.checkExistingItemSupplier(supplierId, itemId);
 
     const data = await this.itemSupplierRepo.editItemSupplier(supplierId, dto);
 
     return { statusCode: STATUS_CODES.Created, data };
+  }
+
+  async deleteItemSupplier(
+    supplierId: string,
+    itemId: string,
+  ): Promise<APIResponse> {
+    await this.checkExistingItemSupplier(supplierId, itemId);
+
+    await this.itemSupplierRepo.deleteItemSupplier(supplierId, itemId);
+
+    return {
+      statusCode: STATUS_CODES.NoContent,
+      message: 'Item supplier deleted successfully',
+    };
   }
 
   // --- Helpers ---

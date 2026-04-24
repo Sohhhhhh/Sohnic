@@ -4,12 +4,12 @@ import { db } from '../config/drizzle';
 import { ItemSupplier } from '../types/app.types';
 import { itemSuppliers } from '../../drizzle/schema';
 import { IItemSuppliersRepository } from '../interfaces';
-import { addItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
-import { editItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
+import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
+import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 
 export class ItemSuppliersRepository implements IItemSuppliersRepository {
   async addItemSupplier(
-    dto: addItemSupplierDto,
+    dto: AddItemSupplierDto,
     supplierId: string,
   ): Promise<ItemSupplier> {
     const itemSupplier = await db
@@ -31,7 +31,7 @@ export class ItemSuppliersRepository implements IItemSuppliersRepository {
     return itemSupplier;
   }
 
-  async editItemSupplier(supplierId: string, dto: editItemSupplierDto) {
+  async editItemSupplier(supplierId: string, dto: EditItemSupplierDto) {
     const { itemId, ...editDto } = dto;
 
     const itemSupplier = await db
@@ -46,5 +46,16 @@ export class ItemSuppliersRepository implements IItemSuppliersRepository {
       .returning();
 
     return itemSupplier[0];
+  }
+
+  async deleteItemSupplier(supplierId: string, itemId: string) {
+    return await db
+      .delete(itemSuppliers)
+      .where(
+        and(
+          eq(itemSuppliers.supplierId, supplierId),
+          eq(itemSuppliers.itemId, itemId),
+        ),
+      );
   }
 }

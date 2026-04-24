@@ -7,8 +7,8 @@ import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
-import { addItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
-import { editItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
+import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
+import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 
 // ----- Service Interfaces -----
 
@@ -51,13 +51,14 @@ export interface ISuppliersService {
   activate(supplierId: string): Promise<APIResponse>;
 
   addItemSupplier(
-    dto: addItemSupplierDto,
+    dto: AddItemSupplierDto,
     supplierId: string,
   ): Promise<APIResponse>;
   editItemSupplier(
-    dto: editItemSupplierDto,
+    dto: EditItemSupplierDto,
     supplierId: string,
   ): Promise<APIResponse>;
+  deleteItemSupplier(supplierId: string, itemId: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

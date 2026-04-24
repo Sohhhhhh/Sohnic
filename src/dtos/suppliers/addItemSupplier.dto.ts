@@ -17,4 +17,4 @@ export const addItemSupplierSchema = z.object({
     .strict(),
 });
 
-export type addItemSupplierDto = z.infer<typeof addItemSupplierSchema>['body'];
+export type AddItemSupplierDto = z.infer<typeof addItemSupplierSchema>['body'];

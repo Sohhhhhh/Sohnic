@@ -8,6 +8,6 @@ export const editItemSupplierSchema = z.object({
   }),
 });
 
-export type editItemSupplierDto = z.infer<
+export type EditItemSupplierDto = z.infer<
   typeof editItemSupplierSchema
 >['body'];

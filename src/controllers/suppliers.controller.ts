@@ -61,4 +61,14 @@ export class SuppliersController {
     );
     sendResponse(res, result);
   };
+
+  deleteItemSupplier: RequestHandler<IdDto> = async (req, res) => {
+    const { id } = req.params;
+    const { itemId } = req.body;
+    const result: APIResponse = await this.suppliersService.deleteItemSupplier(
+      id,
+      itemId,
+    );
+    sendResponse(res, result);
+  };
 }

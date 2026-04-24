@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import validate from '../../middlewares/validate';
 import { idSchema } from '../../dtos/common/id.dto';
+import { itemIdSchema } from '../../dtos/common/itemId.dto';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { isAuthenticated } from '../../containers/middleware.container';
 import { suppliersController } from '../../containers/suppliers.container';
@@ -70,6 +71,14 @@ router.patch(
   isAuthorized('super_admin', 'accountant'),
   validate(idSchema.merge(editItemSupplierSchema)),
   suppliersController.editItemSupplier,
+);
+
+router.delete(
+  '/:id/items',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validate(idSchema.merge(itemIdSchema)),
+  suppliersController.deleteItemSupplier,
 );
 
 export const suppliersRoutes = router;
