@@ -59,6 +59,12 @@ export interface ISuppliersService {
     supplierId: string,
   ): Promise<APIResponse>;
   deleteItemSupplier(supplierId: string, itemId: string): Promise<APIResponse>;
+  getAllItemsSuppliers(page: number, limit: number): Promise<APIResponse>;
+  getItemSuppliers(
+    itemId: string,
+    page: number,
+    limit: number,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

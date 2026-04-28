@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import { isAuthenticated } from '../../containers/middleware.container';
+
+import {
+  validateBranchId,
+  validateId,
+} from '../../validators/common.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
+import { validateRoleId } from '../../validators/users.validator';
 import { usersController } from '../../containers/users.container';
-import validate from '../../middlewares/validate';
-import { idSchema } from '../../dtos/common/id.dto';
-import { branchIdSchema } from '../../dtos/common/branchId.dto';
-import { roleIdSchema } from '../../dtos/users/roleId.dto';
+import { isAuthenticated } from '../../containers/middleware.container';
 
 const router = Router();
 router.get(
@@ -18,35 +20,37 @@ router.get(
   '/:id',
   isAuthenticated,
   isAuthorized('super_admin', 'branch_admin', 'hr'),
-  validate(idSchema),
+  validateId,
   usersController.findOne,
 );
 router.patch(
   '/:id/branch',
   isAuthenticated,
   isAuthorized('super_admin', 'hr'),
-  validate(idSchema.merge(branchIdSchema)),
+  validateId,
+  validateBranchId,
   usersController.updateBranch,
 );
 router.patch(
   '/:id/role',
   isAuthenticated,
   isAuthorized('super_admin'),
-  validate(idSchema.merge(roleIdSchema)),
+  validateId,
+  validateRoleId,
   usersController.updateRole,
 );
 router.patch(
   '/:id/activate',
   isAuthenticated,
   isAuthorized('super_admin', 'hr'),
-  validate(idSchema),
+  validateId,
   usersController.activate,
 );
 router.patch(
   '/:id/deactivate',
   isAuthenticated,
   isAuthorized('super_admin', 'hr'),
-  validate(idSchema),
+  validateId,
   usersController.deactivate,
 );
 

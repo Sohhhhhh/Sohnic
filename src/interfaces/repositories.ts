@@ -104,4 +104,13 @@ export interface IItemSuppliersRepository {
     supplierId: string,
     itemId: string,
   ): Promise<QueryResult<never>>;
+  getAllItemsSuppliers(
+    page: number,
+    limit: number,
+  ): Promise<{ data: ItemSupplier[]; size: number }>;
+  getItemSuppliers(
+    itemId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ data: ItemSupplier[]; size: number }>;
 }

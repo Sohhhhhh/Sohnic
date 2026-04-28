@@ -139,6 +139,32 @@ export class SuppliersService implements ISuppliersService {
     };
   }
 
+  async getAllItemsSuppliers(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<APIResponse> {
+    const { data, size } = await this.itemSupplierRepo.getAllItemsSuppliers(
+      page,
+      limit,
+    );
+
+    return { statusCode: STATUS_CODES.OK, size, data };
+  }
+
+  async getItemSuppliers(
+    itemId: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<APIResponse> {
+    const { data, size } = await this.itemSupplierRepo.getItemSuppliers(
+      itemId,
+      page,
+      limit,
+    );
+
+    return { statusCode: STATUS_CODES.OK, size, data };
+  }
+
   // --- Helpers ---
   private async checkExistingSupplierByEmail(email: string) {
     const supplier = await this.suppliersRepo.getSupplierByEmail(email);

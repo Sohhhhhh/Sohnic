@@ -47,7 +47,7 @@ export default (
 
 // Handle Zod validation errors
 const handleZodError = (err: ZodError): APIError => {
-  const message = err.errors
+  const message = err.issues
     .map((e) => `${e.path.join('.')}: ${e.message}`)
     .join(', ');
   return new APIError(`Validation error: ${message}`, STATUS_CODES.BadRequest);

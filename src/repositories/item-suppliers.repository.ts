@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, count } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { ItemSupplier } from '../types/app.types';
@@ -57,5 +57,31 @@ export class ItemSuppliersRepository implements IItemSuppliersRepository {
           eq(itemSuppliers.itemId, itemId),
         ),
       );
+  }
+
+  async getAllItemsSuppliers(page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const [itemsSuppliers, size] = await Promise.all([
+      db.query.itemSuppliers.findMany({ limit, offset }),
+      db.select({ count: count() }).from(itemSuppliers),
+    ]);
+
+    return { data: itemsSuppliers, size: size[0].count };
+  }
+
+  async getItemSuppliers(itemId: string, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const [itemsSuppliers, size] = await Promise.all([
+      db.query.itemSuppliers.findMany({
+        limit,
+        offset,
+        where: eq(itemSuppliers.itemId, itemId),
+      }),
+      db.select({ count: count() }).from(itemSuppliers),
+    ]);
+
+    return { data: itemsSuppliers, size: size[0].count };
   }
 }

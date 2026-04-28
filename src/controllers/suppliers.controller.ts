@@ -1,13 +1,25 @@
 import { RequestHandler } from 'express';
+
 import { APIResponse } from '../types/api.types';
 import { ISuppliersService } from '../interfaces';
 import { sendResponse } from '../utils/sendResponse';
-import { IdDto } from '../dtos/common/id.dto';
+import {
+  CombinedValidator,
+  idValidatedCtrlr,
+  itemIdValidatedCtrlr,
+  paginationValidatedCtrlr,
+} from '../validators/common.validator';
+import {
+  createSupplierValidatedCtrlr,
+  updateSupplierValidatedCtrlr,
+  addItemSupplierValidatedCtrlr,
+  editItemSupplierValidatedCtrlr,
+} from '../validators/suppliers.validator';
 
 export class SuppliersController {
   constructor(private readonly suppliersService: ISuppliersService) {}
 
-  create: RequestHandler = async (req, res) => {
+  create: createSupplierValidatedCtrlr = async (req, res) => {
     const result: APIResponse = await this.suppliersService.create(req.body);
     sendResponse(res, result);
   };
@@ -17,32 +29,36 @@ export class SuppliersController {
     sendResponse(res, result);
   };
 
-  findOne: RequestHandler<IdDto> = async (req, res) => {
+  findOne: idValidatedCtrlr = async (req, res) => {
     const { id } = req.params;
     const result: APIResponse = await this.suppliersService.findOne(id);
     sendResponse(res, result);
   };
 
-  update: RequestHandler<IdDto> = async (req, res) => {
-    const { id } = req.params;
-    const dto = req.body;
-    const result: APIResponse = await this.suppliersService.update(id, dto);
-    sendResponse(res, result);
-  };
+  update: CombinedValidator<idValidatedCtrlr, updateSupplierValidatedCtrlr> =
+    async (req, res) => {
+      const { id } = req.params;
+      const dto = req.body;
+      const result: APIResponse = await this.suppliersService.update(id, dto);
+      sendResponse(res, result);
+    };
 
-  deactivate: RequestHandler<IdDto> = async (req, res) => {
+  deactivate: idValidatedCtrlr = async (req, res) => {
     const { id } = req.params;
     const result: APIResponse = await this.suppliersService.deactivate(id);
     sendResponse(res, result);
   };
 
-  activate: RequestHandler<IdDto> = async (req, res) => {
+  activate: idValidatedCtrlr = async (req, res) => {
     const { id } = req.params;
     const result: APIResponse = await this.suppliersService.activate(id);
     sendResponse(res, result);
   };
 
-  addItemSupplier: RequestHandler<IdDto> = async (req, res) => {
+  addItemSupplier: CombinedValidator<
+    idValidatedCtrlr,
+    addItemSupplierValidatedCtrlr
+  > = async (req, res) => {
     const { id } = req.params;
     const dto = req.body;
     const result: APIResponse = await this.suppliersService.addItemSupplier(
@@ -52,7 +68,10 @@ export class SuppliersController {
     sendResponse(res, result);
   };
 
-  editItemSupplier: RequestHandler<IdDto> = async (req, res) => {
+  editItemSupplier: CombinedValidator<
+    idValidatedCtrlr,
+    editItemSupplierValidatedCtrlr
+  > = async (req, res) => {
     const { id } = req.params;
     const dto = req.body;
     const result: APIResponse = await this.suppliersService.editItemSupplier(
@@ -62,12 +81,37 @@ export class SuppliersController {
     sendResponse(res, result);
   };
 
-  deleteItemSupplier: RequestHandler<IdDto> = async (req, res) => {
+  deleteItemSupplier: CombinedValidator<
+    idValidatedCtrlr,
+    itemIdValidatedCtrlr
+  > = async (req, res) => {
     const { id } = req.params;
     const { itemId } = req.body;
     const result: APIResponse = await this.suppliersService.deleteItemSupplier(
       id,
       itemId,
+    );
+    sendResponse(res, result);
+  };
+
+  getAllItemsSuppliers: paginationValidatedCtrlr = async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+
+    const result: APIResponse =
+      await this.suppliersService.getAllItemsSuppliers(page, limit);
+    sendResponse(res, result);
+  };
+
+  getItemSuppliers: CombinedValidator<
+    idValidatedCtrlr,
+    paginationValidatedCtrlr
+  > = async (req, res) => {
+    const { id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const result: APIResponse = await this.suppliersService.getItemSuppliers(
+      id,
+      +page,
+      +limit,
     );
     sendResponse(res, result);
   };

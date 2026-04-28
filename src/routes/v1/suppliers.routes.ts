@@ -1,24 +1,27 @@
-import { Router } from 'express';
+import { RequestHandler, Router } from 'express';
 
-import validate from '../../middlewares/validate';
-import { idSchema } from '../../dtos/common/id.dto';
-import { itemIdSchema } from '../../dtos/common/itemId.dto';
+import {
+  validateId,
+  validateItemId,
+  validatePagination,
+} from '../../validators/common.validator';
+import {
+  validateAddItemSupplier,
+  validateCreateSupplier,
+  validateEditItemSupplier,
+  validateUpdateSupplier,
+} from '../../validators/suppliers.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { isAuthenticated } from '../../containers/middleware.container';
 import { suppliersController } from '../../containers/suppliers.container';
-import { updateSupplierSchema } from '../../dtos/suppliers/updateSupplier.dto';
-import { createSupplierSchema } from '../../dtos/suppliers/createSupplier.dto';
-import { addItemSupplierSchema } from '../../dtos/suppliers/addItemSupplier.dto';
-import { editItemSupplierSchema } from '../../dtos/suppliers/editItemSupplier.dto';
 
 const router = Router();
 
-// suppliers
 router.post(
   '/',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
-  validate(createSupplierSchema),
+  validateCreateSupplier,
   suppliersController.create,
 );
 router.get(
@@ -28,40 +31,57 @@ router.get(
   suppliersController.findAll,
 );
 router.get(
+  '/items',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validatePagination as unknown as RequestHandler,
+  suppliersController.getAllItemsSuppliers as unknown as RequestHandler,
+);
+router.get(
+  '/items/:id',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant', 'branch_admin'),
+  validateId,
+  validatePagination as unknown as RequestHandler,
+  suppliersController.getItemSuppliers as unknown as RequestHandler,
+);
+
+router.get(
   '/:id',
   isAuthenticated,
   isAuthorized('super_admin', 'branch_admin', 'storage_manager'),
-  validate(idSchema),
+  validateId,
   suppliersController.findOne,
 );
 router.patch(
   '/:id',
   isAuthenticated,
   isAuthorized('super_admin', 'branch_admin'),
-  validate(idSchema.merge(updateSupplierSchema)),
+  validateId,
+  validateUpdateSupplier,
   suppliersController.update,
 );
 router.patch(
   '/:id/deactivate',
   isAuthenticated,
   isAuthorized('super_admin', 'branch_admin'),
-  validate(idSchema),
+  validateId,
   suppliersController.deactivate,
 );
 router.patch(
   '/:id/activate',
   isAuthenticated,
   isAuthorized('super_admin', 'branch_admin'),
-  validate(idSchema),
+  validateId,
   suppliersController.activate,
 );
 
-// item suppliers
 router.post(
   '/:id/items',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
-  validate(idSchema.merge(addItemSupplierSchema)),
+  validateId,
+  validateAddItemSupplier,
   suppliersController.addItemSupplier,
 );
 
@@ -69,7 +89,8 @@ router.patch(
   '/:id/items',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
-  validate(idSchema.merge(editItemSupplierSchema)),
+  validateId,
+  validateEditItemSupplier,
   suppliersController.editItemSupplier,
 );
 
@@ -77,7 +98,8 @@ router.delete(
   '/:id/items',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
-  validate(idSchema.merge(itemIdSchema)),
+  validateId,
+  validateItemId,
   suppliersController.deleteItemSupplier,
 );
 

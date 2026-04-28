@@ -1,13 +1,11 @@
 import { z } from 'zod';
 
-export const branchIdSchema = z.object({
-  body: z
-    .object({
-      branchId: z
-        .string({ message: 'branch id must be a string' })
-        .uuid({ message: 'branch id must be a valid uuid' }),
-    })
-    .strict(),
-});
+export const branchIdSchema = z
+  .object({
+    branchId: z
+      .string({ message: 'branch id must be a string' })
+      .uuid({ message: 'branch id must be a valid uuid' }),
+  })
+  .strict();
 
-export type BranchIdDto = z.output<typeof branchIdSchema>['body'];
+export type BranchIdDto = z.output<typeof branchIdSchema>;
