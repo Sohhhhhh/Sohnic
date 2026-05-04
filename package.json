@@ -33,7 +33,6 @@
     "postgres": "^3.4.8",
     "pug": "^3.0.3",
     "zod": "^4.3.6",
-    "zod-express-validator": "^0.0.6",
     "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {

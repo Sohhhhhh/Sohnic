@@ -1,24 +1,31 @@
-import { ZodSchema } from 'zod';
-import { validate as zodExpressValidator } from 'zod-express-validator';
+import { RequestHandler } from 'express';
+import { ZodSchema, ZodError } from 'zod';
+import { ParamsDictionary } from 'express-serve-static-core';
 import { HttpUnprocessableEntity, HttpValidationIssue } from '@httpx/exception';
 
-export function validate<Body, Query, Params, Res>(schema: {
+export function validate<
+  Body = any,
+  Query = any,
+  Params extends ParamsDictionary = ParamsDictionary,
+>(schema: {
   body?: ZodSchema<Body>;
-  query?: ZodSchema<Query & PropertyDescriptor>;
+  query?: ZodSchema<Query>;
   params?: ZodSchema<Params>;
-  res?: ZodSchema<Res>;
-}) {
-  return zodExpressValidator(
-    schema,
-    ({ bodyError, queryError, paramsError }, res) => {
-      const errors = bodyError ?? queryError ?? paramsError;
-      if (errors) {
+}): RequestHandler<Params, any, Body, any> {
+  return (req, res, next) => {
+    try {
+      if (schema.body) req.body = schema.body.parse(req.body);
+      if (schema.query) req.query = schema.query.parse(req.query) as any;
+      if (schema.params) req.params = schema.params.parse(req.params);
+      next();
+    } catch (err) {
+      if (err instanceof ZodError) {
         throw new HttpUnprocessableEntity({
           message: 'Validation Error',
-          issues: errors.issues as HttpValidationIssue[],
+          issues: err.issues as HttpValidationIssue[],
         });
       }
-      return res;
-    },
-  );
+      next(err);
+    }
+  };
 }

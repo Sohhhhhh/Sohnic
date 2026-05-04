@@ -115,23 +115,18 @@ export class SuppliersService implements ISuppliersService {
 
   async editItemSupplier(
     dto: EditItemSupplierDto,
-    supplierId: string,
+    id: string,
   ): Promise<APIResponse> {
-    const { itemId } = dto;
-    await this.checkExistingItemSupplier(supplierId, itemId);
+    await this.checkExistingItemSupplierById(id);
 
-    const data = await this.itemSupplierRepo.editItemSupplier(supplierId, dto);
+    const data = await this.itemSupplierRepo.editItemSupplier(id, dto);
 
     return { statusCode: STATUS_CODES.Created, data };
   }
 
-  async deleteItemSupplier(
-    supplierId: string,
-    itemId: string,
-  ): Promise<APIResponse> {
-    await this.checkExistingItemSupplier(supplierId, itemId);
-
-    await this.itemSupplierRepo.deleteItemSupplier(supplierId, itemId);
+  async deleteItemSupplier(id: string): Promise<APIResponse> {
+    await this.checkExistingItemSupplierById(id);
+    await this.itemSupplierRepo.deleteItemSupplier(id);
 
     return {
       statusCode: STATUS_CODES.NoContent,
@@ -193,11 +188,8 @@ export class SuppliersService implements ISuppliersService {
     return true;
   }
 
-  private async checkExistingItemSupplier(supplierId: string, itemId: string) {
-    const itemSupplier = await this.itemSupplierRepo.findOne(
-      supplierId,
-      itemId,
-    );
+  private async checkExistingItemSupplierById(id: string) {
+    const itemSupplier = await this.itemSupplierRepo.findOneById(id);
 
     if (!itemSupplier)
       throw new APIError(

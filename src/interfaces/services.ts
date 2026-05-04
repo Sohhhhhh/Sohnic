@@ -54,11 +54,8 @@ export interface ISuppliersService {
     dto: AddItemSupplierDto,
     supplierId: string,
   ): Promise<APIResponse>;
-  editItemSupplier(
-    dto: EditItemSupplierDto,
-    supplierId: string,
-  ): Promise<APIResponse>;
-  deleteItemSupplier(supplierId: string, itemId: string): Promise<APIResponse>;
+  editItemSupplier(dto: EditItemSupplierDto, id: string): Promise<APIResponse>;
+  deleteItemSupplier(id: string): Promise<APIResponse>;
   getAllItemsSuppliers(page: number, limit: number): Promise<APIResponse>;
   getItemSuppliers(
     itemId: string,

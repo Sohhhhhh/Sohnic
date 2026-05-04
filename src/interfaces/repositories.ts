@@ -62,7 +62,6 @@ export interface IRefreshTokensRepository {
   revokeByUserId(userId: string, reason?: string, tx?: TX): Promise<void>;
   revokeByHash(token: string, reason?: string, tx?: TX): Promise<void>;
 }
-
 export interface ISetPasswordTokensRepository {
   create(token: string, userId: string, tx?: TX): Promise<void>;
   getByToken(token: string, tx?: TX): Promise<SetPasswordTokenRecord | null>;
@@ -96,14 +95,9 @@ export interface IItemSuppliersRepository {
     supplierId: string,
     itemId: string,
   ): Promise<ItemSupplier | undefined>;
-  editItemSupplier(
-    supplierId: string,
-    dto: EditItemSupplierDto,
-  ): Promise<ItemSupplier>;
-  deleteItemSupplier(
-    supplierId: string,
-    itemId: string,
-  ): Promise<QueryResult<never>>;
+  findOneById(id: string): Promise<ItemSupplier | undefined>;
+  editItemSupplier(id: string, dto: EditItemSupplierDto): Promise<ItemSupplier>;
+  deleteItemSupplier(id: string): Promise<QueryResult<never>>;
   getAllItemsSuppliers(
     page: number,
     limit: number,

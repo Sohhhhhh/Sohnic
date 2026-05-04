@@ -2,7 +2,6 @@ import { RequestHandler, Router } from 'express';
 
 import {
   validateId,
-  validateItemId,
   validatePagination,
 } from '../../validators/common.validator';
 import {
@@ -99,8 +98,9 @@ router.delete(
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
   validateId,
-  validateItemId,
   suppliersController.deleteItemSupplier,
 );
+
+// router.patch('/:id/item/:itemId');
 
 export const suppliersRoutes = router;

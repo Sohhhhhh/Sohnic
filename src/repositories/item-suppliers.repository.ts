@@ -31,32 +31,26 @@ export class ItemSuppliersRepository implements IItemSuppliersRepository {
     return itemSupplier;
   }
 
-  async editItemSupplier(supplierId: string, dto: EditItemSupplierDto) {
-    const { itemId, ...editDto } = dto;
+  async findOneById(id: string) {
+    const itemSupplier = await db.query.itemSuppliers.findFirst({
+      where: eq(itemSuppliers.id, id),
+    });
 
+    return itemSupplier;
+  }
+
+  async editItemSupplier(id: string, dto: EditItemSupplierDto) {
     const itemSupplier = await db
       .update(itemSuppliers)
-      .set({ ...editDto, price: editDto.price?.toString() })
-      .where(
-        and(
-          eq(itemSuppliers.supplierId, supplierId),
-          eq(itemSuppliers.itemId, itemId),
-        ),
-      )
+      .set({ ...dto, price: dto.price?.toString() })
+      .where(eq(itemSuppliers.id, id))
       .returning();
 
     return itemSupplier[0];
   }
 
-  async deleteItemSupplier(supplierId: string, itemId: string) {
-    return await db
-      .delete(itemSuppliers)
-      .where(
-        and(
-          eq(itemSuppliers.supplierId, supplierId),
-          eq(itemSuppliers.itemId, itemId),
-        ),
-      );
+  async deleteItemSupplier(id: string) {
+    return await db.delete(itemSuppliers).where(eq(itemSuppliers.id, id));
   }
 
   async getAllItemsSuppliers(page: number, limit: number) {

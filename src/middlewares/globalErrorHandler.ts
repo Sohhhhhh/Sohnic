@@ -1,11 +1,16 @@
 import { ZodError } from 'zod';
 import { PostgresError } from 'postgres';
 import { NextFunction, Request, Response } from 'express';
+import {
+  HttpException,
+  HttpUnprocessableEntity,
+  isHttpException,
+} from '@httpx/exception';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
+import env from '../config/env';
 import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
-import env from '../config/env';
 
 const sendErrorDev = (err: APIError, res: Response) => {
   res.status(err.statusCode).json({
@@ -13,6 +18,7 @@ const sendErrorDev = (err: APIError, res: Response) => {
     stack: err.stack,
     message: err.message,
     statusCode: err.statusCode,
+    ...(err.issues && { issues: err.issues }),
   });
 };
 
@@ -21,6 +27,7 @@ const sendErrorProd = (err: APIError, res: Response) => {
     return res.status(err.statusCode).json({
       statusCode: err.statusCode,
       message: err.message,
+      ...(err.issues && { issues: err.issues }),
     });
 
   return res.status(STATUS_CODES.InternalServerError).json({
@@ -68,6 +75,11 @@ const handleJWTExpiredError = (): APIError => {
   );
 };
 
+const handleHttpError = (err: HttpException): APIError => {
+  const issues = (err as HttpUnprocessableEntity).issues;
+  return new APIError(err.message, err.statusCode, issues);
+};
+
 // Handle database errors
 const handleDatabaseError = (err: PostgresError): APIError => {
   // Postgres unique constraint violation
@@ -90,7 +102,9 @@ const handleDatabaseError = (err: PostgresError): APIError => {
 };
 
 const convertToAPIError = (err: unknown): APIError => {
-  if (err instanceof ZodError) return handleZodError(err);
+  if (err instanceof ZodError || (err as any)?.name === 'ZodError')
+    return handleZodError(err as ZodError);
+  else if (isHttpException(err)) return handleHttpError(err);
   else if (err instanceof JsonWebTokenError) return handleJWTError();
   else if (err instanceof TokenExpiredError) return handleJWTExpiredError();
   else if (err instanceof PostgresError) return handleDatabaseError(err);

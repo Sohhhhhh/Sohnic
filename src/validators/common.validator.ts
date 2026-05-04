@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import { branchIdSchema } from '../dtos/common/branchId.dto';
 import { idSchema } from '../dtos/common/id.dto';
 import { itemIdSchema } from '../dtos/common/itemId.dto';
+import { idAndItemIdSchema } from '../dtos/common/idAndItemId.dto';
 import { paginationSchema } from '../dtos/common/pagination.dto';
 import { validate } from '../middlewares/validate';
 
@@ -33,6 +34,12 @@ export type branchIdValidatedCtrlr = typeof validateBranchId;
 
 // ITEM ID
 export const validateItemId = validate({
-  body: itemIdSchema,
+  params: itemIdSchema,
 });
 export type itemIdValidatedCtrlr = typeof validateItemId;
+
+// ID AND ITEM ID
+export const validateIdAndItemId = validate({
+  params: idAndItemIdSchema,
+});
+export type idAndItemIdValidatedCtrlr = typeof validateIdAndItemId;

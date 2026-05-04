@@ -86,11 +86,8 @@ export class SuppliersController {
     itemIdValidatedCtrlr
   > = async (req, res) => {
     const { id } = req.params;
-    const { itemId } = req.body;
-    const result: APIResponse = await this.suppliersService.deleteItemSupplier(
-      id,
-      itemId,
-    );
+    const result: APIResponse =
+      await this.suppliersService.deleteItemSupplier(id);
     sendResponse(res, result);
   };
 
