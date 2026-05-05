@@ -112,4 +112,18 @@ export class SuppliersController {
     );
     sendResponse(res, result);
   };
+
+  makePrimary: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.suppliersService.makePrimary(id);
+
+    sendResponse(res, result);
+  };
+
+  removePrimary: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.suppliersService.removePrimary(id);
+
+    sendResponse(res, result);
+  };
 }

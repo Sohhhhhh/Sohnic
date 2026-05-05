@@ -85,7 +85,7 @@ router.post(
 );
 
 router.patch(
-  '/:id/items',
+  '/items/:id',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
   validateId,
@@ -94,13 +94,27 @@ router.patch(
 );
 
 router.delete(
-  '/:id/items',
+  '/items/:id',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
   validateId,
   suppliersController.deleteItemSupplier,
 );
 
-// router.patch('/:id/item/:itemId');
+router.patch(
+  '/items/:id/primary',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validateId,
+  suppliersController.makePrimary,
+);
+
+router.patch(
+  '/items/:id/unprimary',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validateId,
+  suppliersController.removePrimary,
+);
 
 export const suppliersRoutes = router;

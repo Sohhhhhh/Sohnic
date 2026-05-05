@@ -107,4 +107,7 @@ export interface IItemSuppliersRepository {
     page: number,
     limit: number,
   ): Promise<{ data: ItemSupplier[]; size: number }>;
+  makePrimary(id: string, tx?: TX): Promise<ItemSupplier>;
+  removePrimary(itemId: string, tx?: TX): Promise<ItemSupplier>;
+  removePrimaryById(id: string): Promise<ItemSupplier>;
 }

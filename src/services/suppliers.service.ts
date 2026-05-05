@@ -1,11 +1,12 @@
-import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
-import { APIResponse } from '../types/api.types';
 import {
   IItemSuppliersRepository,
   ISuppliersRepository,
   ISuppliersService,
 } from '../interfaces';
+import { db } from '../config/drizzle';
+import APIError from '../utils/APIError';
+import STATUS_CODES from '../utils/statusCodes';
+import { APIResponse } from '../types/api.types';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
@@ -158,6 +159,43 @@ export class SuppliersService implements ISuppliersService {
     );
 
     return { statusCode: STATUS_CODES.OK, size, data };
+  }
+
+  async makePrimary(id: string): Promise<APIResponse> {
+    const itemSupplier = await this.checkExistingItemSupplierById(id);
+    if (itemSupplier.isPrimary)
+      throw new APIError(
+        'This item supplier is already primary.',
+        STATUS_CODES.Conflict,
+      );
+
+    const updatedItemSupplier = await db.transaction(async (tx: any) => {
+      // find and update the current primary item supplier to false
+      await this.itemSupplierRepo.removePrimary(itemSupplier.itemId, tx);
+
+      // update the current item supplier to isPrimary = true
+      const updatedItemSupplier = await this.itemSupplierRepo.makePrimary(
+        id,
+        tx,
+      );
+
+      return updatedItemSupplier;
+    });
+
+    return { statusCode: STATUS_CODES.OK, data: updatedItemSupplier };
+  }
+
+  async removePrimary(id: string): Promise<APIResponse> {
+    const itemSupplier = await this.checkExistingItemSupplierById(id);
+    if (!itemSupplier.isPrimary)
+      throw new APIError(
+        'This item supplier is already not primary',
+        STATUS_CODES.Conflict,
+      );
+
+    const updatedItemSupplier =
+      await this.itemSupplierRepo.removePrimaryById(id);
+    return { statusCode: STATUS_CODES.OK, data: updatedItemSupplier };
   }
 
   // --- Helpers ---

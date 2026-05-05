@@ -62,6 +62,8 @@ export interface ISuppliersService {
     page: number,
     limit: number,
   ): Promise<APIResponse>;
+  makePrimary(id: string): Promise<APIResponse>;
+  removePrimary(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

@@ -3,7 +3,7 @@ import { eq, and, count } from 'drizzle-orm';
 import { db } from '../config/drizzle';
 import { ItemSupplier } from '../types/app.types';
 import { itemSuppliers } from '../../drizzle/schema';
-import { IItemSuppliersRepository } from '../interfaces';
+import { IItemSuppliersRepository, TX } from '../interfaces';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 
@@ -77,5 +77,43 @@ export class ItemSuppliersRepository implements IItemSuppliersRepository {
     ]);
 
     return { data: itemsSuppliers, size: size[0].count };
+  }
+
+  async makePrimary(id: string, tx?: TX): Promise<ItemSupplier> {
+    const client = tx || db;
+    const itemSupplier = await client
+      .update(itemSuppliers)
+      .set({ isPrimary: true })
+      .where(eq(itemSuppliers.id, id))
+      .returning();
+
+    return itemSupplier[0];
+  }
+
+  async removePrimary(itemId: string, tx?: TX): Promise<ItemSupplier> {
+    const client = tx || db;
+    const itemSupplier = await client
+      .update(itemSuppliers)
+      .set({ isPrimary: false })
+      .where(
+        and(
+          eq(itemSuppliers.isPrimary, true),
+          eq(itemSuppliers.itemId, itemId),
+        ),
+      )
+      .returning();
+
+    return itemSupplier[0];
+  }
+
+  async removePrimaryById(id: string, tx?: TX): Promise<ItemSupplier> {
+    const client = tx || db;
+    const itemSupplier = await client
+      .update(itemSuppliers)
+      .set({ isPrimary: false })
+      .where(eq(itemSuppliers.id, id))
+      .returning();
+
+    return itemSupplier[0];
   }
 }
