@@ -15,8 +15,9 @@ export function validate<
   return (req, res, next) => {
     try {
       if (schema.body) req.body = schema.body.parse(req.body);
-      if (schema.query) req.query = schema.query.parse(req.query) as any;
-      if (schema.params) req.params = schema.params.parse(req.params);
+      if (schema.query) Object.assign(req.query, schema.query.parse(req.query));
+      if (schema.params)
+        Object.assign(req.params, schema.params.parse(req.params));
       next();
     } catch (err) {
       if (err instanceof ZodError) {

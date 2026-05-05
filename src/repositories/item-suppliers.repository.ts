@@ -1,4 +1,4 @@
-import { eq, and, count } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { ItemSupplier } from '../types/app.types';
@@ -6,6 +6,7 @@ import { itemSuppliers } from '../../drizzle/schema';
 import { IItemSuppliersRepository, TX } from '../interfaces';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
+import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
 
 export class ItemSuppliersRepository implements IItemSuppliersRepository {
   async addItemSupplier(
@@ -53,30 +54,56 @@ export class ItemSuppliersRepository implements IItemSuppliersRepository {
     return await db.delete(itemSuppliers).where(eq(itemSuppliers.id, id));
   }
 
-  async getAllItemsSuppliers(page: number, limit: number) {
+  async getAllItemsSuppliers(
+    page: number,
+    limit: number,
+    q?: FilterItemSuppliersDto,
+  ) {
     const offset = (page - 1) * limit;
 
-    const [itemsSuppliers, size] = await Promise.all([
-      db.query.itemSuppliers.findMany({ limit, offset }),
-      db.select({ count: count() }).from(itemSuppliers),
-    ]);
+    const conditions = [
+      q?.isPrimary !== undefined
+        ? eq(itemSuppliers.isPrimary, q.isPrimary)
+        : undefined,
+    ].filter(Boolean);
 
-    return { data: itemsSuppliers, size: size[0].count };
+    const where = conditions.length ? and(...conditions) : undefined;
+
+    const itemsSuppliersData = await db.query.itemSuppliers.findMany({
+      where,
+      limit,
+      offset,
+      orderBy: desc(itemSuppliers.createdAt),
+    });
+
+    return itemsSuppliersData;
   }
 
-  async getItemSuppliers(itemId: string, page: number, limit: number) {
+  async getItemSuppliers(
+    itemId: string,
+    page: number,
+    limit: number,
+    q?: FilterItemSuppliersDto,
+  ) {
     const offset = (page - 1) * limit;
 
-    const [itemsSuppliers, size] = await Promise.all([
-      db.query.itemSuppliers.findMany({
-        limit,
-        offset,
-        where: eq(itemSuppliers.itemId, itemId),
-      }),
-      db.select({ count: count() }).from(itemSuppliers),
-    ]);
+    const conditions = [
+      eq(itemSuppliers.itemId, itemId),
+      q?.isPrimary !== undefined
+        ? eq(itemSuppliers.isPrimary, q.isPrimary)
+        : undefined,
+    ].filter(Boolean);
 
-    return { data: itemsSuppliers, size: size[0].count };
+    const where = and(...conditions);
+
+    const itemsSuppliersData = await db.query.itemSuppliers.findMany({
+      where,
+      limit,
+      offset,
+      orderBy: desc(itemSuppliers.createdAt),
+    });
+
+    return itemsSuppliersData;
   }
 
   async makePrimary(id: string, tx?: TX): Promise<ItemSupplier> {

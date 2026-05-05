@@ -1,20 +1,19 @@
-import { RequestHandler } from 'express';
-
-import { APIResponse } from '../types/api.types';
-import { ISuppliersService } from '../interfaces';
-import { sendResponse } from '../utils/sendResponse';
 import {
-  CombinedValidator,
   idValidatedCtrlr,
+  CombinedValidator,
   itemIdValidatedCtrlr,
-  paginationValidatedCtrlr,
 } from '../validators/common.validator';
 import {
   createSupplierValidatedCtrlr,
   updateSupplierValidatedCtrlr,
   addItemSupplierValidatedCtrlr,
+  filterSuppliersValidatedCtrlr,
   editItemSupplierValidatedCtrlr,
+  itemSuppliersQueryValidatedCtrlr,
 } from '../validators/suppliers.validator';
+import { APIResponse } from '../types/api.types';
+import { ISuppliersService } from '../interfaces';
+import { sendResponse } from '../utils/sendResponse';
 
 export class SuppliersController {
   constructor(private readonly suppliersService: ISuppliersService) {}
@@ -24,8 +23,10 @@ export class SuppliersController {
     sendResponse(res, result);
   };
 
-  findAll: RequestHandler = async (req, res) => {
-    const result: APIResponse = await this.suppliersService.findAll();
+  findAll: filterSuppliersValidatedCtrlr = async (req, res) => {
+    const q = req.query;
+
+    const result: APIResponse = await this.suppliersService.findAll(q);
     sendResponse(res, result);
   };
 
@@ -91,24 +92,30 @@ export class SuppliersController {
     sendResponse(res, result);
   };
 
-  getAllItemsSuppliers: paginationValidatedCtrlr = async (req, res) => {
-    const { page = 1, limit = 10 } = req.query;
+  getAllItemsSuppliers: itemSuppliersQueryValidatedCtrlr = async (req, res) => {
+    const { page = 1, limit = 10, ...q } = req.query;
 
     const result: APIResponse =
-      await this.suppliersService.getAllItemsSuppliers(page, limit);
+      await this.suppliersService.getAllItemsSuppliers(
+        +page,
+        +limit,
+        q,
+      );
     sendResponse(res, result);
   };
 
   getItemSuppliers: CombinedValidator<
     idValidatedCtrlr,
-    paginationValidatedCtrlr
+    itemSuppliersQueryValidatedCtrlr
   > = async (req, res) => {
     const { id } = req.params;
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, ...q } = req.query;
+
     const result: APIResponse = await this.suppliersService.getItemSuppliers(
       id,
       +page,
       +limit,
+      q,
     );
     sendResponse(res, result);
   };

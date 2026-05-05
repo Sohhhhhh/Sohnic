@@ -8,7 +8,9 @@ import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
+import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
+import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
 
 // ----- Service Interfaces -----
 
@@ -44,7 +46,7 @@ export interface IUsersService {
 
 export interface ISuppliersService {
   create(dto: CreateSupplierDto): Promise<APIResponse>;
-  findAll(): Promise<APIResponse>;
+  findAll(q?: FilterSuppliersDto): Promise<APIResponse>;
   findOne(supplierId: string): Promise<APIResponse>;
   update(supplierId: string, dto: UpdateSupplierDto): Promise<APIResponse>;
   deactivate(supplierId: string): Promise<APIResponse>;
@@ -56,11 +58,16 @@ export interface ISuppliersService {
   ): Promise<APIResponse>;
   editItemSupplier(dto: EditItemSupplierDto, id: string): Promise<APIResponse>;
   deleteItemSupplier(id: string): Promise<APIResponse>;
-  getAllItemsSuppliers(page: number, limit: number): Promise<APIResponse>;
+  getAllItemsSuppliers(
+    page: number,
+    limit: number,
+    q?: FilterItemSuppliersDto,
+  ): Promise<APIResponse>;
   getItemSuppliers(
     itemId: string,
     page: number,
     limit: number,
+    q?: FilterItemSuppliersDto,
   ): Promise<APIResponse>;
   makePrimary(id: string): Promise<APIResponse>;
   removePrimary(id: string): Promise<APIResponse>;

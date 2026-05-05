@@ -14,6 +14,8 @@ import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
+import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
+import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
 
 // ----- Record Types -----
 
@@ -79,7 +81,7 @@ export interface IBranchesRepository {
 export interface ISuppliersRepository {
   create(dto: CreateSupplierDto): Promise<Supplier>;
   getSupplierByEmail(email: string): Promise<Supplier | undefined>;
-  findAll(): Promise<Supplier[]>;
+  findAll(q?: FilterSuppliersDto): Promise<Supplier[]>;
   findOne(id: string): Promise<Supplier | undefined>;
   update(id: string, dto: UpdateSupplierDto): Promise<Supplier>;
   deactivate(id: string): Promise<Supplier>;
@@ -101,12 +103,14 @@ export interface IItemSuppliersRepository {
   getAllItemsSuppliers(
     page: number,
     limit: number,
-  ): Promise<{ data: ItemSupplier[]; size: number }>;
+    q?: FilterItemSuppliersDto,
+  ): Promise<ItemSupplier[]>;
   getItemSuppliers(
     itemId: string,
     page: number,
     limit: number,
-  ): Promise<{ data: ItemSupplier[]; size: number }>;
+    q?: FilterItemSuppliersDto,
+  ): Promise<ItemSupplier[]>;
   makePrimary(id: string, tx?: TX): Promise<ItemSupplier>;
   removePrimary(itemId: string, tx?: TX): Promise<ItemSupplier>;
   removePrimaryById(id: string): Promise<ItemSupplier>;

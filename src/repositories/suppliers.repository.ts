@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, ilike } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { Supplier } from '../types/app.types';
@@ -6,6 +6,7 @@ import { suppliers } from '../../drizzle/schema';
 import { ISuppliersRepository } from '../interfaces';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
+import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 
 export class SuppliersRepository implements ISuppliersRepository {
   async create(dto: CreateSupplierDto): Promise<Supplier> {
@@ -27,8 +28,21 @@ export class SuppliersRepository implements ISuppliersRepository {
     return supplier;
   }
 
-  async findAll(): Promise<Supplier[]> {
-    return db.query.suppliers.findMany();
+  async findAll(q?: FilterSuppliersDto): Promise<Supplier[]> {
+    const conditions = [
+      q?.city ? eq(suppliers.city, q.city) : undefined,
+      q?.country ? eq(suppliers.country, q.country) : undefined,
+      q?.companyName
+        ? ilike(suppliers.companyName, `%${q.companyName}%`)
+        : undefined,
+      q?.isActive !== undefined
+        ? eq(suppliers.isActive, q.isActive)
+        : undefined,
+    ].filter(Boolean);
+
+    return db.query.suppliers.findMany({
+      where: conditions.length ? and(...conditions) : undefined,
+    });
   }
 
   async findOne(id: string): Promise<Supplier | undefined> {

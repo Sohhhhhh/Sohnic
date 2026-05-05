@@ -1,14 +1,13 @@
 import { RequestHandler, Router } from 'express';
 
+import { validateId } from '../../validators/common.validator';
 import {
-  validateId,
-  validatePagination,
-} from '../../validators/common.validator';
-import {
-  validateAddItemSupplier,
   validateCreateSupplier,
-  validateEditItemSupplier,
   validateUpdateSupplier,
+  validateAddItemSupplier,
+  validateFilterSuppliers,
+  validateEditItemSupplier,
+  validateItemSuppliersQuery,
 } from '../../validators/suppliers.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { isAuthenticated } from '../../containers/middleware.container';
@@ -27,13 +26,14 @@ router.get(
   '/',
   isAuthenticated,
   isAuthorized('super_admin', 'branch_admin', 'storage_manager'),
+  validateFilterSuppliers,
   suppliersController.findAll,
 );
 router.get(
   '/items',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
-  validatePagination as unknown as RequestHandler,
+  validateItemSuppliersQuery,
   suppliersController.getAllItemsSuppliers as unknown as RequestHandler,
 );
 router.get(
@@ -41,7 +41,7 @@ router.get(
   isAuthenticated,
   isAuthorized('super_admin', 'accountant', 'branch_admin'),
   validateId,
-  validatePagination as unknown as RequestHandler,
+  validateItemSuppliersQuery,
   suppliersController.getItemSuppliers as unknown as RequestHandler,
 );
 

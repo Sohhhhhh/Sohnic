@@ -10,7 +10,10 @@ import { APIResponse } from '../types/api.types';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
+import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
+import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
+// import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
 
 export class SuppliersService implements ISuppliersService {
   constructor(
@@ -28,8 +31,8 @@ export class SuppliersService implements ISuppliersService {
     };
   }
 
-  async findAll(): Promise<APIResponse> {
-    const suppliers = await this.suppliersRepo.findAll();
+  async findAll(q?: FilterSuppliersDto): Promise<APIResponse> {
+    const suppliers = await this.suppliersRepo.findAll(q);
 
     return {
       statusCode: STATUS_CODES.OK,
@@ -138,27 +141,31 @@ export class SuppliersService implements ISuppliersService {
   async getAllItemsSuppliers(
     page: number = 1,
     limit: number = 10,
+    q?: FilterItemSuppliersDto,
   ): Promise<APIResponse> {
-    const { data, size } = await this.itemSupplierRepo.getAllItemsSuppliers(
+    const data = await this.itemSupplierRepo.getAllItemsSuppliers(
       page,
       limit,
+      q,
     );
 
-    return { statusCode: STATUS_CODES.OK, size, data };
+    return { statusCode: STATUS_CODES.OK, size: data.length, data };
   }
 
   async getItemSuppliers(
     itemId: string,
     page: number = 1,
     limit: number = 10,
+    q?: FilterItemSuppliersDto,
   ): Promise<APIResponse> {
-    const { data, size } = await this.itemSupplierRepo.getItemSuppliers(
+    const data = await this.itemSupplierRepo.getItemSuppliers(
       itemId,
       page,
       limit,
+      q,
     );
 
-    return { statusCode: STATUS_CODES.OK, size, data };
+    return { statusCode: STATUS_CODES.OK, size: data.length, data };
   }
 
   async makePrimary(id: string): Promise<APIResponse> {
