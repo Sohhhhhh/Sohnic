@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: sohnic_pass
       POSTGRES_DB: sohnic
     ports:
-      - '5433:5432'
+      - '5434:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -29,7 +29,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@sohnic.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - '5050:80'
+      - '5051:80'
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     networks:
@@ -42,7 +42,7 @@ services:
       target: development
     container_name: sohnic-app
     ports:
-      - '3000:3000'
+      - '3001:3000'
     volumes:
       - .:/app
       - /app/node_modules
