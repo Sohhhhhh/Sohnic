@@ -2,6 +2,7 @@ import { QueryResult } from 'pg';
 import { PostgresJsTransaction } from 'drizzle-orm/postgres-js';
 
 import {
+  Category,
   ItemSupplier,
   Role,
   SafeUser,
@@ -16,6 +17,7 @@ import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
+import { createCategoryDto } from '../dtos/categories/createCategory.dto';
 
 // ----- Record Types -----
 
@@ -114,4 +116,9 @@ export interface IItemSuppliersRepository {
   makePrimary(id: string, tx?: TX): Promise<ItemSupplier>;
   removePrimary(itemId: string, tx?: TX): Promise<ItemSupplier>;
   removePrimaryById(id: string): Promise<ItemSupplier>;
+}
+
+export interface ICategoriesRepository {
+  create(dto: createCategoryDto): Promise<Category>;
+  findOne(id: string): Promise<Category | undefined>;
 }
