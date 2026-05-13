@@ -25,4 +25,10 @@ export class CategoriesController {
       const result: APIResponse = await this.categoriesService.update(id, dto);
       sendResponse(res, result);
     };
+
+  delete: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.categoriesService.delete(id);
+    sendResponse(res, result);
+  };
 }

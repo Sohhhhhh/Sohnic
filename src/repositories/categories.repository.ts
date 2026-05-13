@@ -33,4 +33,18 @@ export class CategoriesRepository implements ICategoriesRepository {
 
     return category[0];
   }
+
+  async delete(id: string) {
+    const target = await db.query.categories.findFirst({
+      where: eq(categories.id, id),
+    });
+
+    await db
+      .update(categories)
+      .set({ parentCategoryId: target?.parentCategoryId ?? null })
+      .where(eq(categories.parentCategoryId, id));
+
+    await db.delete(categories).where(eq(categories.id, id));
+    return;
+  }
 }

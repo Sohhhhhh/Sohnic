@@ -28,4 +28,12 @@ router.patch(
   categoriesController.update,
 );
 
+router.delete(
+  '/:id',
+  isAuthenticated,
+  isAuthorized('super_admin', 'storage_manager'),
+  validateId,
+  categoriesController.delete,
+);
+
 export const categoriesRoutes = router;

@@ -38,6 +38,16 @@ export class CategoriesService implements ICategoriesService {
     };
   }
 
+  async delete(id: string): Promise<APIResponse> {
+    (await this.checkExistingCategory(id),
+      await this.categoriesRepo.delete(id));
+
+    return {
+      statusCode: STATUS_CODES.NoContent,
+      message: 'Category, and all its children deleted successfully',
+    };
+  }
+
   // --- Helpers ---
   private async checkExistingCategory(
     categoryId: string,
