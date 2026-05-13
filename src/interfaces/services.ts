@@ -79,6 +79,8 @@ export interface ICategoriesService {
   create(dto: CreateCategoryDto): Promise<APIResponse>;
   update(id: string, dto: UpdateCategoryDto): Promise<APIResponse>;
   delete(id: string): Promise<APIResponse>;
+  getParentCategories(): Promise<APIResponse>;
+  getChildCategories(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

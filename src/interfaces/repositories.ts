@@ -124,4 +124,6 @@ export interface ICategoriesRepository {
   findOne(id: string): Promise<Category | undefined>;
   update(id: string, dto: UpdateCategoryDto): Promise<Category>;
   delete(id: string): Promise<void>;
+  getParentCategories(): Promise<Category[]>;
+  getChildCategories(id: string): Promise<Category[]>;
 }

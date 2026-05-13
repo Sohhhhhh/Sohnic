@@ -17,12 +17,22 @@ export class CategoriesService implements ICategoriesService {
     const category = await this.categoriesRepo.create(dto);
 
     return {
-      statusCode: STATUS_CODES.OK,
+      statusCode: STATUS_CODES.Created,
       data: category,
     };
   }
 
-  async update(id: string, dto: UpdateCategoryDto) {
+  async getParentCategories(): Promise<APIResponse> {
+    const parentCategories = await this.categoriesRepo.getParentCategories();
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: parentCategories.length,
+      data: parentCategories,
+    };
+  }
+
+  async update(id: string, dto: UpdateCategoryDto): Promise<APIResponse> {
     const { parentCategoryId } = dto;
 
     await Promise.all([
@@ -45,6 +55,16 @@ export class CategoriesService implements ICategoriesService {
     return {
       statusCode: STATUS_CODES.NoContent,
       message: 'Category, and all its children deleted successfully',
+    };
+  }
+
+  async getChildCategories(id: string): Promise<APIResponse> {
+    const childCategories = await this.categoriesRepo.getChildCategories(id);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: childCategories.length,
+      data: childCategories,
     };
   }
 

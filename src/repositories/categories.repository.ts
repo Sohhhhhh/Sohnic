@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, isNull } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { categories } from '../../drizzle/schema';
@@ -14,6 +14,14 @@ export class CategoriesRepository implements ICategoriesRepository {
       .returning();
 
     return category[0];
+  }
+
+  async getParentCategories() {
+    const parentCategories = await db.query.categories.findMany({
+      where: isNull(categories.parentCategoryId),
+    });
+
+    return parentCategories;
   }
 
   async findOne(id: string) {
@@ -46,5 +54,13 @@ export class CategoriesRepository implements ICategoriesRepository {
 
     await db.delete(categories).where(eq(categories.id, id));
     return;
+  }
+
+  async getChildCategories(id: string) {
+    const childCategories = await db.query.categories.findMany({
+      where: eq(categories.parentCategoryId, id),
+    });
+
+    return childCategories;
   }
 }

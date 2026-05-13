@@ -18,6 +18,12 @@ export class CategoriesController {
     sendResponse(res, result);
   };
 
+  getParentCategories: createCategoryValidatedCtrlr = async (req, res) => {
+    const result: APIResponse =
+      await this.categoriesService.getParentCategories();
+    sendResponse(res, result);
+  };
+
   update: CombinedValidator<idValidatedCtrlr, updateCategoryValidatedCtrlr> =
     async (req, res) => {
       const { id } = req.params;
@@ -29,6 +35,13 @@ export class CategoriesController {
   delete: idValidatedCtrlr = async (req, res) => {
     const { id } = req.params;
     const result: APIResponse = await this.categoriesService.delete(id);
+    sendResponse(res, result);
+  };
+
+  getChildCategories: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.categoriesService.getChildCategories(id);
     sendResponse(res, result);
   };
 }
