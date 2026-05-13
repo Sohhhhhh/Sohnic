@@ -11,13 +11,14 @@ import {
 } from '../types/app.types';
 import { db } from '../config/drizzle';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
+import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
-import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
+import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
-import { createCategoryDto } from '../dtos/categories/createCategory.dto';
+import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
 
 // ----- Record Types -----
 
@@ -119,6 +120,7 @@ export interface IItemSuppliersRepository {
 }
 
 export interface ICategoriesRepository {
-  create(dto: createCategoryDto): Promise<Category>;
+  create(dto: CreateCategoryDto): Promise<Category>;
   findOne(id: string): Promise<Category | undefined>;
+  update(id: string, dto: UpdateCategoryDto): Promise<Category>;
 }

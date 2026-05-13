@@ -1,7 +1,14 @@
+import {
+  CombinedValidator,
+  idValidatedCtrlr,
+} from '../validators/common.validator';
+import {
+  createCategoryValidatedCtrlr,
+  updateCategoryValidatedCtrlr,
+} from './../validators/categories.validator';
 import { APIResponse } from '../types/api.types';
 import { ICategoriesService } from '../interfaces';
 import { sendResponse } from '../utils/sendResponse';
-import { createCategoryValidatedCtrlr } from './../validators/categories.validator';
 
 export class CategoriesController {
   constructor(private readonly categoriesService: ICategoriesService) {}
@@ -10,4 +17,12 @@ export class CategoriesController {
     const result: APIResponse = await this.categoriesService.create(req.body);
     sendResponse(res, result);
   };
+
+  update: CombinedValidator<idValidatedCtrlr, updateCategoryValidatedCtrlr> =
+    async (req, res) => {
+      const { id } = req.params;
+      const dto = req.body;
+      const result: APIResponse = await this.categoriesService.update(id, dto);
+      sendResponse(res, result);
+    };
 }

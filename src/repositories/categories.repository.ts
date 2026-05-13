@@ -3,10 +3,11 @@ import { eq } from 'drizzle-orm';
 import { db } from '../config/drizzle';
 import { categories } from '../../drizzle/schema';
 import { ICategoriesRepository } from '../interfaces';
-import { createCategoryDto } from '../dtos/categories/createCategory.dto';
+import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
+import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
 
 export class CategoriesRepository implements ICategoriesRepository {
-  async create(dto: createCategoryDto) {
+  async create(dto: CreateCategoryDto) {
     const category = await db
       .insert(categories)
       .values({ ...dto })
@@ -21,5 +22,15 @@ export class CategoriesRepository implements ICategoriesRepository {
     });
 
     return category;
+  }
+
+  async update(id: string, dto: UpdateCategoryDto) {
+    const category = await db
+      .update(categories)
+      .set({ ...dto })
+      .where(eq(categories.id, id))
+      .returning();
+
+    return category[0];
   }
 }
