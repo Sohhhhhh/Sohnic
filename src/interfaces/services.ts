@@ -1,18 +1,19 @@
 import { APIResponse } from '../types/api.types';
 import { loginDto } from '../dtos/users/login.dto';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
-import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
+import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { AuthenticatedUser, SafeUser } from '../types/app.types';
 import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
+import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
+import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
-import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
 
 // ----- Service Interfaces -----
 
@@ -81,6 +82,10 @@ export interface ICategoriesService {
   delete(id: string): Promise<APIResponse>;
   getParentCategories(): Promise<APIResponse>;
   getChildCategories(id: string): Promise<APIResponse>;
+}
+
+export interface IItemsService {
+  create(dto: CreateItemDto): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

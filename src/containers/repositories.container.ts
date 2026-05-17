@@ -1,5 +1,6 @@
 import { RolesRepository } from '../repositories/roles.repository';
 import { UsersRepository } from '../repositories/users.repository';
+import { ItemsRepository } from '../repositories/items.repository';
 import { BranchesRepository } from '../repositories/branches.repository';
 import { SuppliersRepository } from '../repositories/suppliers.repository';
 import { CategoriesRepository } from '../repositories/categories.repository';
@@ -9,6 +10,7 @@ import { SetPasswordTokensRepository } from '../repositories/set-password-tokens
 
 export const usersRepository = new UsersRepository();
 export const rolesRepository = new RolesRepository();
+export const itemsRepository = new ItemsRepository();
 export const branchesRepository = new BranchesRepository();
 export const suppliersRepository = new SuppliersRepository();
 export const categoriesRepository = new CategoriesRepository();

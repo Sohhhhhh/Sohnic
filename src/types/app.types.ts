@@ -1,5 +1,6 @@
 import {
   categories,
+  items,
   itemSuppliers,
   roles,
   suppliers,
@@ -13,3 +14,4 @@ export type AuthenticatedUser = SafeUser & { role: Role };
 export type Supplier = typeof suppliers.$inferSelect;
 export type ItemSupplier = typeof itemSuppliers.$inferSelect;
 export type Category = typeof categories.$inferSelect;
+export type Item = typeof items.$inferSelect;
