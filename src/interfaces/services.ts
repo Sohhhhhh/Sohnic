@@ -86,6 +86,7 @@ export interface ICategoriesService {
 
 export interface IItemsService {
   create(dto: CreateItemDto): Promise<APIResponse>;
+  delete(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

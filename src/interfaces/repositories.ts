@@ -1,5 +1,5 @@
 import { QueryResult } from 'pg';
-import { PostgresJsTransaction } from 'drizzle-orm/postgres-js';
+import { NodePgTransaction } from 'drizzle-orm/node-postgres';
 
 import {
   Category,
@@ -37,7 +37,7 @@ export interface SetPasswordTokenRecord {
   expiresAt: Date;
 }
 
-export type TX = typeof db | PostgresJsTransaction<any, any>;
+export type TX = typeof db | NodePgTransaction<any, any>;
 
 // ----- Repository Interfaces -----
 
@@ -104,7 +104,8 @@ export interface IItemSuppliersRepository {
   ): Promise<ItemSupplier | undefined>;
   findOneById(id: string): Promise<ItemSupplier | undefined>;
   editItemSupplier(id: string, dto: EditItemSupplierDto): Promise<ItemSupplier>;
-  deleteItemSupplier(id: string): Promise<QueryResult<never>>;
+  deleteItemSupplier(id: string, tx?: TX): Promise<QueryResult<never>>;
+  deleteByItemId(itemId: string, tx?: TX): Promise<void>;
   getAllItemsSuppliers(
     page: number,
     limit: number,
@@ -132,4 +133,6 @@ export interface ICategoriesRepository {
 
 export interface IItemsRepository {
   create(dto: CreateItemDto): Promise<Item>;
+  findOne(id: string): Promise<Item | undefined>;
+  delete(id: string, tx?: TX): Promise<void>;
 }

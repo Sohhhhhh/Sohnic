@@ -50,8 +50,14 @@ export class ItemSuppliersRepository implements IItemSuppliersRepository {
     return itemSupplier[0];
   }
 
-  async deleteItemSupplier(id: string) {
-    return await db.delete(itemSuppliers).where(eq(itemSuppliers.id, id));
+  async deleteItemSupplier(id: string, tx?: TX) {
+    const client = tx || db;
+    return await client.delete(itemSuppliers).where(eq(itemSuppliers.id, id));
+  }
+
+  async deleteByItemId(itemId: string, tx?: TX): Promise<void> {
+    const client = tx || db;
+    await client.delete(itemSuppliers).where(eq(itemSuppliers.itemId, itemId));
   }
 
   async getAllItemsSuppliers(
