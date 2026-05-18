@@ -1,10 +1,18 @@
 import { ItemsService } from '../services/items.service';
-import { itemsRepository, itemSuppliersRepository } from './repositories.container';
 import { ItemsController } from '../controllers/items.controller';
+import {
+  itemsRepository,
+  itemSuppliersRepository,
+  bomRepository,
+} from './repositories.container';
 
 // ----- Services -----
 
-export const itemsService = new ItemsService(itemsRepository, itemSuppliersRepository);
+export const itemsService = new ItemsService(
+  itemsRepository,
+  itemSuppliersRepository,
+  bomRepository,
+);
 
 // ----- Controllers -----
 

@@ -1,3 +1,7 @@
+import {
+  addBomComponentSchema,
+  updateBomComponentSchema,
+} from '../dtos/items/bom.dto';
 import { validate } from '../middlewares/validate';
 import { createItemSchema } from '../dtos/items/createItem.dto';
 import { updateItemSchema } from '../dtos/items/updateItem.dto';
@@ -22,3 +26,16 @@ export const validateFilterItems = validate({
   query: filterItemsQuerySchema,
 });
 export type filterItemsValidatedCtrlr = typeof validateFilterItems;
+
+// ADD BOM COMPONENT
+export const validateAddBomComponent = validate({
+  body: addBomComponentSchema,
+});
+export type addBomComponentValidatedCtrlr = typeof validateAddBomComponent;
+
+// UPDATE BOM COMPONENT
+export const validateUpdateBomComponent = validate({
+  body: updateBomComponentSchema,
+});
+export type updateBomComponentValidatedCtrlr =
+  typeof validateUpdateBomComponent;

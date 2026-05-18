@@ -7,7 +7,9 @@ import { CategoriesRepository } from '../repositories/categories.repository';
 import { RefreshTokensRepository } from '../repositories/refresh-tokens.repository';
 import { ItemSuppliersRepository } from '../repositories/item-suppliers.repository';
 import { SetPasswordTokensRepository } from '../repositories/set-password-tokens.repository';
+import { BomRepository } from '../repositories/bom.repository';
 
+export const bomRepository = new BomRepository();
 export const usersRepository = new UsersRepository();
 export const rolesRepository = new RolesRepository();
 export const itemsRepository = new ItemsRepository();

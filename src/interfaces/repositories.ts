@@ -15,6 +15,10 @@ import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { FilterItemsDto } from '../dtos/items/filterItems.dto';
+import {
+  AddBomComponentDto,
+  UpdateBomComponentDto,
+} from '../dtos/items/bom.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
@@ -139,4 +143,17 @@ export interface IItemsRepository {
   findOne(id: string): Promise<Item | undefined>;
   update(id: string, dto: UpdateItemDto): Promise<Item>;
   delete(id: string, tx?: TX): Promise<void>;
+}
+
+export interface IBomRepository {
+  addComponent(itemId: string, dto: AddBomComponentDto): Promise<void>;
+  getBomByItemId(itemId: string): Promise<any[]>;
+  checkIfExists(itemId: string, componentId: string): Promise<boolean>;
+  updateComponent(
+    itemId: string,
+    componentId: string,
+    dto: UpdateBomComponentDto,
+  ): Promise<void>;
+  removeComponent(itemId: string, componentId: string): Promise<void>;
+  deleteByItemOrComponentId(id: string, tx?: TX): Promise<void>;
 }

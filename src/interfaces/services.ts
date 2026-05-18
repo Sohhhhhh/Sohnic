@@ -4,6 +4,10 @@ import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { FilterItemsDto } from '../dtos/items/filterItems.dto';
+import {
+  AddBomComponentDto,
+  UpdateBomComponentDto,
+} from '../dtos/items/bom.dto';
 import { AuthenticatedUser, SafeUser } from '../types/app.types';
 import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
@@ -92,6 +96,16 @@ export interface IItemsService {
   findOne(id: string): Promise<APIResponse>;
   update(id: string, dto: UpdateItemDto): Promise<APIResponse>;
   delete(id: string): Promise<APIResponse>;
+
+  // BOM
+  addBomComponent(itemId: string, dto: AddBomComponentDto): Promise<APIResponse>;
+  getBom(itemId: string): Promise<APIResponse>;
+  updateBomComponent(
+    itemId: string,
+    componentId: string,
+    dto: UpdateBomComponentDto,
+  ): Promise<APIResponse>;
+  removeBomComponent(itemId: string, componentId: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----
