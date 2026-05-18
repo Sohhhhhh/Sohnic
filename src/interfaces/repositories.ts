@@ -9,6 +9,7 @@ import {
   SafeUser,
   Supplier,
   User,
+  BomLine,
 } from '../types/app.types';
 import { db } from '../config/drizzle';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
@@ -147,7 +148,7 @@ export interface IItemsRepository {
 
 export interface IBomRepository {
   addComponent(itemId: string, dto: AddBomComponentDto): Promise<void>;
-  getBomByItemId(itemId: string): Promise<any[]>;
+  getBomByItemId(itemId: string): Promise<BomLine[]>;
   checkIfExists(itemId: string, componentId: string): Promise<boolean>;
   updateComponent(
     itemId: string,

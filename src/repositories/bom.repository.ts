@@ -8,6 +8,8 @@ import { db } from '../config/drizzle';
 import { IBomRepository, TX } from '../interfaces';
 import { billOfMaterials, items } from '../../drizzle/schema';
 
+import { BomLine } from '../types/app.types';
+
 export class BomRepository implements IBomRepository {
   async addComponent(itemId: string, dto: AddBomComponentDto): Promise<void> {
     await db.insert(billOfMaterials).values({
@@ -16,7 +18,7 @@ export class BomRepository implements IBomRepository {
     });
   }
 
-  async getBomByItemId(itemId: string): Promise<any[]> {
+  async getBomByItemId(itemId: string): Promise<BomLine[]> {
     const bom = await db
       .select({
         componentId: billOfMaterials.componentId,

@@ -15,7 +15,10 @@ export const checkImmutableItemFields = (
   _res: Response,
   next: NextFunction,
 ) => {
-  const attempted = IMMUTABLE_ITEM_FIELDS.filter((field) => field in req.body);
+  const body = req.body || {};
+  if (typeof body !== 'object' || Array.isArray(body)) return next();
+
+  const attempted = IMMUTABLE_ITEM_FIELDS.filter((field) => field in body);
 
   if (attempted.length > 0)
     throw new APIError(

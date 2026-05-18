@@ -89,7 +89,7 @@ export class ItemsService implements IItemsService {
   async addBomComponent(itemId: string, dto: AddBomComponentDto) {
     const [mainItem, componentItem] = await Promise.all([
       this.itemsRepo.findOne(itemId),
-      await this.itemsRepo.findOne(dto.componentId),
+      this.itemsRepo.findOne(dto.componentId),
     ]);
 
     if (!mainItem)

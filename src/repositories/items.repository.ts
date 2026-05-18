@@ -1,4 +1,4 @@
-import { and, eq, ilike } from 'drizzle-orm';
+import { and, eq, ilike, SQL } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { Item } from '../types/app.types';
@@ -29,7 +29,7 @@ export class ItemsRepository implements IItemsRepository {
       q?.type ? eq(items.type, q.type) : undefined,
       q?.name ? ilike(items.name, `%${q.name}%`) : undefined,
       q?.sku ? ilike(items.sku, `%${q.sku}%`) : undefined,
-    ].filter(Boolean) as any[];
+    ].filter(Boolean) as SQL[];
 
     return db.query.items.findMany({
       where: conditions.length ? and(...conditions) : undefined,
