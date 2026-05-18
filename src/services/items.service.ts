@@ -3,6 +3,7 @@ import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
+import { FilterItemsDto } from '../dtos/items/filterItems.dto';
 import { itemResponseSchema } from '../dtos/items/itemResponse.dto';
 import {
   IItemsRepository,
@@ -21,6 +22,27 @@ export class ItemsService implements IItemsService {
 
     return {
       statusCode: STATUS_CODES.Created,
+      data: itemResponseSchema.parse(item),
+    };
+  }
+
+  async findAll(page: number, limit: number, q?: FilterItemsDto) {
+    const items = await this.itemsRepo.findAll(page, limit, q);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: items.length,
+      data: items.map((item) => itemResponseSchema.parse(item)),
+    };
+  }
+
+  async findOne(id: string) {
+    const item = await this.itemsRepo.findOne(id);
+    if (!item)
+      throw new APIError('No item found with this id', STATUS_CODES.NotFound);
+
+    return {
+      statusCode: STATUS_CODES.OK,
       data: itemResponseSchema.parse(item),
     };
   }

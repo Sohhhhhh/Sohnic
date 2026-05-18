@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, ilike } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { Item } from '../types/app.types';
@@ -6,6 +6,7 @@ import { items } from '../../drizzle/schema';
 import { IItemsRepository, TX } from '../interfaces';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
+import { FilterItemsDto } from '../dtos/items/filterItems.dto';
 
 export class ItemsRepository implements IItemsRepository {
   async create(dto: CreateItemDto): Promise<Item> {
@@ -15,6 +16,27 @@ export class ItemsRepository implements IItemsRepository {
       .returning();
 
     return item[0];
+  }
+
+  async findAll(
+    page: number,
+    limit: number,
+    q?: FilterItemsDto,
+  ): Promise<Item[]> {
+    const offset = (page - 1) * limit;
+
+    const conditions = [
+      q?.type ? eq(items.type, q.type) : undefined,
+      q?.name ? ilike(items.name, `%${q.name}%`) : undefined,
+      q?.sku ? ilike(items.sku, `%${q.sku}%`) : undefined,
+    ].filter(Boolean) as any[];
+
+    return db.query.items.findMany({
+      where: conditions.length ? and(...conditions) : undefined,
+      limit,
+      offset,
+      orderBy: (items, { desc }) => [desc(items.createdAt)],
+    });
   }
 
   async findOne(id: string): Promise<Item | undefined> {

@@ -8,6 +8,7 @@ import {
 import {
   createItemValidatedCtrlr,
   updateItemValidatedCtrlr,
+  filterItemsValidatedCtrlr,
 } from '../validators/items.validator';
 
 export class ItemsController {
@@ -15,6 +16,22 @@ export class ItemsController {
 
   create: createItemValidatedCtrlr = async (req, res) => {
     const result: APIResponse = await this.itemsService.create(req.body);
+    sendResponse(res, result);
+  };
+
+  findAll: filterItemsValidatedCtrlr = async (req, res) => {
+    const { page, limit, ...q } = req.query;
+    const result: APIResponse = await this.itemsService.findAll(
+      +page,
+      +limit,
+      q,
+    );
+    sendResponse(res, result);
+  };
+
+  findOne: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.itemsService.findOne(id);
     sendResponse(res, result);
   };
 
