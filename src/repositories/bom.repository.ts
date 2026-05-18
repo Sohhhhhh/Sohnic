@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or } from 'drizzle-orm';
 
 import {
   AddBomComponentDto,
@@ -74,14 +74,13 @@ export class BomRepository implements IBomRepository {
 
   async deleteByItemOrComponentId(id: string, tx?: TX): Promise<void> {
     const client = tx || db;
-    const { or, eq: eqOp } = await import('drizzle-orm');
 
     await client
       .delete(billOfMaterials)
       .where(
         or(
-          eqOp(billOfMaterials.itemId, id),
-          eqOp(billOfMaterials.componentId, id),
+          eq(billOfMaterials.itemId, id),
+          eq(billOfMaterials.componentId, id),
         ),
       );
   }
