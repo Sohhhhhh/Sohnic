@@ -2,6 +2,7 @@ import { APIResponse } from '../types/api.types';
 import { loginDto } from '../dtos/users/login.dto';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
+import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { AuthenticatedUser, SafeUser } from '../types/app.types';
 import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
@@ -86,6 +87,7 @@ export interface ICategoriesService {
 
 export interface IItemsService {
   create(dto: CreateItemDto): Promise<APIResponse>;
+  update(id: string, dto: UpdateItemDto): Promise<APIResponse>;
   delete(id: string): Promise<APIResponse>;
 }
 

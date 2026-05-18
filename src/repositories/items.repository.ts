@@ -5,6 +5,7 @@ import { Item } from '../types/app.types';
 import { items } from '../../drizzle/schema';
 import { IItemsRepository, TX } from '../interfaces';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
+import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 
 export class ItemsRepository implements IItemsRepository {
   async create(dto: CreateItemDto): Promise<Item> {
@@ -20,6 +21,16 @@ export class ItemsRepository implements IItemsRepository {
     return await db.query.items.findFirst({
       where: eq(items.id, id),
     });
+  }
+
+  async update(id: string, dto: UpdateItemDto): Promise<Item> {
+    const updated = await db
+      .update(items)
+      .set(dto)
+      .where(eq(items.id, id))
+      .returning();
+
+    return updated[0];
   }
 
   async delete(id: string, tx?: TX): Promise<void> {

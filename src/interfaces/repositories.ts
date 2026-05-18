@@ -13,6 +13,7 @@ import {
 import { db } from '../config/drizzle';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
+import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
@@ -134,5 +135,6 @@ export interface ICategoriesRepository {
 export interface IItemsRepository {
   create(dto: CreateItemDto): Promise<Item>;
   findOne(id: string): Promise<Item | undefined>;
+  update(id: string, dto: UpdateItemDto): Promise<Item>;
   delete(id: string, tx?: TX): Promise<void>;
 }
