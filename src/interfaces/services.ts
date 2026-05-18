@@ -1,18 +1,25 @@
 import { APIResponse } from '../types/api.types';
 import { loginDto } from '../dtos/users/login.dto';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
-import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
+import { CreateItemDto } from '../dtos/items/createItem.dto';
+import { UpdateItemDto } from '../dtos/items/updateItem.dto';
+import { FilterItemsDto } from '../dtos/items/filterItems.dto';
+import {
+  AddBomComponentDto,
+  UpdateBomComponentDto,
+} from '../dtos/items/bom.dto';
 import { AuthenticatedUser, SafeUser } from '../types/app.types';
 import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
+import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
+import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
-import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
 
 // ----- Service Interfaces -----
 
@@ -81,6 +88,24 @@ export interface ICategoriesService {
   delete(id: string): Promise<APIResponse>;
   getParentCategories(): Promise<APIResponse>;
   getChildCategories(id: string): Promise<APIResponse>;
+}
+
+export interface IItemsService {
+  create(dto: CreateItemDto): Promise<APIResponse>;
+  findAll(page: number, limit: number, q?: FilterItemsDto): Promise<APIResponse>;
+  findOne(id: string): Promise<APIResponse>;
+  update(id: string, dto: UpdateItemDto): Promise<APIResponse>;
+  delete(id: string): Promise<APIResponse>;
+
+  // BOM
+  addBomComponent(itemId: string, dto: AddBomComponentDto): Promise<APIResponse>;
+  getBom(itemId: string): Promise<APIResponse>;
+  updateBomComponent(
+    itemId: string,
+    componentId: string,
+    dto: UpdateBomComponentDto,
+  ): Promise<APIResponse>;
+  removeBomComponent(itemId: string, componentId: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

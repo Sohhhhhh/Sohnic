@@ -1,24 +1,33 @@
 import { QueryResult } from 'pg';
-import { PostgresJsTransaction } from 'drizzle-orm/postgres-js';
+import { NodePgTransaction } from 'drizzle-orm/node-postgres';
 
 import {
   Category,
+  Item,
   ItemSupplier,
   Role,
   SafeUser,
   Supplier,
   User,
+  BomLine,
 } from '../types/app.types';
 import { db } from '../config/drizzle';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
-import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
+import { CreateItemDto } from '../dtos/items/createItem.dto';
+import { UpdateItemDto } from '../dtos/items/updateItem.dto';
+import { FilterItemsDto } from '../dtos/items/filterItems.dto';
+import {
+  AddBomComponentDto,
+  UpdateBomComponentDto,
+} from '../dtos/items/bom.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
+import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
+import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
-import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
 
 // ----- Record Types -----
 
@@ -35,7 +44,7 @@ export interface SetPasswordTokenRecord {
   expiresAt: Date;
 }
 
-export type TX = typeof db | PostgresJsTransaction<any, any>;
+export type TX = typeof db | NodePgTransaction<any, any>;
 
 // ----- Repository Interfaces -----
 
@@ -102,7 +111,8 @@ export interface IItemSuppliersRepository {
   ): Promise<ItemSupplier | undefined>;
   findOneById(id: string): Promise<ItemSupplier | undefined>;
   editItemSupplier(id: string, dto: EditItemSupplierDto): Promise<ItemSupplier>;
-  deleteItemSupplier(id: string): Promise<QueryResult<never>>;
+  deleteItemSupplier(id: string, tx?: TX): Promise<QueryResult<never>>;
+  deleteByItemId(itemId: string, tx?: TX): Promise<void>;
   getAllItemsSuppliers(
     page: number,
     limit: number,
@@ -126,4 +136,25 @@ export interface ICategoriesRepository {
   delete(id: string): Promise<void>;
   getParentCategories(): Promise<Category[]>;
   getChildCategories(id: string): Promise<Category[]>;
+}
+
+export interface IItemsRepository {
+  create(dto: CreateItemDto): Promise<Item>;
+  findAll(page: number, limit: number, q?: FilterItemsDto): Promise<Item[]>;
+  findOne(id: string): Promise<Item | undefined>;
+  update(id: string, dto: UpdateItemDto): Promise<Item>;
+  delete(id: string, tx?: TX): Promise<void>;
+}
+
+export interface IBomRepository {
+  addComponent(itemId: string, dto: AddBomComponentDto): Promise<void>;
+  getBomByItemId(itemId: string): Promise<BomLine[]>;
+  checkIfExists(itemId: string, componentId: string): Promise<boolean>;
+  updateComponent(
+    itemId: string,
+    componentId: string,
+    dto: UpdateBomComponentDto,
+  ): Promise<void>;
+  removeComponent(itemId: string, componentId: string): Promise<void>;
+  deleteByItemOrComponentId(id: string, tx?: TX): Promise<void>;
 }

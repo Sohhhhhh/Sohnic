@@ -102,14 +102,18 @@ const handleDatabaseError = (err: PostgresError): APIError => {
 };
 
 const convertToAPIError = (err: unknown): APIError => {
-  if (err instanceof ZodError || (err as any)?.name === 'ZodError')
-    return handleZodError(err as ZodError);
-  else if (isHttpException(err)) return handleHttpError(err);
-  else if (err instanceof JsonWebTokenError) return handleJWTError();
-  else if (err instanceof TokenExpiredError) return handleJWTExpiredError();
-  else if (err instanceof PostgresError) return handleDatabaseError(err);
-  else if (err instanceof APIError) return err;
-  else if (err instanceof Error)
-    return new APIError(err.message, STATUS_CODES.InternalServerError);
+  const unwrapped = (err as any)?.cause ?? err;
+
+  if (unwrapped instanceof ZodError || (unwrapped as any)?.name === 'ZodError')
+    return handleZodError(unwrapped as ZodError);
+  else if (isHttpException(unwrapped)) return handleHttpError(unwrapped);
+  else if (unwrapped instanceof JsonWebTokenError) return handleJWTError();
+  else if (unwrapped instanceof TokenExpiredError)
+    return handleJWTExpiredError();
+  else if (unwrapped instanceof PostgresError)
+    return handleDatabaseError(unwrapped);
+  else if (unwrapped instanceof APIError) return unwrapped;
+  else if (unwrapped instanceof Error)
+    return new APIError(unwrapped.message, STATUS_CODES.InternalServerError);
   else return new APIError('Unknown error', STATUS_CODES.InternalServerError);
 };
