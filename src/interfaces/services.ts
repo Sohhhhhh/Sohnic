@@ -20,6 +20,7 @@ import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
+import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 
 // ----- Service Interfaces -----
 
@@ -114,6 +115,13 @@ export interface IItemsService {
     dto: UpdateBomComponentDto,
   ): Promise<APIResponse>;
   removeBomComponent(itemId: string, componentId: string): Promise<APIResponse>;
+}
+
+export interface IPurchasingService {
+  createPurchaseRequest(
+    ordererId: string,
+    dto: CreatePurchaseRequestDto,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

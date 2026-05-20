@@ -2,6 +2,7 @@ import {
   categories,
   items,
   itemSuppliers,
+  purchaseRequests,
   roles,
   suppliers,
   users,
@@ -15,6 +16,7 @@ export type Supplier = typeof suppliers.$inferSelect;
 export type ItemSupplier = typeof itemSuppliers.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Item = typeof items.$inferSelect;
+export type PurchaseRequest = typeof purchaseRequests.$inferSelect;
 export type BomLine = {
   componentId: string;
   quantityPerUnit: number;

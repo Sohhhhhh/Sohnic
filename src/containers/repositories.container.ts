@@ -1,3 +1,4 @@
+import { BomRepository } from '../repositories/bom.repository';
 import { RolesRepository } from '../repositories/roles.repository';
 import { UsersRepository } from '../repositories/users.repository';
 import { ItemsRepository } from '../repositories/items.repository';
@@ -6,8 +7,8 @@ import { SuppliersRepository } from '../repositories/suppliers.repository';
 import { CategoriesRepository } from '../repositories/categories.repository';
 import { RefreshTokensRepository } from '../repositories/refresh-tokens.repository';
 import { ItemSuppliersRepository } from '../repositories/item-suppliers.repository';
+import { PurchaseRequestsRepository } from '../repositories/purchase-requests.repository';
 import { SetPasswordTokensRepository } from '../repositories/set-password-tokens.repository';
-import { BomRepository } from '../repositories/bom.repository';
 
 export const bomRepository = new BomRepository();
 export const usersRepository = new UsersRepository();
@@ -18,4 +19,5 @@ export const suppliersRepository = new SuppliersRepository();
 export const categoriesRepository = new CategoriesRepository();
 export const refreshTokensRepository = new RefreshTokensRepository();
 export const itemSuppliersRepository = new ItemSuppliersRepository();
+export const purchaseRequestsRepository = new PurchaseRequestsRepository();
 export const setPasswordTokensRepository = new SetPasswordTokensRepository();

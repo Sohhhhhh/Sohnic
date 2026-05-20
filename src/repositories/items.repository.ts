@@ -1,4 +1,4 @@
-import { and, eq, ilike, SQL } from 'drizzle-orm';
+import { and, eq, ilike, inArray, SQL } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { Item } from '../types/app.types';
@@ -58,5 +58,14 @@ export class ItemsRepository implements IItemsRepository {
   async delete(id: string, tx?: TX): Promise<void> {
     const client = tx || db;
     await client.delete(items).where(eq(items.id, id));
+  }
+
+  async findManyByIds(ids: string[]): Promise<Item[]> {
+    return db.query.items.findMany({
+      where: and(
+        inArray(items.id, ids),
+        or(eq(items.type, 'raw_material'), eq(items.sellableType, 'resale')),
+      ),
+    });
   }
 }

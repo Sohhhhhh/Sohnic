@@ -10,16 +10,21 @@ import {
   Supplier,
   User,
   BomLine,
+  PurchaseRequest,
 } from '../types/app.types';
-import { db } from '../config/drizzle';
-import { CreateUserDto } from '../dtos/users/createUser.dto';
-import { CreateItemDto } from '../dtos/items/createItem.dto';
-import { UpdateItemDto } from '../dtos/items/updateItem.dto';
-import { FilterItemsDto } from '../dtos/items/filterItems.dto';
 import {
   AddBomComponentDto,
   UpdateBomComponentDto,
 } from '../dtos/items/bom.dto';
+import { db } from '../config/drizzle';
+import {
+  CreatePurchaseRequestData,
+  CreatePurchaseRequestItemData,
+} from '../dtos/purchasing/createPurchaseRequest.dto';
+import { CreateUserDto } from '../dtos/users/createUser.dto';
+import { CreateItemDto } from '../dtos/items/createItem.dto';
+import { UpdateItemDto } from '../dtos/items/updateItem.dto';
+import { FilterItemsDto } from '../dtos/items/filterItems.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
@@ -144,6 +149,7 @@ export interface IItemsRepository {
   findOne(id: string): Promise<Item | undefined>;
   update(id: string, dto: UpdateItemDto): Promise<Item>;
   delete(id: string, tx?: TX): Promise<void>;
+  findManyByIds(ids: string[]): Promise<Item[]>;
 }
 
 export interface IBomRepository {
@@ -157,4 +163,9 @@ export interface IBomRepository {
   ): Promise<void>;
   removeComponent(itemId: string, componentId: string): Promise<void>;
   deleteByItemOrComponentId(id: string, tx?: TX): Promise<void>;
+}
+
+export interface IPurchaseRequestsRepository {
+  createReq(dto: CreatePurchaseRequestData, tx?: TX): Promise<PurchaseRequest>;
+  createManyItems(dto: CreatePurchaseRequestItemData[], tx?: TX): Promise<void>;
 }
