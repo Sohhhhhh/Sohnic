@@ -71,6 +71,13 @@
       "when": 1776785758912,
       "tag": "0009_flippant_agent_brand",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779237362451,
+      "tag": "0010_white_argent",
+      "breakpoints": true
     }
   ]
 }

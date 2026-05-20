@@ -1,17 +1,17 @@
+import {
+  AddBomComponentDto,
+  UpdateBomComponentDto,
+} from '../dtos/items/bom.dto';
 import { APIResponse } from '../types/api.types';
 import { loginDto } from '../dtos/users/login.dto';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { FilterItemsDto } from '../dtos/items/filterItems.dto';
-import {
-  AddBomComponentDto,
-  UpdateBomComponentDto,
-} from '../dtos/items/bom.dto';
-import { AuthenticatedUser, SafeUser } from '../types/app.types';
 import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
+import { AuthenticatedUser, Item, SafeUser } from '../types/app.types';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
@@ -92,13 +92,21 @@ export interface ICategoriesService {
 
 export interface IItemsService {
   create(dto: CreateItemDto): Promise<APIResponse>;
-  findAll(page: number, limit: number, q?: FilterItemsDto): Promise<APIResponse>;
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterItemsDto,
+  ): Promise<APIResponse>;
   findOne(id: string): Promise<APIResponse>;
   update(id: string, dto: UpdateItemDto): Promise<APIResponse>;
   delete(id: string): Promise<APIResponse>;
+  checkExistingItem(id: string, type?: string): Promise<Item>;
 
   // BOM
-  addBomComponent(itemId: string, dto: AddBomComponentDto): Promise<APIResponse>;
+  addBomComponent(
+    itemId: string,
+    dto: AddBomComponentDto,
+  ): Promise<APIResponse>;
   getBom(itemId: string): Promise<APIResponse>;
   updateBomComponent(
     itemId: string,

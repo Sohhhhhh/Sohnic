@@ -15,7 +15,6 @@ export const purchaseRequests = pgTable('purchase_requests', {
   ordererId: uuid('orderer_id').notNull(),
   reviewerId: uuid('reviewer_id'),
   branchId: uuid('branch_id').notNull(),
-  requestDate: timestamp('request_date').defaultNow(),
   reviewDate: timestamp('review_date'),
   rejectionReason: text('rejection_reason'),
   notes: text('notes'),
@@ -39,9 +38,9 @@ export const purchaseOrders = pgTable('purchase_orders', {
   quotationId: uuid('quotation_id'),
   status: purchaseOrderStatus('status').notNull().default('pending'),
   orderDate: date('order_date'),
-  expectedDeliveryDate: date('expected_delivery_date'),
+  expectedDeliveryDate: date('expected_delivery_date'), // where to put ?? in quotations i think
   actualDeliveryDate: date('actual_delivery_date'),
-  totalPrice: numeric('total_price', { precision: 12, scale: 2 }),
+  totalPrice: numeric('total_price', { precision: 12, scale: 2 }), // whta is this ??
   supplierId: uuid('supplier_id').notNull(),
   createdById: uuid('created_by_id').notNull(),
   approvedById: uuid('approved_by_id'),

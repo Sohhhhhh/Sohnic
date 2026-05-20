@@ -5,10 +5,9 @@ import {
   UpdateBomComponentDto,
 } from '../dtos/items/bom.dto';
 import { db } from '../config/drizzle';
+import { BomLine } from '../types/app.types';
 import { IBomRepository, TX } from '../interfaces';
 import { billOfMaterials, items } from '../../drizzle/schema';
-
-import { BomLine } from '../types/app.types';
 
 export class BomRepository implements IBomRepository {
   async addComponent(itemId: string, dto: AddBomComponentDto): Promise<void> {
@@ -80,10 +79,7 @@ export class BomRepository implements IBomRepository {
     await client
       .delete(billOfMaterials)
       .where(
-        or(
-          eq(billOfMaterials.itemId, id),
-          eq(billOfMaterials.componentId, id),
-        ),
+        or(eq(billOfMaterials.itemId, id), eq(billOfMaterials.componentId, id)),
       );
   }
 }

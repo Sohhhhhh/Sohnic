@@ -43,9 +43,7 @@ export class ItemsService implements IItemsService {
   }
 
   async findOne(id: string) {
-    const item = await this.itemsRepo.findOne(id);
-    if (!item)
-      throw new APIError('No item found with this id', STATUS_CODES.NotFound);
+    const item = await this.checkExistingItem(id);
 
     return {
       statusCode: STATUS_CODES.OK,
@@ -54,10 +52,7 @@ export class ItemsService implements IItemsService {
   }
 
   async update(id: string, dto: UpdateItemDto) {
-    const item = await this.itemsRepo.findOne(id);
-    if (!item)
-      throw new APIError('No item found with this id', STATUS_CODES.NotFound);
-
+    const item = await this.checkExistingItem(id);
     this.checkDto(item.type, dto);
 
     const updatedItem = await this.itemsRepo.update(id, dto);
@@ -70,9 +65,7 @@ export class ItemsService implements IItemsService {
 
   async delete(id: string) {
     await db.transaction(async (tx) => {
-      const item = await this.itemsRepo.findOne(id);
-      if (!item)
-        throw new APIError('No item found with this id', STATUS_CODES.NotFound);
+      await this.checkExistingItem(id);
 
       await this.itemSuppliersRepo.deleteByItemId(id, tx);
       await this.bomRepo.deleteByItemOrComponentId(id, tx);
@@ -87,27 +80,15 @@ export class ItemsService implements IItemsService {
   // ---- BOM ----
 
   async addBomComponent(itemId: string, dto: AddBomComponentDto) {
-    const [mainItem, componentItem] = await Promise.all([
-      this.itemsRepo.findOne(itemId),
-      this.itemsRepo.findOne(dto.componentId),
+    const [mainItem] = await Promise.all([
+      this.checkExistingItem(itemId, 'main'),
+      this.checkExistingItem(dto.componentId, 'component'),
     ]);
-
-    if (!mainItem)
-      throw new APIError(
-        'No main item found with this id',
-        STATUS_CODES.NotFound,
-      );
 
     if (mainItem.sellableType !== 'finished')
       throw new APIError(
         'Only finished sellable items can have a BOM',
         STATUS_CODES.BadRequest,
-      );
-
-    if (!componentItem)
-      throw new APIError(
-        'No component item found with this id',
-        STATUS_CODES.NotFound,
       );
 
     if (itemId === dto.componentId)
@@ -132,10 +113,7 @@ export class ItemsService implements IItemsService {
   }
 
   async getBom(itemId: string) {
-    const item = await this.itemsRepo.findOne(itemId);
-    if (!item)
-      throw new APIError('No item found with this id', STATUS_CODES.NotFound);
-
+    await this.checkExistingItem(itemId);
     const bom = await this.bomRepo.getBomByItemId(itemId);
 
     return {
@@ -182,6 +160,17 @@ export class ItemsService implements IItemsService {
   }
 
   // ---- Helpers ----
+
+  async checkExistingItem(id: string, type: string = '') {
+    const item = await this.itemsRepo.findOne(id);
+    if (!item)
+      throw new APIError(
+        `No ${type + ' '}item found with this id`,
+        STATUS_CODES.NotFound,
+      );
+
+    return item;
+  }
 
   private checkDto(type: string, dto: UpdateItemDto) {
     const RAW_MATERIAL_FIELDS = ['unitOfMeasurement', 'standardPrice'];
