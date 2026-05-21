@@ -1,4 +1,4 @@
-import { and, eq, ilike, inArray, SQL } from 'drizzle-orm';
+import { and, eq, ilike, or, inArray, SQL } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { Item } from '../types/app.types';

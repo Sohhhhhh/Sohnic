@@ -8,6 +8,8 @@ import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
+import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
+import { AuthenticatedUser } from '../types/app.types';
 
 export class PurchasingService implements IPurchasingService {
   constructor(
@@ -45,6 +47,35 @@ export class PurchasingService implements IPurchasingService {
     return {
       statusCode: STATUS_CODES.OK,
       message: 'Purchase request created successfully.',
+    };
+  }
+
+  async getAllPurchaseRequests(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+    q: FilterPurchaseRequestsDto,
+  ) {
+    if (user.role.role === 'branch_admin') {
+      if (q.branchId && q.branchId !== user.branchId)
+        throw new APIError(
+          'You can only view your own branch purchase requests',
+          STATUS_CODES.Forbidden,
+        );
+
+      q.branchId = user.branchId;
+    }
+
+    const requests = await this.purchaseReqsRepo.getAllPurchaseRequests(
+      page,
+      limit,
+      q,
+    );
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: requests.length,
+      data: requests,
     };
   }
 
