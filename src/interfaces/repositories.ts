@@ -174,4 +174,5 @@ export interface IPurchaseRequestsRepository {
     limit: number,
     q?: FilterPurchaseRequestsDto,
   ): Promise<PurchaseRequest[]>;
+  findReq(id: string): Promise<PurchaseRequest | undefined>;
 }

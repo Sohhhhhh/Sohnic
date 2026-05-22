@@ -49,4 +49,19 @@ export class PurchaseRequestsRepository implements IPurchaseRequestsRepository {
       },
     });
   }
+
+  async findReq(id: string) {
+    return db.query.purchaseRequests.findFirst({
+      where: eq(purchaseRequests.id, id),
+      with: {
+        items: {
+          columns: {
+            id: false,
+            purchaseRequestId: false,
+            createdAt: false,
+          },
+        },
+      },
+    });
+  }
 }

@@ -79,6 +79,23 @@ export class PurchasingService implements IPurchasingService {
     };
   }
 
+  async getPurchaseRequest(user: AuthenticatedUser, purchaseRequestId: string) {
+    const request = await this.purchaseReqsRepo.findReq(purchaseRequestId);
+    if (!request)
+      throw new APIError(
+        'No purchase request found with this id',
+        STATUS_CODES.NotFound,
+      );
+
+    if (user.role.role === 'branch_admin' && request.branchId !== user.branchId)
+      throw new APIError(
+        'You can only view your own branch purchase requests',
+        STATUS_CODES.Forbidden,
+      );
+
+    return { statusCode: STATUS_CODES.OK, data: request };
+  }
+
   // ---- Helpers ----
   private async checkItems(ids: string[]) {
     const foundItems = await this.itemsRepo.findManyByIds(ids);

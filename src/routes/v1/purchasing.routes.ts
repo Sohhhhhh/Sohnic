@@ -5,6 +5,7 @@ import {
   validateFilterPurchaseRequests,
 } from '../../validators/purchasing.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
+import { validateId } from '../../validators/common.validator';
 import { isAuthenticated } from '../../containers/middleware.container';
 import { purchasingController } from '../../containers/purchasing.container';
 
@@ -26,4 +27,11 @@ router.get(
   purchasingController.getAllPurchaseRequests,
 );
 
+router.get(
+  '/requests/:id',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  purchasingController.getPurchaseRequest,
+);
 export const purchasingRoutes = router;

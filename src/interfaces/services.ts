@@ -130,6 +130,11 @@ export interface IPurchasingService {
     limit: number,
     q: FilterPurchaseRequestsDto,
   ): Promise<APIResponse>;
+
+  getPurchaseRequest(
+    user: AuthenticatedUser,
+    purchaseRequestId: string,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----
