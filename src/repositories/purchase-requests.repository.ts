@@ -7,6 +7,7 @@ import { IPurchaseRequestsRepository, TX } from '../interfaces';
 import { purchaseRequests, purchaseRequestItems } from '../../drizzle/schema';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { and, eq, SQL } from 'drizzle-orm';
+import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 
 export class PurchaseRequestsRepository implements IPurchaseRequestsRepository {
   async createReq(dto: CreatePurchaseRequestData, tx?: TX) {
@@ -63,5 +64,15 @@ export class PurchaseRequestsRepository implements IPurchaseRequestsRepository {
         },
       },
     });
+  }
+
+  async updateReqStatus(id: string, data: UpdatePurchaseRequestStatusData) {
+    const result = await db
+      .update(purchaseRequests)
+      .set(data)
+      .where(eq(purchaseRequests.id, id))
+      .returning();
+
+    return result[0];
   }
 }

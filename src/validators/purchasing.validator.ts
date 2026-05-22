@@ -1,5 +1,6 @@
 import { validate } from '../middlewares/validate';
 import { createPurchaseRequestSchema } from '../dtos/purchasing/createPurchaseRequest.dto';
+import { rejectPurchaseRequestSchema } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { filterPurchaseRequestsQuerySchema } from '../dtos/purchasing/filterPurchaseRequests.dto';
 
 // CREATE PURCHASE REQUEST
@@ -15,3 +16,10 @@ export const validateFilterPurchaseRequests = validate({
 });
 export type filterPurchaseRequestsValidatedCtrlr =
   typeof validateFilterPurchaseRequests;
+
+// REJECT PURCHASE REQUEST
+export const validateRejectPurchaseRequest = validate({
+  body: rejectPurchaseRequestSchema,
+});
+export type rejectPurchaseRequestValidatedCtrlr =
+  typeof validateRejectPurchaseRequest;

@@ -1,11 +1,15 @@
 import {
+  CombinedValidator,
+  idValidatedCtrlr,
+} from '../validators/common.validator';
+import {
+  rejectPurchaseRequestValidatedCtrlr,
   createPurchaseRequestValidatedCtrlr,
   filterPurchaseRequestsValidatedCtrlr,
 } from '../validators/purchasing.validator';
 import { APIResponse } from '../types/api.types';
 import { IPurchasingService } from '../interfaces';
 import { sendResponse } from '../utils/sendResponse';
-import { idValidatedCtrlr } from '../validators/common.validator';
 
 export class PurchasingController {
   constructor(private readonly purchasingService: IPurchasingService) {}
@@ -43,6 +47,25 @@ export class PurchasingController {
       user,
       id,
     );
+    sendResponse(res, result);
+  };
+
+  approvePurchaseRequest: idValidatedCtrlr = async (req, res) => {
+    const { user } = req;
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.purchasingService.approvePurchaseRequest(user, id);
+    sendResponse(res, result);
+  };
+
+  rejectPurchaseRequest: CombinedValidator<
+    idValidatedCtrlr,
+    rejectPurchaseRequestValidatedCtrlr
+  > = async (req, res) => {
+    const { user } = req;
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.purchasingService.rejectPurchaseRequest(user, id, req.body);
     sendResponse(res, result);
   };
 }

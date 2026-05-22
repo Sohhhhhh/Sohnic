@@ -7,9 +7,10 @@ import {
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
-import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
-import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { AuthenticatedUser } from '../types/app.types';
+import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
+import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseRequest.dto';
+import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 
 export class PurchasingService implements IPurchasingService {
   constructor(
@@ -80,12 +81,7 @@ export class PurchasingService implements IPurchasingService {
   }
 
   async getPurchaseRequest(user: AuthenticatedUser, purchaseRequestId: string) {
-    const request = await this.purchaseReqsRepo.findReq(purchaseRequestId);
-    if (!request)
-      throw new APIError(
-        'No purchase request found with this id',
-        STATUS_CODES.NotFound,
-      );
+    const request = await this.checkExistnigPurchReq(purchaseRequestId);
 
     if (user.role.role === 'branch_admin' && request.branchId !== user.branchId)
       throw new APIError(
@@ -94,6 +90,59 @@ export class PurchasingService implements IPurchasingService {
       );
 
     return { statusCode: STATUS_CODES.OK, data: request };
+  }
+
+  async approvePurchaseRequest(user: AuthenticatedUser, id: string) {
+    const request = await this.checkExistnigPurchReq(id);
+
+    if (user.role.role === 'branch_admin' && request.branchId !== user.branchId)
+      throw new APIError(
+        'You can only approve your own branch requests',
+        STATUS_CODES.Forbidden,
+      );
+
+    if (request.status !== 'pending')
+      throw new APIError(
+        'Only pending requests can be approved',
+        STATUS_CODES.BadRequest,
+      );
+
+    const updated = await this.purchaseReqsRepo.updateReqStatus(id, {
+      status: 'approved',
+      reviewerId: user.id,
+      reviewDate: new Date(),
+    });
+
+    return { statusCode: STATUS_CODES.OK, data: updated };
+  }
+
+  async rejectPurchaseRequest(
+    user: AuthenticatedUser,
+    id: string,
+    dto: RejectPurchaseRequestDto,
+  ) {
+    const request = await this.checkExistnigPurchReq(id);
+
+    if (user.role.role === 'branch_admin' && request.branchId !== user.branchId)
+      throw new APIError(
+        'You can only reject your own branch requests',
+        STATUS_CODES.Forbidden,
+      );
+
+    if (request.status !== 'pending')
+      throw new APIError(
+        'Only pending requests can be rejected',
+        STATUS_CODES.BadRequest,
+      );
+
+    const updated = await this.purchaseReqsRepo.updateReqStatus(id, {
+      status: 'rejected',
+      reviewerId: user.id,
+      reviewDate: new Date(),
+      rejectionReason: dto.rejectionReason,
+    });
+
+    return { statusCode: STATUS_CODES.OK, data: updated };
   }
 
   // ---- Helpers ----
@@ -105,5 +154,16 @@ export class PurchasingService implements IPurchasingService {
         'One or more items do not exist',
         STATUS_CODES.NotFound,
       );
+  }
+
+  private async checkExistnigPurchReq(id: string) {
+    const request = await this.purchaseReqsRepo.findReq(id);
+    if (!request)
+      throw new APIError(
+        'No purchase request found with this id',
+        STATUS_CODES.NotFound,
+      );
+
+    return request;
   }
 }

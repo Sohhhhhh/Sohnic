@@ -34,6 +34,7 @@ import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
+import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 
 // ----- Record Types -----
 
@@ -175,4 +176,8 @@ export interface IPurchaseRequestsRepository {
     q?: FilterPurchaseRequestsDto,
   ): Promise<PurchaseRequest[]>;
   findReq(id: string): Promise<PurchaseRequest | undefined>;
+  updateReqStatus(
+    id: string,
+    data: UpdatePurchaseRequestStatusData,
+  ): Promise<PurchaseRequest>;
 }

@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import {
   validateCreatePurchaseRequest,
+  validateRejectPurchaseRequest,
   validateFilterPurchaseRequests,
 } from '../../validators/purchasing.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
@@ -33,5 +34,22 @@ router.get(
   isAuthorized('super_admin', 'branch_admin'),
   validateId,
   purchasingController.getPurchaseRequest,
+);
+
+router.patch(
+  '/requests/:id/approve',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  purchasingController.approvePurchaseRequest,
+);
+
+router.patch(
+  '/requests/:id/reject',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  validateRejectPurchaseRequest,
+  purchasingController.rejectPurchaseRequest,
 );
 export const purchasingRoutes = router;
