@@ -1,4 +1,4 @@
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, inArray } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import { ItemSupplier } from '../types/app.types';
@@ -148,5 +148,14 @@ export class ItemSuppliersRepository implements IItemSuppliersRepository {
       .returning();
 
     return itemSupplier[0];
+  }
+
+  async findManyBySupplierAndItems(supplierId: string, itemIds: string[]) {
+    return db.query.itemSuppliers.findMany({
+      where: and(
+        eq(itemSuppliers.supplierId, supplierId),
+        inArray(itemSuppliers.itemId, itemIds),
+      ),
+    });
   }
 }

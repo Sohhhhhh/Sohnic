@@ -11,6 +11,7 @@ import {
   User,
   BomLine,
   PurchaseRequest,
+  SupplierQuotation,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
@@ -21,6 +22,10 @@ import {
   CreatePurchaseRequestData,
   CreatePurchaseRequestItemData,
 } from '../dtos/purchasing/createPurchaseRequest.dto';
+import {
+  CreateSupplierQuotationData,
+  CreateSupplierQuotationItemData,
+} from '../dtos/purchasing/createSupplierQuotation.dto';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
@@ -134,6 +139,10 @@ export interface IItemSuppliersRepository {
   makePrimary(id: string, tx?: TX): Promise<ItemSupplier>;
   removePrimary(itemId: string, tx?: TX): Promise<ItemSupplier>;
   removePrimaryById(id: string): Promise<ItemSupplier>;
+  findManyBySupplierAndItems(
+    supplierId: string,
+    itemIds: string[],
+  ): Promise<ItemSupplier[]>;
 }
 
 export interface ICategoriesRepository {
@@ -180,4 +189,16 @@ export interface IPurchaseRequestsRepository {
     id: string,
     data: UpdatePurchaseRequestStatusData,
   ): Promise<PurchaseRequest>;
+}
+
+export interface ISupplierQuotationsRepository {
+  createQuotation(
+    dto: CreateSupplierQuotationData,
+    tx?: TX,
+  ): Promise<SupplierQuotation>;
+
+  createManyItems(
+    dto: CreateSupplierQuotationItemData[],
+    tx?: TX,
+  ): Promise<void>;
 }

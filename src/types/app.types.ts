@@ -4,6 +4,7 @@ import {
   itemSuppliers,
   purchaseRequests,
   roles,
+  supplierQuotations,
   suppliers,
   users,
 } from '../../drizzle/schema';
@@ -17,6 +18,7 @@ export type ItemSupplier = typeof itemSuppliers.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Item = typeof items.$inferSelect;
 export type PurchaseRequest = typeof purchaseRequests.$inferSelect;
+export type SupplierQuotation = typeof supplierQuotations.$inferSelect;
 export type BomLine = {
   componentId: string;
   quantityPerUnit: number;

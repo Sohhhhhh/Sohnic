@@ -4,6 +4,7 @@ import {
   validateCreatePurchaseRequest,
   validateRejectPurchaseRequest,
   validateFilterPurchaseRequests,
+  validateCreateSupplierQuotation,
 } from '../../validators/purchasing.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { validateId } from '../../validators/common.validator';
@@ -11,6 +12,8 @@ import { isAuthenticated } from '../../containers/middleware.container';
 import { purchasingController } from '../../containers/purchasing.container';
 
 const router = Router();
+
+// PURCHASE REQS
 
 router.post(
   '/requests',
@@ -53,3 +56,14 @@ router.patch(
   purchasingController.rejectPurchaseRequest,
 );
 export const purchasingRoutes = router;
+
+// QUOTATIONS
+
+router.post(
+  '/:id/quotations',
+  isAuthenticated,
+  isAuthorized('accountant', 'super_admin'),
+  validateId,
+  validateCreateSupplierQuotation,
+  purchasingController.createSupplierQuotation,
+);

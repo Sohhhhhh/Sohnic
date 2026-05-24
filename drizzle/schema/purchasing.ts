@@ -57,3 +57,21 @@ export const purchaseOrderItems = pgTable('purchase_order_items', {
   quantity: integer('quantity').notNull(),
   unitPrice: numeric('unit_price', { precision: 10, scale: 2 }).notNull(),
 });
+
+export const supplierQuotations = pgTable('supplier_quotations', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  purchaseRequestId: uuid('purchase_request_id').notNull(),
+  supplierId: uuid('supplier_id').notNull(),
+  validUntil: date('valid_until').notNull(),
+  leadTimeDays: integer('lead_time_days').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const quotationItems = pgTable('quotation_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  quotationId: uuid('quotation_id').notNull(),
+  itemId: uuid('item_id').notNull(),
+  quantity: integer('quantity').notNull(),
+  unitPrice: numeric('unit_price', { precision: 10, scale: 2 }).notNull(),
+  notes: text('notes'),
+});

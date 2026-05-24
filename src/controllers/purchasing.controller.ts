@@ -6,6 +6,7 @@ import {
   rejectPurchaseRequestValidatedCtrlr,
   createPurchaseRequestValidatedCtrlr,
   filterPurchaseRequestsValidatedCtrlr,
+  createSupplierQuotationValidatedCtrlr,
 } from '../validators/purchasing.validator';
 import { APIResponse } from '../types/api.types';
 import { IPurchasingService } from '../interfaces';
@@ -66,6 +67,16 @@ export class PurchasingController {
     const { id } = req.params;
     const result: APIResponse =
       await this.purchasingService.rejectPurchaseRequest(user, id, req.body);
+    sendResponse(res, result);
+  };
+
+  createSupplierQuotation: CombinedValidator<
+    idValidatedCtrlr,
+    createSupplierQuotationValidatedCtrlr
+  > = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.purchasingService.createSupplierQuotation(id, req.body);
     sendResponse(res, result);
   };
 }

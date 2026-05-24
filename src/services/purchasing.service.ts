@@ -2,7 +2,10 @@ import {
   IItemsRepository,
   IPurchasingService,
   IBranchesRepository,
+  ISuppliersRepository,
   IPurchaseRequestsRepository,
+  ISupplierQuotationsRepository,
+  IItemSuppliersRepository,
 } from '../interfaces';
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
@@ -11,12 +14,16 @@ import { AuthenticatedUser } from '../types/app.types';
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
+import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuotation.dto';
 
 export class PurchasingService implements IPurchasingService {
   constructor(
     private readonly purchaseReqsRepo: IPurchaseRequestsRepository,
     private readonly itemsRepo: IItemsRepository,
     private readonly branchesRepo: IBranchesRepository,
+    private readonly supplierQuotationsRepos: ISupplierQuotationsRepository,
+    private readonly suppliersRepo: ISuppliersRepository,
+    private readonly itemSuppliersRepo: IItemSuppliersRepository,
   ) {}
 
   async createPurchaseRequest(
@@ -46,7 +53,7 @@ export class PurchasingService implements IPurchasingService {
     });
 
     return {
-      statusCode: STATUS_CODES.OK,
+      statusCode: STATUS_CODES.Created,
       message: 'Purchase request created successfully.',
     };
   }
@@ -81,25 +88,15 @@ export class PurchasingService implements IPurchasingService {
   }
 
   async getPurchaseRequest(user: AuthenticatedUser, purchaseRequestId: string) {
-    const request = await this.checkExistnigPurchReq(purchaseRequestId);
-
-    if (user.role.role === 'branch_admin' && request.branchId !== user.branchId)
-      throw new APIError(
-        'You can only view your own branch purchase requests',
-        STATUS_CODES.Forbidden,
-      );
+    const request = await this.checkExistingPurchReq(purchaseRequestId);
+    this.checkBranchAccess(user, request.branchId, 'view');
 
     return { statusCode: STATUS_CODES.OK, data: request };
   }
 
   async approvePurchaseRequest(user: AuthenticatedUser, id: string) {
-    const request = await this.checkExistnigPurchReq(id);
-
-    if (user.role.role === 'branch_admin' && request.branchId !== user.branchId)
-      throw new APIError(
-        'You can only approve your own branch requests',
-        STATUS_CODES.Forbidden,
-      );
+    const request = await this.checkExistingPurchReq(id);
+    this.checkBranchAccess(user, request.branchId, 'approve');
 
     if (request.status !== 'pending')
       throw new APIError(
@@ -121,13 +118,8 @@ export class PurchasingService implements IPurchasingService {
     id: string,
     dto: RejectPurchaseRequestDto,
   ) {
-    const request = await this.checkExistnigPurchReq(id);
-
-    if (user.role.role === 'branch_admin' && request.branchId !== user.branchId)
-      throw new APIError(
-        'You can only reject your own branch requests',
-        STATUS_CODES.Forbidden,
-      );
+    const request = await this.checkExistingPurchReq(id);
+    this.checkBranchAccess(user, request.branchId, 'reject');
 
     if (request.status !== 'pending')
       throw new APIError(
@@ -145,6 +137,46 @@ export class PurchasingService implements IPurchasingService {
     return { statusCode: STATUS_CODES.OK, data: updated };
   }
 
+  async createSupplierQuotation(
+    purchaseRequestId: string,
+    dto: CreateSupplierQuotationDto,
+  ) {
+    const { items, ...quotationData } = dto;
+
+    const [request] = await Promise.all([
+      this.checkExistingPurchReq(purchaseRequestId),
+      this.checkExistingSupplier(dto.supplierId),
+    ]);
+
+    if (request.status !== 'approved')
+      throw new APIError(
+        'Quotations can only be submitted for approved requests',
+        STATUS_CODES.BadRequest,
+      );
+
+    await this.checkSupplierItems(
+      dto.supplierId,
+      items.map((i) => i.itemId),
+    );
+
+    await db.transaction(async (tx) => {
+      const quotation = await this.supplierQuotationsRepos.createQuotation(
+        { ...quotationData, purchaseRequestId },
+        tx,
+      );
+
+      await this.supplierQuotationsRepos.createManyItems(
+        items.map((item) => ({ ...item, quotationId: quotation.id })),
+        tx,
+      );
+    });
+
+    return {
+      statusCode: STATUS_CODES.Created,
+      message: 'Supplier Quotation created successfully.',
+    };
+  }
+
   // ---- Helpers ----
   private async checkItems(ids: string[]) {
     const foundItems = await this.itemsRepo.findManyByIds(ids);
@@ -156,7 +188,21 @@ export class PurchasingService implements IPurchasingService {
       );
   }
 
-  private async checkExistnigPurchReq(id: string) {
+  private async checkSupplierItems(supplierId: string, itemIds: string[]) {
+    const supplierItems =
+      await this.itemSuppliersRepo.findManyBySupplierAndItems(
+        supplierId,
+        itemIds,
+      );
+
+    if (supplierItems.length !== itemIds.length)
+      throw new APIError(
+        'One or more items are not provided by this supplier',
+        STATUS_CODES.BadRequest,
+      );
+  }
+
+  private async checkExistingPurchReq(id: string) {
     const request = await this.purchaseReqsRepo.findReq(id);
     if (!request)
       throw new APIError(
@@ -165,5 +211,28 @@ export class PurchasingService implements IPurchasingService {
       );
 
     return request;
+  }
+
+  private async checkExistingSupplier(id: string) {
+    const supplier = await this.suppliersRepo.findOne(id);
+    if (!supplier)
+      throw new APIError(
+        'No supplier found with this id',
+        STATUS_CODES.NotFound,
+      );
+
+    return supplier;
+  }
+
+  private checkBranchAccess(
+    user: AuthenticatedUser,
+    branchId: string,
+    action: string,
+  ) {
+    if (user.role.role === 'branch_admin' && branchId !== user.branchId)
+      throw new APIError(
+        `You can only ${action} your own branch requests`,
+        STATUS_CODES.Forbidden,
+      );
   }
 }

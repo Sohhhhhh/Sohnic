@@ -3,17 +3,14 @@ import { users, roles, refreshTokens, setPasswordTokens } from './users';
 import { branches, warehouses } from './locations';
 import { categories, items, billOfMaterials } from './products';
 import { customers, orders, orderItems } from './customers';
-import {
-  suppliers,
-  itemSuppliers,
-  supplierQuotations,
-  quotationItems,
-} from './suppliers';
+import { suppliers, itemSuppliers } from './suppliers';
 import {
   purchaseRequests,
   purchaseRequestItems,
   purchaseOrders,
   purchaseOrderItems,
+  supplierQuotations,
+  quotationItems,
 } from './purchasing';
 import { inventory } from './inventory';
 import {

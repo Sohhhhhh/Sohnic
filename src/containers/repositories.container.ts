@@ -9,6 +9,7 @@ import { RefreshTokensRepository } from '../repositories/refresh-tokens.reposito
 import { ItemSuppliersRepository } from '../repositories/item-suppliers.repository';
 import { PurchaseRequestsRepository } from '../repositories/purchase-requests.repository';
 import { SetPasswordTokensRepository } from '../repositories/set-password-tokens.repository';
+import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 
 export const bomRepository = new BomRepository();
 export const usersRepository = new UsersRepository();
@@ -21,3 +22,4 @@ export const refreshTokensRepository = new RefreshTokensRepository();
 export const itemSuppliersRepository = new ItemSuppliersRepository();
 export const purchaseRequestsRepository = new PurchaseRequestsRepository();
 export const setPasswordTokensRepository = new SetPasswordTokensRepository();
+export const supplierQuotationsRepository = new SupplierQuotationsRepository();
