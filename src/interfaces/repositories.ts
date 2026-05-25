@@ -207,4 +207,10 @@ export interface ISupplierQuotationsRepository {
     page: number,
     limit: number,
   ): Promise<SupplierQuotation[]>;
+
+  getQuotation(
+    id: string,
+  ): Promise<
+    (SupplierQuotation & { purchaseRequest: { branchId: string } }) | undefined
+  >;
 }

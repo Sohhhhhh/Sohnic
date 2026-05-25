@@ -183,7 +183,6 @@ export class PurchasingService implements IPurchasingService {
     page: number,
     limit: number,
   ) {
-    console.log(page, limit);
     const purchaseRequest = await this.checkExistingPurchReq(purchaseRequestId);
     this.checkBranchAccess(user, purchaseRequest.branchId, 'access');
 
@@ -197,6 +196,28 @@ export class PurchasingService implements IPurchasingService {
       statusCode: STATUS_CODES.OK,
       size: quots.length,
       data: quots,
+    };
+  }
+
+  async getQuotation(
+    user: AuthenticatedUser,
+    purchaseRequestId: string,
+    quotationId: string,
+  ) {
+    const quot = await this.checkExistingQuotation(quotationId);
+    const { purchaseRequest, ...quotData } = quot;
+
+    this.checkBranchAccess(user, purchaseRequest.branchId, 'access');
+
+    if (quot.purchaseRequestId !== purchaseRequestId)
+      throw new APIError(
+        'The quotation does not belong to the purchase request',
+        STATUS_CODES.BadRequest,
+      );
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: quotData,
     };
   }
 
@@ -234,6 +255,17 @@ export class PurchasingService implements IPurchasingService {
       );
 
     return request;
+  }
+
+  private async checkExistingQuotation(id: string) {
+    const quot = await this.supplierQuotationsRepo.getQuotation(id);
+    if (!quot)
+      throw new APIError(
+        'No quotation found with this id',
+        STATUS_CODES.NotFound,
+      );
+
+    return quot;
   }
 
   private async checkExistingSupplier(id: string) {

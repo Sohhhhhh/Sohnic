@@ -160,6 +160,12 @@ export interface IPurchasingService {
     page: number,
     limit: number,
   ): Promise<APIResponse>;
+
+  getQuotation(
+    user: AuthenticatedUser,
+    purchaseRequestId: string,
+    quotationId: string,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

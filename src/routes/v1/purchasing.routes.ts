@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
   validateId,
   validatePagination,
+  validateIdAndQuotationId,
 } from '../../validators/common.validator';
 import {
   validateCreatePurchaseRequest,
@@ -69,6 +70,14 @@ router.post(
   validateId,
   validateCreateSupplierQuotation,
   purchasingController.createSupplierQuotation,
+);
+
+router.get(
+  '/:id/quotations/:quotationId',
+  isAuthenticated,
+  isAuthorized('branch_admin', 'accountant', 'super_admin'),
+  validateIdAndQuotationId,
+  purchasingController.getQuotation,
 );
 
 router.get(

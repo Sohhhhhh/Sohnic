@@ -1,10 +1,13 @@
 import { RequestHandler } from 'express';
-import { branchIdSchema } from '../dtos/common/branchId.dto';
+
 import { idSchema } from '../dtos/common/id.dto';
-import { itemIdSchema } from '../dtos/common/itemId.dto';
-import { idAndItemIdSchema } from '../dtos/common/idAndItemId.dto';
-import { paginationSchema } from '../dtos/common/pagination.dto';
 import { validate } from '../middlewares/validate';
+import { itemIdSchema } from '../dtos/common/itemId.dto';
+import { branchIdSchema } from '../dtos/common/branchId.dto';
+import { paginationSchema } from '../dtos/common/pagination.dto';
+import { idAndItemIdSchema } from '../dtos/common/idAndItemId.dto';
+import { quotationIdSchema } from '../dtos/common/quotationId.dto';
+import { idAndQuotationIdSchema } from '../dtos/common/idAndQuotationId.dto';
 
 // Usage: CombinedValidator<typeof validateId, typeof validateUpdateSupplier>
 export type CombinedValidator<A, B> =
@@ -43,3 +46,15 @@ export const validateIdAndItemId = validate({
   params: idAndItemIdSchema,
 });
 export type idAndItemIdValidatedCtrlr = typeof validateIdAndItemId;
+
+// QUOTATION ID
+export const validateQuotationId = validate({
+  params: quotationIdSchema,
+});
+export type quotationIdValidatedCtrlr = typeof validateQuotationId;
+
+// ID AND QUOTATION ID
+export const validateIdAndQuotationId = validate({
+  params: idAndQuotationIdSchema,
+});
+export type idAndQuotationIdValidatedCtrlr = typeof validateIdAndQuotationId;

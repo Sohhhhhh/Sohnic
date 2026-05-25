@@ -44,4 +44,24 @@ export class SupplierQuotationsRepository implements ISupplierQuotationsReposito
 
     return quots;
   }
+
+  async getQuotation(id: string) {
+    const quot = await db.query.supplierQuotations.findFirst({
+      where: eq(supplierQuotations.id, id),
+      with: {
+        purchaseRequest: {
+          columns: { branchId: true },
+        },
+
+        items: {
+          columns: {
+            id: false,
+            quotationId: false,
+          },
+        },
+      },
+    });
+
+    return quot;
+  }
 }
