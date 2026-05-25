@@ -201,4 +201,10 @@ export interface ISupplierQuotationsRepository {
     dto: CreateSupplierQuotationItemData[],
     tx?: TX,
   ): Promise<void>;
+
+  getPurchReqQuotations(
+    id: string,
+    page: number,
+    limit: number,
+  ): Promise<SupplierQuotation[]>;
 }

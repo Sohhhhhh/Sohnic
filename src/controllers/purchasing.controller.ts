@@ -1,6 +1,7 @@
 import {
   CombinedValidator,
   idValidatedCtrlr,
+  paginationValidatedCtrlr,
 } from '../validators/common.validator';
 import {
   rejectPurchaseRequestValidatedCtrlr,
@@ -77,6 +78,24 @@ export class PurchasingController {
     const { id } = req.params;
     const result: APIResponse =
       await this.purchasingService.createSupplierQuotation(id, req.body);
+    sendResponse(res, result);
+  };
+
+  getPurchReqQuotations: CombinedValidator<
+    idValidatedCtrlr,
+    paginationValidatedCtrlr
+  > = async (req, res) => {
+    const { user } = req;
+    const { id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const result: APIResponse =
+      await this.purchasingService.getPurchReqQuotations(
+        user,
+        id,
+        +page,
+        +limit,
+      );
     sendResponse(res, result);
   };
 }

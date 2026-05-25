@@ -153,6 +153,13 @@ export interface IPurchasingService {
     purchaseRequestId: string,
     dto: CreateSupplierQuotationDto,
   ): Promise<APIResponse>;
+
+  getPurchReqQuotations(
+    user: AuthenticatedUser,
+    purchaseRequestId: string,
+    page: number,
+    limit: number,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

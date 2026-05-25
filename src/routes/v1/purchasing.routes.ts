@@ -1,13 +1,16 @@
 import { Router } from 'express';
 
 import {
+  validateId,
+  validatePagination,
+} from '../../validators/common.validator';
+import {
   validateCreatePurchaseRequest,
   validateRejectPurchaseRequest,
   validateFilterPurchaseRequests,
   validateCreateSupplierQuotation,
 } from '../../validators/purchasing.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
-import { validateId } from '../../validators/common.validator';
 import { isAuthenticated } from '../../containers/middleware.container';
 import { purchasingController } from '../../containers/purchasing.container';
 
@@ -66,4 +69,13 @@ router.post(
   validateId,
   validateCreateSupplierQuotation,
   purchasingController.createSupplierQuotation,
+);
+
+router.get(
+  '/:id/quotations',
+  isAuthenticated,
+  isAuthorized('branch_admin', 'accountant', 'super_admin'),
+  validateId,
+  validatePagination,
+  purchasingController.getPurchReqQuotations,
 );

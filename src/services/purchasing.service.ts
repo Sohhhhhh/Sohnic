@@ -21,7 +21,7 @@ export class PurchasingService implements IPurchasingService {
     private readonly purchaseReqsRepo: IPurchaseRequestsRepository,
     private readonly itemsRepo: IItemsRepository,
     private readonly branchesRepo: IBranchesRepository,
-    private readonly supplierQuotationsRepos: ISupplierQuotationsRepository,
+    private readonly supplierQuotationsRepo: ISupplierQuotationsRepository,
     private readonly suppliersRepo: ISuppliersRepository,
     private readonly itemSuppliersRepo: IItemSuppliersRepository,
   ) {}
@@ -160,12 +160,12 @@ export class PurchasingService implements IPurchasingService {
     );
 
     await db.transaction(async (tx) => {
-      const quotation = await this.supplierQuotationsRepos.createQuotation(
+      const quotation = await this.supplierQuotationsRepo.createQuotation(
         { ...quotationData, purchaseRequestId },
         tx,
       );
 
-      await this.supplierQuotationsRepos.createManyItems(
+      await this.supplierQuotationsRepo.createManyItems(
         items.map((item) => ({ ...item, quotationId: quotation.id })),
         tx,
       );
@@ -174,6 +174,29 @@ export class PurchasingService implements IPurchasingService {
     return {
       statusCode: STATUS_CODES.Created,
       message: 'Supplier Quotation created successfully.',
+    };
+  }
+
+  async getPurchReqQuotations(
+    user: AuthenticatedUser,
+    purchaseRequestId: string,
+    page: number,
+    limit: number,
+  ) {
+    console.log(page, limit);
+    const purchaseRequest = await this.checkExistingPurchReq(purchaseRequestId);
+    this.checkBranchAccess(user, purchaseRequest.branchId, 'access');
+
+    const quots = await this.supplierQuotationsRepo.getPurchReqQuotations(
+      purchaseRequestId,
+      page,
+      limit,
+    );
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: quots.length,
+      data: quots,
     };
   }
 

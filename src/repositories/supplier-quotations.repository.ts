@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm';
+
 import { db } from '../config/drizzle';
 import { ISupplierQuotationsRepository, TX } from '../interfaces';
 import {
@@ -10,16 +12,36 @@ export class SupplierQuotationsRepository implements ISupplierQuotationsReposito
   async createQuotation(dto: CreateSupplierQuotationData, tx?: TX) {
     const client = tx || db;
 
-    const result = await client
+    const quot = await client
       .insert(supplierQuotations)
       .values(dto)
       .returning();
 
-    return result[0];
+    return quot[0];
   }
 
   async createManyItems(dto: CreateSupplierQuotationItemData[], tx?: TX) {
     const client = tx || db;
     await client.insert(quotationItems).values(dto);
+  }
+
+  async getPurchReqQuotations(id: string, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const quots = await db.query.supplierQuotations.findMany({
+      where: eq(supplierQuotations.purchaseRequestId, id),
+      with: {
+        items: {
+          columns: {
+            id: false,
+            quotationId: false,
+          },
+        },
+      },
+      limit,
+      offset,
+    });
+
+    return quots;
   }
 }
