@@ -13,6 +13,7 @@ import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { AuthenticatedUser } from '../types/app.types';
 import { CreatePurchaseOrderDto } from '../dtos/purchasing/createPurchaseOrder.dto';
+import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
@@ -262,6 +263,30 @@ export class PurchasingService implements IPurchasingService {
     return {
       statusCode: STATUS_CODES.Created,
       message: 'Purchase order created successfully.',
+    };
+  }
+
+  async getAllPurchaseOrders(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+    q: FilterPurchaseOrdersDto,
+  ) {
+    if (user.role.role === 'branch_admin') {
+      if (q.branchId && q.branchId !== user.branchId)
+        throw new APIError(
+          'You can only view your own branch orders',
+          STATUS_CODES.Forbidden,
+        );
+      q.branchId = user.branchId;
+    }
+
+    const orders = await this.purchaseOrdersRepo.getAllOrders(page, limit, q);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: orders.length,
+      data: orders,
     };
   }
 

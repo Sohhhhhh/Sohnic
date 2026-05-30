@@ -35,7 +35,7 @@ export const purchaseRequestItems = pgTable('purchase_request_items', {
 
 export const purchaseOrders = pgTable('purchase_orders', {
   id: uuid('id').defaultRandom().primaryKey(),
-  quotationId: uuid('quotation_id'),
+  quotationId: uuid('quotation_id').notNull(),
   status: purchaseOrderStatus('status').notNull().default('pending'),
   expectedDeliveryDate: date('expected_delivery_date'),
   actualDeliveryDate: date('actual_delivery_date'),

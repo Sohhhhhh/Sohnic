@@ -11,6 +11,7 @@ import {
   validateRejectPurchaseRequest,
   validateFilterPurchaseRequests,
   validateCreateSupplierQuotation,
+  validateFilterPurchaseOrders,
 } from '../../validators/purchasing.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { isAuthenticated } from '../../containers/middleware.container';
@@ -97,6 +98,14 @@ router.post(
   isAuthorized('accountant', 'super_admin'),
   validateCreatePurchaseOrder,
   purchasingController.createPurchaseOrder,
+);
+
+router.get(
+  '/orders',
+  isAuthenticated,
+  isAuthorized('accountant', 'super_admin'),
+  validateFilterPurchaseOrders,
+  purchasingController.getAllPurchaseOrders,
 );
 
 export const purchasingRoutes = router;

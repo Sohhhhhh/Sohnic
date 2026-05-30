@@ -10,6 +10,7 @@ import {
   filterPurchaseRequestsValidatedCtrlr,
   createSupplierQuotationValidatedCtrlr,
   createPurchaseOrderValidatedCtrlr,
+  filterPurchaseOrdersValidatedCtrlr,
 } from '../validators/purchasing.validator';
 import { APIResponse } from '../types/api.types';
 import { IPurchasingService } from '../interfaces';
@@ -117,6 +118,18 @@ export class PurchasingController {
     const { id } = req.user;
     const result: APIResponse =
       await this.purchasingService.createPurchaseOrder(id, req.body);
+    sendResponse(res, result);
+  };
+
+  getAllPurchaseOrders: filterPurchaseOrdersValidatedCtrlr = async (
+    req,
+    res,
+  ) => {
+    const { user } = req;
+    const { page = 1, limit = 10, ...q } = req.query;
+
+    const result: APIResponse =
+      await this.purchasingService.getAllPurchaseOrders(user, +page, +limit, q);
     sendResponse(res, result);
   };
 }

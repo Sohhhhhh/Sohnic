@@ -1,0 +1,1 @@
+ALTER TABLE "purchase_orders" ALTER COLUMN "quotation_id" SET NOT NULL;

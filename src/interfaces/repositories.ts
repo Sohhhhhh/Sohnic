@@ -46,6 +46,7 @@ import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dt
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
+import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
 
 // ----- Record Types -----
 
@@ -222,4 +223,9 @@ export interface ISupplierQuotationsRepository {
 export interface IPurchaseOrdersRepository {
   createOrder(dto: CreatePurchaseOrderData, tx?: TX): Promise<PurchaseOrder>;
   createManyItems(dto: CreatePurchaseOrderItemData[], tx?: TX): Promise<void>;
+  getAllOrders(
+    page: number,
+    limit: number,
+    q?: FilterPurchaseOrdersDto,
+  ): Promise<PurchaseOrder[]>;
 }

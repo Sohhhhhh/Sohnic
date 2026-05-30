@@ -4,6 +4,7 @@ import { createPurchaseRequestSchema } from '../dtos/purchasing/createPurchaseRe
 import { rejectPurchaseRequestSchema } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { createSupplierQuotationSchema } from '../dtos/purchasing/createSupplierQuotation.dto';
 import { filterPurchaseRequestsQuerySchema } from '../dtos/purchasing/filterPurchaseRequests.dto';
+import { filterPurchaseOrdersQuerySchema } from '../dtos/purchasing/filterPurchaseOrder.dto';
 
 // CREATE PURCHASE REQUEST
 export const validateCreatePurchaseRequest = validate({
@@ -39,3 +40,10 @@ export const validateCreatePurchaseOrder = validate({
 });
 export type createPurchaseOrderValidatedCtrlr =
   typeof validateCreatePurchaseOrder;
+
+// FILTER PURCHASE ORDERS
+export const validateFilterPurchaseOrders = validate({
+  query: filterPurchaseOrdersQuerySchema,
+});
+export type filterPurchaseOrdersValidatedCtrlr =
+  typeof validateFilterPurchaseOrders;

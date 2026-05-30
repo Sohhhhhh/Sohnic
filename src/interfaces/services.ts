@@ -25,6 +25,7 @@ import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseReque
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuotation.dto';
+import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
 
 // ----- Service Interfaces -----
 
@@ -152,7 +153,6 @@ export interface IPurchasingService {
   ): Promise<APIResponse>;
 
   // SUPPS QUOTS
-
   createSupplierQuotation(
     purchaseRequestId: string,
     dto: CreateSupplierQuotationDto,
@@ -175,6 +175,13 @@ export interface IPurchasingService {
   createPurchaseOrder(
     createdById: string,
     dto: CreatePurchaseOrderDto,
+  ): Promise<APIResponse>;
+
+  getAllPurchaseOrders(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+    q: FilterPurchaseOrdersDto,
   ): Promise<APIResponse>;
 }
 
