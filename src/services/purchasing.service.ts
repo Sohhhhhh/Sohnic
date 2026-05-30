@@ -290,6 +290,16 @@ export class PurchasingService implements IPurchasingService {
     };
   }
 
+  async getPurchaseOrder(user: AuthenticatedUser, id: string) {
+    const order = await this.checkExistingPurchOrder(id);
+    const quotation = await this.supplierQuotationsRepo.getQuotation(
+      order.quotationId,
+    );
+    this.checkBranchAccess(user, quotation!.purchaseRequest.branchId, 'view');
+
+    return { statusCode: STATUS_CODES.OK, data: order };
+  }
+
   // ---- Helpers ----
   private async checkItems(ids: string[]) {
     const foundItems = await this.itemsRepo.findManyByIds(ids);
@@ -335,6 +345,16 @@ export class PurchasingService implements IPurchasingService {
       );
 
     return quot;
+  }
+
+  private async checkExistingPurchOrder(id: string) {
+    const order = await this.purchaseOrdersRepo.getOrder(id);
+    if (!order)
+      throw new APIError(
+        'No purchase order found with this id',
+        STATUS_CODES.NotFound,
+      );
+    return order;
   }
 
   private async checkExistingSupplier(id: string) {

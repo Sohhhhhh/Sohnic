@@ -132,4 +132,13 @@ export class PurchasingController {
       await this.purchasingService.getAllPurchaseOrders(user, +page, +limit, q);
     sendResponse(res, result);
   };
+
+  getPurchaseOrder: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.purchasingService.getPurchaseOrder(
+      req.user,
+      id,
+    );
+    sendResponse(res, result);
+  };
 }

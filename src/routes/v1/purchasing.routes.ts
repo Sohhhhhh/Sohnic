@@ -108,4 +108,12 @@ router.get(
   purchasingController.getAllPurchaseOrders,
 );
 
+router.get(
+  '/orders/:id',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin', 'accountant'),
+  validateId,
+  purchasingController.getPurchaseOrder,
+);
+
 export const purchasingRoutes = router;

@@ -183,6 +183,8 @@ export interface IPurchasingService {
     limit: number,
     q: FilterPurchaseOrdersDto,
   ): Promise<APIResponse>;
+
+  getPurchaseOrder(user: AuthenticatedUser, id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

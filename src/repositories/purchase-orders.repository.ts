@@ -53,4 +53,18 @@ export class PurchaseOrdersRepository implements IPurchaseOrdersRepository {
       .offset(offset)
       .orderBy(desc(purchaseOrders.createdAt));
   }
+
+  async getOrder(id: string) {
+    return db.query.purchaseOrders.findFirst({
+      where: eq(purchaseOrders.id, id),
+      with: {
+        items: {
+          columns: {
+            id: false,
+            orderId: false,
+          },
+        },
+      },
+    });
+  }
 }

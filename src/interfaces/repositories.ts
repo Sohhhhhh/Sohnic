@@ -228,4 +228,5 @@ export interface IPurchaseOrdersRepository {
     limit: number,
     q?: FilterPurchaseOrdersDto,
   ): Promise<PurchaseOrder[]>;
+  getOrder(id: string): Promise<PurchaseOrder | undefined>;
 }
