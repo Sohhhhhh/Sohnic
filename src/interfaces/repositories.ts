@@ -12,12 +12,17 @@ import {
   BomLine,
   PurchaseRequest,
   SupplierQuotation,
+  PurchaseOrder,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
   UpdateBomComponentDto,
 } from '../dtos/items/bom.dto';
 import { db } from '../config/drizzle';
+import {
+  CreatePurchaseOrderData,
+  CreatePurchaseOrderItemData,
+} from '../dtos/purchasing/createPurchaseOrder.dto';
 import {
   CreatePurchaseRequestData,
   CreatePurchaseRequestItemData,
@@ -39,6 +44,7 @@ import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
+import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 
 // ----- Record Types -----
@@ -210,7 +216,10 @@ export interface ISupplierQuotationsRepository {
 
   getQuotation(
     id: string,
-  ): Promise<
-    (SupplierQuotation & { purchaseRequest: { branchId: string } }) | undefined
-  >;
+  ): Promise<Awaited<ReturnType<SupplierQuotationsRepository['getQuotation']>>>;
+}
+
+export interface IPurchaseOrdersRepository {
+  createOrder(dto: CreatePurchaseOrderData, tx?: TX): Promise<PurchaseOrder>;
+  createManyItems(dto: CreatePurchaseOrderItemData[], tx?: TX): Promise<void>;
 }

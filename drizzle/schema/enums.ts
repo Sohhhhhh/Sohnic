@@ -35,6 +35,7 @@ export const purchaseRequestStatus = pgEnum('purchaseRequestStatus', [
 
 export const purchaseOrderStatus = pgEnum('purchaseOrderStatus', [
   'pending',
+  'approved',
   'shipped',
   'delivered',
   'cancelled',

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."purchaseOrderStatus" ADD VALUE 'approved' BEFORE 'shipped';

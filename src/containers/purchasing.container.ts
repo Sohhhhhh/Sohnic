@@ -5,6 +5,7 @@ import {
   purchaseRequestsRepository,
   supplierQuotationsRepository,
   itemSuppliersRepository,
+  purchaseOrdersRepository,
 } from './repositories.container';
 import { PurchasingService } from '../services/purchasing.service';
 import { PurchasingController } from '../controllers/purchasing.controller';
@@ -18,6 +19,7 @@ export const purchasingService = new PurchasingService(
   supplierQuotationsRepository,
   suppliersRepository,
   itemSuppliersRepository,
+  purchaseOrdersRepository,
 );
 
 // ----- Controllers -----

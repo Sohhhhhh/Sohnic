@@ -9,6 +9,7 @@ import {
   createPurchaseRequestValidatedCtrlr,
   filterPurchaseRequestsValidatedCtrlr,
   createSupplierQuotationValidatedCtrlr,
+  createPurchaseOrderValidatedCtrlr,
 } from '../validators/purchasing.validator';
 import { APIResponse } from '../types/api.types';
 import { IPurchasingService } from '../interfaces';
@@ -109,6 +110,13 @@ export class PurchasingController {
       id,
       quotationId,
     );
+    sendResponse(res, result);
+  };
+
+  createPurchaseOrder: createPurchaseOrderValidatedCtrlr = async (req, res) => {
+    const { id } = req.user;
+    const result: APIResponse =
+      await this.purchasingService.createPurchaseOrder(id, req.body);
     sendResponse(res, result);
   };
 }

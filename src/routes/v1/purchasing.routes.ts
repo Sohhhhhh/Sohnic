@@ -6,6 +6,7 @@ import {
   validateIdAndQuotationId,
 } from '../../validators/common.validator';
 import {
+  validateCreatePurchaseOrder,
   validateCreatePurchaseRequest,
   validateRejectPurchaseRequest,
   validateFilterPurchaseRequests,
@@ -59,7 +60,6 @@ router.patch(
   validateRejectPurchaseRequest,
   purchasingController.rejectPurchaseRequest,
 );
-export const purchasingRoutes = router;
 
 // QUOTATIONS
 
@@ -88,3 +88,15 @@ router.get(
   validatePagination,
   purchasingController.getPurchReqQuotations,
 );
+
+// PURCHASE ORDERS
+
+router.post(
+  '/orders',
+  isAuthenticated,
+  isAuthorized('accountant', 'super_admin'),
+  validateCreatePurchaseOrder,
+  purchasingController.createPurchaseOrder,
+);
+
+export const purchasingRoutes = router;

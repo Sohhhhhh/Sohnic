@@ -20,9 +20,10 @@ import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
+import { CreatePurchaseOrderDto } from '../dtos/purchasing/createPurchaseOrder.dto';
+import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
-import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuotation.dto';
 
 // ----- Service Interfaces -----
@@ -121,6 +122,7 @@ export interface IItemsService {
 }
 
 export interface IPurchasingService {
+  // PURCH REQS
   createPurchaseRequest(
     ordererId: string,
     dto: CreatePurchaseRequestDto,
@@ -149,6 +151,8 @@ export interface IPurchasingService {
     dto: RejectPurchaseRequestDto,
   ): Promise<APIResponse>;
 
+  // SUPPS QUOTS
+
   createSupplierQuotation(
     purchaseRequestId: string,
     dto: CreateSupplierQuotationDto,
@@ -165,6 +169,12 @@ export interface IPurchasingService {
     user: AuthenticatedUser,
     purchaseRequestId: string,
     quotationId: string,
+  ): Promise<APIResponse>;
+
+  // PURCH ORDS
+  createPurchaseOrder(
+    createdById: string,
+    dto: CreatePurchaseOrderDto,
   ): Promise<APIResponse>;
 }
 

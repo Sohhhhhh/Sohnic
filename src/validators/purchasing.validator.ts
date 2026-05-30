@@ -1,8 +1,9 @@
 import { validate } from '../middlewares/validate';
+import { createPurchaseOrderSchema } from '../dtos/purchasing/createPurchaseOrder.dto';
 import { createPurchaseRequestSchema } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { rejectPurchaseRequestSchema } from '../dtos/purchasing/rejectPurchaseRequest.dto';
-import { filterPurchaseRequestsQuerySchema } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { createSupplierQuotationSchema } from '../dtos/purchasing/createSupplierQuotation.dto';
+import { filterPurchaseRequestsQuerySchema } from '../dtos/purchasing/filterPurchaseRequests.dto';
 
 // CREATE PURCHASE REQUEST
 export const validateCreatePurchaseRequest = validate({
@@ -31,3 +32,10 @@ export const validateCreateSupplierQuotation = validate({
 });
 export type createSupplierQuotationValidatedCtrlr =
   typeof validateCreateSupplierQuotation;
+
+// CREATE PURCHASE ORDER
+export const validateCreatePurchaseOrder = validate({
+  body: createPurchaseOrderSchema,
+});
+export type createPurchaseOrderValidatedCtrlr =
+  typeof validateCreatePurchaseOrder;

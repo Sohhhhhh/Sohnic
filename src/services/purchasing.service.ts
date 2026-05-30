@@ -6,11 +6,13 @@ import {
   IPurchaseRequestsRepository,
   ISupplierQuotationsRepository,
   IItemSuppliersRepository,
+  IPurchaseOrdersRepository,
 } from '../interfaces';
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { AuthenticatedUser } from '../types/app.types';
+import { CreatePurchaseOrderDto } from '../dtos/purchasing/createPurchaseOrder.dto';
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
@@ -24,6 +26,7 @@ export class PurchasingService implements IPurchasingService {
     private readonly supplierQuotationsRepo: ISupplierQuotationsRepository,
     private readonly suppliersRepo: ISuppliersRepository,
     private readonly itemSuppliersRepo: IItemSuppliersRepository,
+    private readonly purchaseOrdersRepo: IPurchaseOrdersRepository,
   ) {}
 
   async createPurchaseRequest(
@@ -218,6 +221,47 @@ export class PurchasingService implements IPurchasingService {
     return {
       statusCode: STATUS_CODES.OK,
       data: quotData,
+    };
+  }
+
+  async createPurchaseOrder(createdById: string, dto: CreatePurchaseOrderDto) {
+    const quotation = await this.checkExistingQuotation(dto.quotationId);
+
+    if (quotation.validUntil < new Date().toISOString().split('T')[0])
+      throw new APIError('This quotation has expired', STATUS_CODES.BadRequest);
+
+    const totalPrice = quotation.items
+      .reduce(
+        (sum, item) => sum + item.quantity * parseFloat(item.unitPrice),
+        0,
+      )
+      .toFixed(2);
+
+    await db.transaction(async (tx) => {
+      const order = await this.purchaseOrdersRepo.createOrder(
+        {
+          quotationId: quotation.id,
+          supplierId: quotation.supplierId,
+          totalPrice,
+          createdById,
+        },
+        tx,
+      );
+
+      await this.purchaseOrdersRepo.createManyItems(
+        quotation.items.map((item) => ({
+          orderId: order.id,
+          itemId: item.itemId,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+        })),
+        tx,
+      );
+    });
+
+    return {
+      statusCode: STATUS_CODES.Created,
+      message: 'Purchase order created successfully.',
     };
   }
 
