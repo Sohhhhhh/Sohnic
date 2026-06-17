@@ -5,6 +5,7 @@ import {
   purchaseRequests,
   purchaseOrderItems,
   supplierQuotations,
+  PurchaseOrderStatus,
 } from '../../drizzle/schema';
 import { db } from '../config/drizzle';
 import {
@@ -66,5 +67,21 @@ export class PurchaseOrdersRepository implements IPurchaseOrdersRepository {
         },
       },
     });
+  }
+
+  async getOrderByQuotationId(id: string) {
+    return db.query.purchaseOrders.findFirst({
+      where: eq(purchaseOrders.quotationId, id),
+    });
+  }
+
+  async updateStatus(id: string, status: PurchaseOrderStatus) {
+    const result = await db
+      .update(purchaseOrders)
+      .set({ status })
+      .where(eq(purchaseOrders.id, id))
+      .returning();
+
+    return result[0];
   }
 }

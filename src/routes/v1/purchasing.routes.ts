@@ -116,4 +116,12 @@ router.get(
   purchasingController.getPurchaseOrder,
 );
 
+router.patch(
+  '/orders/:id/approve',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  purchasingController.approvePurchaseOrder,
+);
+
 export const purchasingRoutes = router;

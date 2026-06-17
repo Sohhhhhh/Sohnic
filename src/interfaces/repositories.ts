@@ -35,6 +35,7 @@ import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { FilterItemsDto } from '../dtos/items/filterItems.dto';
+import { PurchaseOrderStatus } from '../../drizzle/schema/enums';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
@@ -43,10 +44,10 @@ import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
+import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
-import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
 
 // ----- Record Types -----
 
@@ -229,4 +230,6 @@ export interface IPurchaseOrdersRepository {
     q?: FilterPurchaseOrdersDto,
   ): Promise<PurchaseOrder[]>;
   getOrder(id: string): Promise<PurchaseOrder | undefined>;
+  getOrderByQuotationId(id: string): Promise<PurchaseOrder | undefined>;
+  updateStatus(id: string, status: PurchaseOrderStatus): Promise<PurchaseOrder>;
 }

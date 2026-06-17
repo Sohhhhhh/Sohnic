@@ -1,0 +1,1 @@
+ALTER TABLE "purchase_orders" ADD COLUMN "branch_id" uuid NOT NULL;

@@ -6,7 +6,16 @@ export const createSupplierQuotationSchema = z
       .string({ message: 'Supplier id must be a string' })
       .uuid({ message: 'Supplier id must be a valid uuid' }),
     leadTimeDays: z.number().int().positive(),
-    validUntil: z.string().date(), // YYYY-MM-DD
+    validUntil: z
+      .string()
+      .date()
+      .refine(
+        (dateStr) => {
+          const today = new Date().toISOString().split('T')[0];
+          return dateStr > today;
+        },
+        { message: 'validUntil must be later than today' },
+      ), // YYYY-MM-DD
     items: z
       .array(
         z.object({

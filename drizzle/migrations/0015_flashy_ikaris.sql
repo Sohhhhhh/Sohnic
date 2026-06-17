@@ -1,0 +1,1 @@
+ALTER TABLE "quotation_items" ADD CONSTRAINT "quotation_items_quotation_id_unique" UNIQUE("quotation_id");

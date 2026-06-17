@@ -210,7 +210,6 @@ export class PurchasingService implements IPurchasingService {
   ) {
     const quot = await this.checkExistingQuotation(quotationId);
     const { purchaseRequest, ...quotData } = quot;
-
     this.checkBranchAccess(user, purchaseRequest.branchId, 'access');
 
     if (quot.purchaseRequestId !== purchaseRequestId)
@@ -227,6 +226,14 @@ export class PurchasingService implements IPurchasingService {
 
   async createPurchaseOrder(createdById: string, dto: CreatePurchaseOrderDto) {
     const quotation = await this.checkExistingQuotation(dto.quotationId);
+    const existingOrder = await this.purchaseOrdersRepo.getOrderByQuotationId(
+      dto.quotationId,
+    );
+    if (existingOrder)
+      throw new APIError(
+        'A purchase order already exists for this quotation',
+        STATUS_CODES.Conflict,
+      );
 
     if (quotation.validUntil < new Date().toISOString().split('T')[0])
       throw new APIError('This quotation has expired', STATUS_CODES.BadRequest);
@@ -243,6 +250,7 @@ export class PurchasingService implements IPurchasingService {
         {
           quotationId: quotation.id,
           supplierId: quotation.supplierId,
+          branchId: quotation.purchaseRequest.branchId,
           totalPrice,
           createdById,
         },
@@ -292,12 +300,26 @@ export class PurchasingService implements IPurchasingService {
 
   async getPurchaseOrder(user: AuthenticatedUser, id: string) {
     const order = await this.checkExistingPurchOrder(id);
-    const quotation = await this.supplierQuotationsRepo.getQuotation(
-      order.quotationId,
-    );
-    this.checkBranchAccess(user, quotation!.purchaseRequest.branchId, 'view');
+    this.checkBranchAccess(user, order.branchId, 'view');
 
     return { statusCode: STATUS_CODES.OK, data: order };
+  }
+
+  async approvePurchaseOrder(user: AuthenticatedUser, id: string) {
+    const order = await this.checkExistingPurchOrder(id);
+    this.checkBranchAccess(user, order.branchId, 'approve');
+
+    if (order.status !== 'pending')
+      throw new APIError(
+        'You can only approve pending purchase orders',
+        STATUS_CODES.BadRequest,
+      );
+    const updatedOrder = await this.purchaseOrdersRepo.updateStatus(
+      id,
+      'approved',
+    );
+
+    return { statusCode: STATUS_CODES.OK, data: updatedOrder };
   }
 
   // ---- Helpers ----

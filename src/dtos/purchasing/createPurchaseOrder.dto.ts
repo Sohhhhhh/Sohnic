@@ -13,6 +13,7 @@ export type CreatePurchaseOrderDto = z.output<typeof createPurchaseOrderSchema>;
 export type CreatePurchaseOrderData = {
   quotationId: string;
   supplierId: string;
+  branchId: string;
   totalPrice: string;
   createdById: string;
 };

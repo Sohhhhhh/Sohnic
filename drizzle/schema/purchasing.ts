@@ -36,6 +36,7 @@ export const purchaseRequestItems = pgTable('purchase_request_items', {
 export const purchaseOrders = pgTable('purchase_orders', {
   id: uuid('id').defaultRandom().primaryKey(),
   quotationId: uuid('quotation_id').notNull(),
+  branchId: uuid('branch_id').notNull(),
   status: purchaseOrderStatus('status').notNull().default('pending'),
   expectedDeliveryDate: date('expected_delivery_date'),
   actualDeliveryDate: date('actual_delivery_date'),
@@ -68,7 +69,7 @@ export const supplierQuotations = pgTable('supplier_quotations', {
 
 export const quotationItems = pgTable('quotation_items', {
   id: uuid('id').defaultRandom().primaryKey(),
-  quotationId: uuid('quotation_id').notNull(),
+  quotationId: uuid('quotation_id').notNull().unique(),
   itemId: uuid('item_id').notNull(),
   quantity: integer('quantity').notNull(),
   unitPrice: numeric('unit_price', { precision: 10, scale: 2 }).notNull(),

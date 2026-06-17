@@ -185,6 +185,10 @@ export interface IPurchasingService {
   ): Promise<APIResponse>;
 
   getPurchaseOrder(user: AuthenticatedUser, id: string): Promise<APIResponse>;
+  approvePurchaseOrder(
+    user: AuthenticatedUser,
+    id: string,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----
