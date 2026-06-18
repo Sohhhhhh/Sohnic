@@ -5,7 +5,6 @@ import {
   purchaseRequests,
   purchaseOrderItems,
   supplierQuotations,
-  PurchaseOrderStatus,
 } from '../../drizzle/schema';
 import { db } from '../config/drizzle';
 import {
@@ -75,10 +74,13 @@ export class PurchaseOrdersRepository implements IPurchaseOrdersRepository {
     });
   }
 
-  async updateStatus(id: string, status: PurchaseOrderStatus) {
+  async updateOrder(
+    id: string,
+    data: Partial<typeof purchaseOrders.$inferInsert>,
+  ) {
     const result = await db
       .update(purchaseOrders)
-      .set({ status })
+      .set(data)
       .where(eq(purchaseOrders.id, id))
       .returning();
 

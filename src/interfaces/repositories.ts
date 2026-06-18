@@ -35,7 +35,6 @@ import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { FilterItemsDto } from '../dtos/items/filterItems.dto';
-import { PurchaseOrderStatus } from '../../drizzle/schema/enums';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
@@ -231,5 +230,5 @@ export interface IPurchaseOrdersRepository {
   ): Promise<PurchaseOrder[]>;
   getOrder(id: string): Promise<PurchaseOrder | undefined>;
   getOrderByQuotationId(id: string): Promise<PurchaseOrder | undefined>;
-  updateStatus(id: string, status: PurchaseOrderStatus): Promise<PurchaseOrder>;
+  updateOrder(id: string, data: Partial<PurchaseOrder>): Promise<PurchaseOrder>;
 }

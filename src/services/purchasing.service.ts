@@ -314,10 +314,32 @@ export class PurchasingService implements IPurchasingService {
         'You can only approve pending purchase orders',
         STATUS_CODES.BadRequest,
       );
-    const updatedOrder = await this.purchaseOrdersRepo.updateStatus(
-      id,
-      'approved',
-    );
+    const updatedOrder = await this.purchaseOrdersRepo.updateOrder(id, {
+      status: 'approved',
+      approvedById: user.id,
+    });
+
+    return { statusCode: STATUS_CODES.OK, data: updatedOrder };
+  }
+
+  async cancelPurchaseOrder(user: AuthenticatedUser, id: string) {
+    const order = await this.checkExistingPurchOrder(id);
+    this.checkBranchAccess(user, order.branchId, 'cancel');
+
+    if (order.status === 'cancelled')
+      throw new APIError(
+        'This purchase order is already cancelled',
+        STATUS_CODES.BadRequest,
+      );
+    if (order.status === 'delivered')
+      throw new APIError(
+        'You cannot cancel delivered purchase orders',
+        STATUS_CODES.BadRequest,
+      );
+
+    const updatedOrder = await this.purchaseOrdersRepo.updateOrder(id, {
+      status: 'cancelled',
+    });
 
     return { statusCode: STATUS_CODES.OK, data: updatedOrder };
   }

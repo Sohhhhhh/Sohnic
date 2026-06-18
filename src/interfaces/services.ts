@@ -189,6 +189,10 @@ export interface IPurchasingService {
     user: AuthenticatedUser,
     id: string,
   ): Promise<APIResponse>;
+  cancelPurchaseOrder(
+    user: AuthenticatedUser,
+    id: string,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

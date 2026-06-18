@@ -124,4 +124,12 @@ router.patch(
   purchasingController.approvePurchaseOrder,
 );
 
+router.patch(
+  '/orders/:id/cancel',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  purchasingController.cancelPurchaseOrder,
+);
+
 export const purchasingRoutes = router;
