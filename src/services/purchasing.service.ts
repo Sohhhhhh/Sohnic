@@ -11,13 +11,15 @@ import {
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
-import { AuthenticatedUser } from '../types/app.types';
+import { AuthenticatedUser, PurchaseOrder } from '../types/app.types';
 import { CreatePurchaseOrderDto } from '../dtos/purchasing/createPurchaseOrder.dto';
 import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuotation.dto';
+import { PurchaseOrderStatus } from '../../drizzle/schema';
+import { VALID_TRANSITIONS } from '../constants/purchaseOrder.constants';
 
 export class PurchasingService implements IPurchasingService {
   constructor(
@@ -308,18 +310,17 @@ export class PurchasingService implements IPurchasingService {
   async approvePurchaseOrder(user: AuthenticatedUser, id: string) {
     const order = await this.checkExistingPurchOrder(id);
     this.checkBranchAccess(user, order.branchId, 'approve');
+    return this.transitionOrder(id, 'approved', { approvedById: user.id });
+  }
 
-    if (order.status !== 'pending')
-      throw new APIError(
-        'You can only approve pending purchase orders',
-        STATUS_CODES.BadRequest,
-      );
-    const updatedOrder = await this.purchaseOrdersRepo.updateOrder(id, {
-      status: 'approved',
-      approvedById: user.id,
+  async shipPurchaseOrder(id: string) {
+    return this.transitionOrder(id, 'shipped');
+  }
+
+  async deliverPurchaseOrder(id: string) {
+    return this.transitionOrder(id, 'delivered', {
+      actualDeliveryDate: new Date().toISOString().split('T')[0],
     });
-
-    return { statusCode: STATUS_CODES.OK, data: updatedOrder };
   }
 
   async cancelPurchaseOrder(user: AuthenticatedUser, id: string) {
@@ -329,22 +330,42 @@ export class PurchasingService implements IPurchasingService {
     if (order.status === 'cancelled')
       throw new APIError(
         'This purchase order is already cancelled',
-        STATUS_CODES.BadRequest,
+        STATUS_CODES.Conflict,
       );
     if (order.status === 'delivered')
       throw new APIError(
-        'You cannot cancel delivered purchase orders',
+        'You cannot cancel a delivered purchase order',
         STATUS_CODES.BadRequest,
       );
 
     const updatedOrder = await this.purchaseOrdersRepo.updateOrder(id, {
       status: 'cancelled',
     });
-
     return { statusCode: STATUS_CODES.OK, data: updatedOrder };
   }
 
   // ---- Helpers ----
+  private async transitionOrder(
+    id: string,
+    to: PurchaseOrderStatus,
+    data?: Partial<PurchaseOrder>,
+  ) {
+    const order = await this.checkExistingPurchOrder(id);
+    const validNext = VALID_TRANSITIONS[order.status];
+
+    if (validNext !== to)
+      throw new APIError(
+        `Cannot transition order from "${order.status}" to "${to}"`,
+        STATUS_CODES.BadRequest,
+      );
+
+    const updatedOrder = await this.purchaseOrdersRepo.updateOrder(id, {
+      status: to,
+      ...data,
+    });
+    return { statusCode: STATUS_CODES.OK, data: updatedOrder };
+  }
+
   private async checkItems(ids: string[]) {
     const foundItems = await this.itemsRepo.findManyByIds(ids);
 

@@ -161,4 +161,20 @@ export class PurchasingController {
       await this.purchasingService.cancelPurchaseOrder(user, id);
     sendResponse(res, result);
   };
+
+  shipPurchaseOrder: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+
+    const result: APIResponse =
+      await this.purchasingService.shipPurchaseOrder(id);
+    sendResponse(res, result);
+  };
+
+  deliverPurchaseOrder: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+
+    const result: APIResponse =
+      await this.purchasingService.deliverPurchaseOrder(id);
+    sendResponse(res, result);
+  };
 }

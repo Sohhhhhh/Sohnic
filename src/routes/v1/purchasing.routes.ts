@@ -132,4 +132,20 @@ router.patch(
   purchasingController.cancelPurchaseOrder,
 );
 
+router.patch(
+  '/orders/:id/ship',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validateId,
+  purchasingController.shipPurchaseOrder,
+);
+
+router.patch(
+  '/orders/:id/deliver',
+  isAuthenticated,
+  isAuthorized('super_admin', 'storage_manager', 'inspector'),
+  validateId,
+  purchasingController.deliverPurchaseOrder,
+);
+
 export const purchasingRoutes = router;

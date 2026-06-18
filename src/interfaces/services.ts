@@ -193,6 +193,8 @@ export interface IPurchasingService {
     user: AuthenticatedUser,
     id: string,
   ): Promise<APIResponse>;
+  shipPurchaseOrder(id: string): Promise<APIResponse>;
+  deliverPurchaseOrder(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----
