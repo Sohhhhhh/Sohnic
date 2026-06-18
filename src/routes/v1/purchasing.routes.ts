@@ -65,7 +65,7 @@ router.patch(
 // QUOTATIONS
 
 router.post(
-  '/:id/quotations',
+  '/requests/:id/quotations',
   isAuthenticated,
   isAuthorized('accountant', 'super_admin'),
   validateId,
@@ -74,7 +74,7 @@ router.post(
 );
 
 router.get(
-  '/:id/quotations/:quotationId',
+  '/requests/:id/quotations/:quotationId',
   isAuthenticated,
   isAuthorized('branch_admin', 'accountant', 'super_admin'),
   validateIdAndQuotationId,
@@ -82,7 +82,7 @@ router.get(
 );
 
 router.get(
-  '/:id/quotations',
+  '/requests/:id/quotations',
   isAuthenticated,
   isAuthorized('branch_admin', 'accountant', 'super_admin'),
   validateId,
@@ -103,7 +103,7 @@ router.post(
 router.get(
   '/orders',
   isAuthenticated,
-  isAuthorized('accountant', 'super_admin'),
+  isAuthorized('accountant', 'super_admin', 'branch_admin'),
   validateFilterPurchaseOrders,
   purchasingController.getAllPurchaseOrders,
 );
