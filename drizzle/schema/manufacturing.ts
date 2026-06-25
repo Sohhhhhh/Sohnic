@@ -8,7 +8,9 @@ import {
   timestamp,
   date,
 } from 'drizzle-orm/pg-core';
-import { manufacturingOrderStatus, inspectionStatus } from './enums';
+import { users } from './users';
+import { items } from './products';
+import { manufacturingOrderStatus } from './enums';
 
 export const manufacturers = pgTable('manufacturers', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -27,12 +29,18 @@ export const manufacturers = pgTable('manufacturers', {
 
 export const manufacturingOrders = pgTable('manufacturing_orders', {
   id: uuid('id').defaultRandom().primaryKey(),
-  productId: uuid('product_id').notNull(), // sellable item
+  productId: uuid('product_id')
+    .notNull()
+    .references(() => items.id), // sellable item
   quantity: integer('quantity').notNull(),
   status: manufacturingOrderStatus('status').notNull().default('pending'),
-  createdById: uuid('created_by_id').notNull(),
-  approvedById: uuid('approved_by_id'),
-  manufacturerId: uuid('manufacturer_id').notNull(),
+  createdById: uuid('created_by_id')
+    .notNull()
+    .references(() => users.id),
+  approvedById: uuid('approved_by_id').references(() => users.id),
+  manufacturerId: uuid('manufacturer_id')
+    .notNull()
+    .references(() => manufacturers.id),
   approvalDate: timestamp('approval_date'),
   expectedCompletionDate: date('expected_completion_date'),
   actualCompletionDate: date('actual_completion_date'),
@@ -48,9 +56,10 @@ export const manufacturingOrders = pgTable('manufacturing_orders', {
 
 export const manufacturingBatches = pgTable('manufacturing_batches', {
   id: uuid('id').defaultRandom().primaryKey(),
-  manufacturingOrderId: uuid('manufacturing_order_id').notNull(),
+  manufacturingOrderId: uuid('manufacturing_order_id')
+    .notNull()
+    .references(() => manufacturingOrders.id, { onDelete: 'cascade' }),
   quantityProduced: integer('quantity_produced').notNull(),
   productionDate: date('production_date'),
-  inspectionStatus: inspectionStatus('inspection_status'),
   createdAt: timestamp('created_at').defaultNow(),
 });

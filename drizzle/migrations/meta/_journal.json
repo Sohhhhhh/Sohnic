@@ -113,6 +113,13 @@
       "when": 1781706176156,
       "tag": "0015_flashy_ikaris",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1782084384440,
+      "tag": "0016_right_sunfire",
+      "breakpoints": true
     }
   ]
 }

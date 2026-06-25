@@ -6,13 +6,19 @@ import {
   timestamp,
   unique,
 } from 'drizzle-orm/pg-core';
+import { items } from './products';
+import { warehouses } from './locations';
 
 export const inventory = pgTable(
   'inventory',
   {
     id: uuid('id').defaultRandom().primaryKey(),
-    itemId: uuid('item_id').notNull(),
-    warehouseId: uuid('warehouse_id').notNull(),
+    itemId: uuid('item_id')
+      .notNull()
+      .references(() => items.id),
+    warehouseId: uuid('warehouse_id')
+      .notNull()
+      .references(() => warehouses.id, { onDelete: 'cascade' }),
     quantity: integer('quantity').default(0).notNull(),
     lastStocktakeDate: date('last_stocktake_date'),
     createdAt: timestamp('created_at').defaultNow(),

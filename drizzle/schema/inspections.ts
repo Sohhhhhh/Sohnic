@@ -7,13 +7,22 @@ import {
   integer,
   timestamp,
 } from 'drizzle-orm/pg-core';
+import { users } from './users';
+import { items } from './products';
+import { transferOrders } from './transfers';
+import { purchaseOrders } from './purchasing';
+import { manufacturingBatches } from './manufacturing';
 import { inspectionStatus, inspectionType } from './enums';
 
 export const inspections = pgTable('inspections', {
   id: uuid('id').defaultRandom().primaryKey(),
-  orderId: uuid('order_id'),
-  manufacturingBatchId: uuid('manufacturing_batch_id'),
-  transferOrderId: uuid('transfer_order_id'),
+  orderId: uuid('order_id').references(() => purchaseOrders.id),
+  manufacturingBatchId: uuid('manufacturing_batch_id').references(
+    () => manufacturingBatches.id,
+  ),
+  transferOrderId: uuid('transfer_order_id').references(
+    () => transferOrders.id,
+  ),
   type: inspectionType('type').notNull(),
   inspectionDate: date('inspection_date').notNull(),
   inspectionResult: inspectionStatus('inspection_result').notNull(),
@@ -22,7 +31,11 @@ export const inspections = pgTable('inspections', {
   quantityOrdered: integer('quantity_ordered').notNull(),
   quantityReceived: integer('quantity_received').notNull(),
   quantityRejected: integer('quantity_rejected').notNull(),
-  itemId: uuid('item_id').notNull(),
-  inspectorId: uuid('inspector_id').notNull(),
+  itemId: uuid('item_id')
+    .notNull()
+    .references(() => items.id),
+  inspectorId: uuid('inspector_id')
+    .notNull()
+    .references(() => users.id),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

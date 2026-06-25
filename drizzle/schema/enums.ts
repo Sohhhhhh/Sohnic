@@ -104,16 +104,6 @@ export const sellableItemType = pgEnum('sellableItemType', [
   'resale',
 ]);
 
-export const productCategory = pgEnum('productCategory', [
-  'development_boards',
-  'sensor_modules',
-  'communication_modules',
-  'power_management',
-  'display_modules',
-  'motor_drivers',
-  'interface_conversion',
-  'audio_signal_processing',
-]);
 
 export type UserRole = (typeof userRole.enumValues)[number];
 export type RefreshTokensRevocationReason =
@@ -129,10 +119,10 @@ export type DeliveryStatus = (typeof deliveryStatus.enumValues)[number];
 export type TransferRequestStatus =
   (typeof transferRequestStatus.enumValues)[number];
 export type InspectionStatus = (typeof inspectionStatus.enumValues)[number];
+export type InspectionType = (typeof inspectionType.enumValues)[number];
 export type ReturnRequestStatus =
   (typeof returnRequestStatus.enumValues)[number];
 export type ItemsType = (typeof itemsType.enumValues)[number];
 export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
 export type CustomerType = (typeof customerType.enumValues)[number];
 export type SellableItemType = (typeof sellableItemType.enumValues)[number];
-export type ProductCategory = (typeof productCategory.enumValues)[number];
