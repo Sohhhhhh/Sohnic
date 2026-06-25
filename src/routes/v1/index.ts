@@ -5,6 +5,7 @@ import { itemsRoutes } from './items.routes';
 import { suppliersRoutes } from './suppliers.routes';
 import { categoriesRoutes } from './categories.routes';
 import { purchasingRoutes } from './purchasing.routes';
+import { inspectionsRoutes } from './inspections.routes';
 
 const router = Router();
 router.use('/auth', authRoutes);
@@ -13,5 +14,6 @@ router.use('/items', itemsRoutes);
 router.use('/suppliers', suppliersRoutes);
 router.use('/categories', categoriesRoutes);
 router.use('/purchasing', purchasingRoutes);
+router.use('/inspections', inspectionsRoutes);
 
 export const v1Routes = router;

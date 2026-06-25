@@ -26,6 +26,7 @@ import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseReque
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuotation.dto';
 import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
+import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
 
 // ----- Service Interfaces -----
 
@@ -195,6 +196,10 @@ export interface IPurchasingService {
   ): Promise<APIResponse>;
   shipPurchaseOrder(id: string): Promise<APIResponse>;
   deliverPurchaseOrder(id: string): Promise<APIResponse>;
+}
+
+export interface IInspectionsService {
+  create(inspectorId: string, dto: CreateInspectionDto): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

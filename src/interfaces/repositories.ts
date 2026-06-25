@@ -13,6 +13,8 @@ import {
   PurchaseRequest,
   SupplierQuotation,
   PurchaseOrder,
+  Inspection,
+  PurchaseOrderWithItems,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
@@ -42,6 +44,7 @@ import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
+import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
 import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
@@ -228,7 +231,11 @@ export interface IPurchaseOrdersRepository {
     limit: number,
     q?: FilterPurchaseOrdersDto,
   ): Promise<PurchaseOrder[]>;
-  getOrder(id: string): Promise<PurchaseOrder | undefined>;
+  getOrder(id: string): Promise<PurchaseOrderWithItems | undefined>;
   getOrderByQuotationId(id: string): Promise<PurchaseOrder | undefined>;
   updateOrder(id: string, data: Partial<PurchaseOrder>): Promise<PurchaseOrder>;
+}
+
+export interface IInspectionsRepository {
+  create(inspectorId: string, dto: CreateInspectionDto): Promise<Inspection>;
 }
