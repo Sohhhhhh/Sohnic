@@ -1,12 +1,13 @@
-import STATUS_CODES from '../utils/statusCodes';
 import {
   IInspectionsRepository,
   IInspectionsService,
   IItemsRepository,
   IPurchaseOrdersRepository,
 } from '../interfaces';
-import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
 import APIError from '../utils/APIError';
+import STATUS_CODES from '../utils/statusCodes';
+import { AuthenticatedUser } from '../types/app.types';
+import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
 
 export class InspectionsService implements IInspectionsService {
   constructor(
@@ -35,7 +36,26 @@ export class InspectionsService implements IInspectionsService {
     return { statusCode: STATUS_CODES.Created, data: inspection };
   }
 
+  async getOne(user: AuthenticatedUser, inspectionId: string) {
+    const inspection = await this.checkExistingInspection(inspectionId);
+    const order = await this.purchaseOrdersRepo.getOrder(inspection.orderId!);
+    this.checkBranchAccess(user, order!.branchId);
+
+    return { statusCode: STATUS_CODES.Created, data: inspection };
+  }
+
   // ---- Helpers ----
+
+  private async checkExistingInspection(id: string) {
+    const inspection = await this.inspectionsRepo.getOne(id);
+    if (!inspection)
+      throw new APIError(
+        `No inspection found with this id`,
+        STATUS_CODES.NotFound,
+      );
+
+    return inspection;
+  }
 
   private async checkExistingItem(id: string) {
     const item = await this.itemsRepo.findOne(id);
@@ -71,5 +91,13 @@ export class InspectionsService implements IInspectionsService {
 
   private async checkExistingTransferOrder(id: string) {
     return false;
+  }
+
+  private checkBranchAccess(user: AuthenticatedUser, branchId: string) {
+    if (user.role.role === 'branch_admin' && branchId !== user.branchId)
+      throw new APIError(
+        `You can only access your own branch inspections`,
+        STATUS_CODES.Forbidden,
+      );
   }
 }

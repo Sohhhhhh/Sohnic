@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm';
+
 import { db } from '../config/drizzle';
 import { Inspection } from '../types/app.types';
 import { inspections } from '../../drizzle/schema';
@@ -15,5 +17,13 @@ export class InspectionsRepository implements IInspectionsRepository {
       .returning();
 
     return inspection[0];
+  }
+
+  async getOne(id: string): Promise<Inspection | undefined> {
+    const inspection = await db.query.inspections.findFirst({
+      where: eq(inspections.id, id),
+    });
+
+    return inspection;
   }
 }

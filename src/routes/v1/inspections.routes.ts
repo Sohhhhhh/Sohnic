@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { isAuthenticated } from '../../containers/middleware.container';
 import { isAuthorized } from '../../middlewares/isAuthorized';
-import { validateCreateInspection } from '../../validators/inspections.validator';
+import { validateId } from '../../validators/common.validator';
+import { isAuthenticated } from '../../containers/middleware.container';
 import { inspectionsController } from '../../containers/inspections.container';
+import { validateCreateInspection } from '../../validators/inspections.validator';
 
 const router = Router();
 
@@ -12,6 +13,14 @@ router.post(
   isAuthorized('inspector', 'super_admin'),
   validateCreateInspection,
   inspectionsController.create,
+);
+
+router.get(
+  '/:id',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin', 'inspector'),
+  validateId,
+  inspectionsController.getOne,
 );
 
 export const inspectionsRoutes = router;

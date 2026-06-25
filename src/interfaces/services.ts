@@ -200,6 +200,7 @@ export interface IPurchasingService {
 
 export interface IInspectionsService {
   create(inspectorId: string, dto: CreateInspectionDto): Promise<APIResponse>;
+  getOne(user: AuthenticatedUser, inspectionId: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

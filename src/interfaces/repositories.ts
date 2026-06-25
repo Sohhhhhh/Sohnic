@@ -238,4 +238,5 @@ export interface IPurchaseOrdersRepository {
 
 export interface IInspectionsRepository {
   create(inspectorId: string, dto: CreateInspectionDto): Promise<Inspection>;
+  getOne(id: string): Promise<Inspection | undefined>;
 }
