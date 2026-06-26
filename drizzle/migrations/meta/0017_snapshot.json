@@ -1,5 +1,5 @@
 {
-  "id": "c8d566e6-5dd1-4bef-88c8-c337a8ad11d7",
+  "id": "f6c4d574-15de-4b64-984d-cb70aff86e95",
   "prevId": "11a620ed-3a22-49b5-b4f6-ce2774324667",
   "version": "7",
   "dialect": "postgresql",
@@ -2482,6 +2482,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "branch_id": {
+          "name": "branch_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "notes": {
           "name": "notes",
           "type": "text",
@@ -2571,6 +2577,19 @@
             "id"
           ],
           "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "inspections_branch_id_branches_id_fk": {
+          "name": "inspections_branch_id_branches_id_fk",
+          "tableFrom": "inspections",
+          "tableTo": "branches",
+          "columnsFrom": [
+            "branch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "inspections_item_id_items_id_fk": {

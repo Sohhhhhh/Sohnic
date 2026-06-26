@@ -46,10 +46,11 @@ import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
-import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
+import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrders.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
+import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
 
 // ----- Record Types -----
 
@@ -237,6 +238,15 @@ export interface IPurchaseOrdersRepository {
 }
 
 export interface IInspectionsRepository {
-  create(inspectorId: string, dto: CreateInspectionDto): Promise<Inspection>;
+  create(
+    branchId: string,
+    inspectorId: string,
+    dto: CreateInspectionDto,
+  ): Promise<Inspection>;
   getOne(id: string): Promise<Inspection | undefined>;
+  getAll(
+    page: number,
+    limit: number,
+    q?: FilterInspectionsDto,
+  ): Promise<Inspection[]>;
 }

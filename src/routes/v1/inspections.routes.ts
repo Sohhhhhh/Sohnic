@@ -1,9 +1,13 @@
 import { Router } from 'express';
+
+import {
+  validateCreateInspection,
+  validateFilterInspections,
+} from '../../validators/inspections.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { validateId } from '../../validators/common.validator';
 import { isAuthenticated } from '../../containers/middleware.container';
 import { inspectionsController } from '../../containers/inspections.container';
-import { validateCreateInspection } from '../../validators/inspections.validator';
 
 const router = Router();
 
@@ -13,6 +17,14 @@ router.post(
   isAuthorized('inspector', 'super_admin'),
   validateCreateInspection,
   inspectionsController.create,
+);
+
+router.get(
+  '/',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateFilterInspections,
+  inspectionsController.getAll,
 );
 
 router.get(

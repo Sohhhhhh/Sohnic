@@ -1,7 +1,10 @@
+import {
+  createInspectionValidatedCtrlr,
+  filterInspectionsValidatedCtrlr,
+} from '../validators/inspections.validator';
 import { APIResponse } from '../types/api.types';
 import { IInspectionsService } from '../interfaces';
 import { sendResponse } from '../utils/sendResponse';
-import { createInspectionValidatedCtrlr } from '../validators/inspections.validator';
 import { idValidatedCtrlr } from '../validators/common.validator';
 
 export class InspectionsController {
@@ -12,6 +15,19 @@ export class InspectionsController {
     const result: APIResponse = await this.inspectionsService.create(
       id,
       req.body,
+    );
+    sendResponse(res, result);
+  };
+
+  getAll: filterInspectionsValidatedCtrlr = async (req, res) => {
+    const { page, limit, ...q } = req.query;
+    const { user } = req;
+
+    const result: APIResponse = await this.inspectionsService.getAll(
+      user,
+      +page,
+      +limit,
+      q,
     );
     sendResponse(res, result);
   };

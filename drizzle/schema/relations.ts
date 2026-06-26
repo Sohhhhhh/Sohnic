@@ -99,6 +99,7 @@ export const branchesRelations = relations(branches, ({ many }) => ({
   users: many(users),
   warehouses: many(warehouses),
   orders: many(orders),
+  inspections: many(inspections),
   purchaseRequests: many(purchaseRequests),
   purchaseOrders: many(purchaseOrders),
   transferRequestsBy: many(transferRequests, { relationName: 'requestedBy' }),
@@ -434,6 +435,10 @@ export const inspectionsRelations = relations(inspections, ({ one }) => ({
   inspector: one(users, {
     fields: [inspections.inspectorId],
     references: [users.id],
+  }),
+  branch: one(branches, {
+    fields: [inspections.branchId],
+    references: [branches.id],
   }),
 }));
 

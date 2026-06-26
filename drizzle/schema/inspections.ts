@@ -10,6 +10,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { users } from './users';
 import { items } from './products';
+import { branches } from './locations';
 import { transferOrders } from './transfers';
 import { purchaseOrders } from './purchasing';
 import { manufacturingBatches } from './manufacturing';
@@ -29,6 +30,9 @@ export const inspections = pgTable(
     type: inspectionType('type').notNull(),
     inspectionDate: date('inspection_date').notNull(),
     inspectionResult: inspectionStatus('inspection_result').notNull(),
+    branchId: uuid('branch_id')
+      .notNull()
+      .references(() => branches.id, { onDelete: 'cascade' }),
     notes: text('notes'),
     defectType: varchar('defect_type', { length: 255 }),
     quantityOrdered: integer('quantity_ordered').notNull(),

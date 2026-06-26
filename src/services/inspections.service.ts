@@ -8,6 +8,7 @@ import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { AuthenticatedUser } from '../types/app.types';
 import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
+import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
 
 export class InspectionsService implements IInspectionsService {
   constructor(
@@ -18,22 +19,60 @@ export class InspectionsService implements IInspectionsService {
   ) {}
 
   async create(inspectorId: string, dto: CreateInspectionDto) {
-    await this.checkExistingItem(dto.itemId);
+    let branchId;
 
+    await this.checkExistingItem(dto.itemId);
     switch (dto.type) {
-      case 'order':
-        await this.checkExistingPurchOrder(dto.orderId, dto.itemId);
+      case 'order': {
+        const order = await this.checkExistingPurchOrder(
+          dto.orderId,
+          dto.itemId,
+        );
+        branchId = order.branchId;
         break;
-      case 'manufacturing_batch':
+      }
+      case 'manufacturing_batch': {
         await this.checkExistingManufacturingBatch(dto.manufacturingBatchId);
+        // branchId = batch.manufacturingOrder.branchId;
         break;
-      case 'transfer':
+      }
+      case 'transfer': {
         await this.checkExistingTransferOrder(dto.transferOrderId);
+        // branchId = transferOrder.transferRequest.requestedByBranch;
         break;
+      }
     }
 
-    const inspection = await this.inspectionsRepo.create(inspectorId, dto);
+    const inspection = await this.inspectionsRepo.create(
+      branchId!,
+      inspectorId,
+      dto,
+    );
     return { statusCode: STATUS_CODES.Created, data: inspection };
+  }
+
+  async getAll(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+    q: FilterInspectionsDto,
+  ) {
+    if (user.role.role === 'branch_admin') {
+      if (q.branchId && q.branchId !== user.branchId)
+        throw new APIError(
+          'You can only view your own branch inspections',
+          STATUS_CODES.Forbidden,
+        );
+      q.branchId = user.branchId;
+    }
+
+    const inspections = await this.inspectionsRepo.getAll(page, limit, q);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: inspections.length,
+      data: inspections,
+    };
   }
 
   async getOne(user: AuthenticatedUser, inspectionId: string) {

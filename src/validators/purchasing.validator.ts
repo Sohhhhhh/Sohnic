@@ -4,7 +4,7 @@ import { createPurchaseRequestSchema } from '../dtos/purchasing/createPurchaseRe
 import { rejectPurchaseRequestSchema } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { createSupplierQuotationSchema } from '../dtos/purchasing/createSupplierQuotation.dto';
 import { filterPurchaseRequestsQuerySchema } from '../dtos/purchasing/filterPurchaseRequests.dto';
-import { filterPurchaseOrdersQuerySchema } from '../dtos/purchasing/filterPurchaseOrder.dto';
+import { filterPurchaseOrdersQuerySchema } from '../dtos/purchasing/filterPurchaseOrders.dto';
 
 // CREATE PURCHASE REQUEST
 export const validateCreatePurchaseRequest = validate({
