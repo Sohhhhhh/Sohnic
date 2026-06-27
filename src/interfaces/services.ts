@@ -28,6 +28,7 @@ import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuo
 import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrders.dto';
 import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
 import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
+import { CreateSupplierReturnDto } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
 
 // ----- Service Interfaces -----
 
@@ -208,6 +209,10 @@ export interface IInspectionsService {
     limit: number,
     q: FilterInspectionsDto,
   ): Promise<APIResponse>;
+}
+
+export interface IReturnsService {
+  createSupplierReturn(dto: CreateSupplierReturnDto): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

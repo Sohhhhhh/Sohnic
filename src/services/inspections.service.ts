@@ -19,7 +19,7 @@ export class InspectionsService implements IInspectionsService {
   ) {}
 
   async create(inspectorId: string, dto: CreateInspectionDto) {
-    let branchId;
+    let branchId = '';
 
     await this.checkExistingItem(dto.itemId);
     switch (dto.type) {
@@ -43,11 +43,11 @@ export class InspectionsService implements IInspectionsService {
       }
     }
 
-    const inspection = await this.inspectionsRepo.create(
-      branchId!,
+    const inspection = await this.inspectionsRepo.create({
+      branchId,
       inspectorId,
-      dto,
-    );
+      ...dto,
+    });
     return { statusCode: STATUS_CODES.Created, data: inspection };
   }
 
@@ -77,8 +77,7 @@ export class InspectionsService implements IInspectionsService {
 
   async getOne(user: AuthenticatedUser, inspectionId: string) {
     const inspection = await this.checkExistingInspection(inspectionId);
-    const order = await this.purchaseOrdersRepo.getOrder(inspection.orderId!);
-    this.checkBranchAccess(user, order!.branchId);
+    this.checkBranchAccess(user, inspection.branchId);
 
     return { statusCode: STATUS_CODES.Created, data: inspection };
   }

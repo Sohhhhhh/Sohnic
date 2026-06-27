@@ -27,6 +27,7 @@ export const supplierReturns = pgTable('supplier_returns', {
   approvedById: uuid('approved_by_id').references(() => users.id),
   inspectionId: uuid('inspection_id')
     .notNull()
+    .unique()
     .references(() => inspections.id),
   submissionDate: timestamp('submission_date').defaultNow(),
   reviewDate: timestamp('review_date'),
@@ -54,6 +55,7 @@ export const manufacturerReturns = pgTable('manufacturer_returns', {
   approvedById: uuid('approved_by_id').references(() => users.id),
   inspectionId: uuid('inspection_id')
     .notNull()
+    .unique()
     .references(() => inspections.id),
   submissionDate: timestamp('submission_date').defaultNow(),
   reviewDate: timestamp('review_date'),
@@ -78,6 +80,7 @@ export const transferReturns = pgTable('transfer_returns', {
   approvedById: uuid('approved_by_id').references(() => users.id),
   inspectionId: uuid('inspection_id')
     .notNull()
+    .unique()
     .references(() => inspections.id),
   submissionDate: timestamp('submission_date').defaultNow(),
   reviewDate: timestamp('review_date'),

@@ -4,18 +4,14 @@ import { db } from '../config/drizzle';
 import { Inspection } from '../types/app.types';
 import { inspections } from '../../drizzle/schema';
 import { IInspectionsRepository } from '../interfaces';
-import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
+import { CreateInspectionData } from '../dtos/inspections/createInspection.dto';
 import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
 
 export class InspectionsRepository implements IInspectionsRepository {
-  async create(
-    branchId: string,
-    inspectorId: string,
-    dto: CreateInspectionDto,
-  ): Promise<Inspection> {
+  async create(dto: CreateInspectionData): Promise<Inspection> {
     const inspection = await db
       .insert(inspections)
-      .values({ ...dto, inspectorId, branchId })
+      .values({ ...dto })
       .returning();
 
     return inspection[0];

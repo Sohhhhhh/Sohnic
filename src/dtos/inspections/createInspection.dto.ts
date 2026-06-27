@@ -41,3 +41,8 @@ export const createInspectionSchema = z.discriminatedUnion('type', [
 ]);
 
 export type CreateInspectionDto = z.output<typeof createInspectionSchema>;
+
+export type CreateInspectionData = CreateInspectionDto & {
+  branchId: string;
+  inspectorId: string;
+};

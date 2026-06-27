@@ -9,6 +9,7 @@ import {
   users,
   purchaseOrders,
   inspections,
+  supplierReturns,
 } from '../../drizzle/schema';
 
 export type BomLine = {
@@ -42,3 +43,4 @@ export type PurchaseOrderWithItems = PurchaseOrder & {
 };
 export type SupplierQuotation = typeof supplierQuotations.$inferSelect;
 export type Inspection = typeof inspections.$inferSelect;
+export type SupplierReturn = typeof supplierReturns.$inferSelect;

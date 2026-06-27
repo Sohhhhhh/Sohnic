@@ -127,6 +127,13 @@
       "when": 1782432059705,
       "tag": "0017_wandering_mentor",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1782575111669,
+      "tag": "0018_brave_susan_delgado",
+      "breakpoints": true
     }
   ]
 }
