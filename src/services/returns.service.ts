@@ -64,7 +64,28 @@ export class ReturnsService implements IReturnsService {
     };
   }
 
+  async getOneSupplierReturn(id: string) {
+    const supplierReturn = await this.checkExistingSupplierReturn(id);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: supplierReturn,
+    };
+  }
+
   // --- Helpers ---
+
+  private async checkExistingSupplierReturn(id: string) {
+    const supplierReturn =
+      await this.supplierReturnsRepo.getOneSupplierReturn(id);
+    if (!supplierReturn)
+      throw new APIError(
+        `No supplier return found with this id`,
+        STATUS_CODES.NotFound,
+      );
+
+    return supplierReturn;
+  }
 
   private async checkExistingInspection(id: string) {
     const inspection = await this.inspectionsRepo.getOne(id);

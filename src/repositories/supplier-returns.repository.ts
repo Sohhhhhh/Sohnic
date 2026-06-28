@@ -44,4 +44,12 @@ export class SupplierReturnsRepository implements ISupplierReturnsRepository {
       ],
     });
   }
+
+  async getOneSupplierReturn(id: string) {
+    const supplierReturn = await db.query.supplierReturns.findFirst({
+      where: eq(supplierReturns.id, id),
+    });
+
+    return supplierReturn;
+  }
 }

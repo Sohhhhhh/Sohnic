@@ -1,6 +1,7 @@
 import { IReturnsService } from '../interfaces';
 import { APIResponse } from '../types/api.types';
 import { sendResponse } from '../utils/sendResponse';
+import { idValidatedCtrlr } from '../validators/common.validator';
 import { createSuppRetValidatedCtrlr } from '../validators/returns.validator';
 import { filterSuppRetsValidatedCtrlr } from '../validators/returns.validator';
 
@@ -22,6 +23,14 @@ export class ReturnsController {
       +limit,
       q,
     );
+
+    sendResponse(res, result);
+  };
+
+  getOneSupplierReturn: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.returnsService.getOneSupplierReturn(id);
 
     sendResponse(res, result);
   };

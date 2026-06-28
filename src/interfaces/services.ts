@@ -219,6 +219,7 @@ export interface IReturnsService {
     limit: number,
     q?: FilterSupplierReturnsDto,
   ): Promise<APIResponse>;
+  getOneSupplierReturn(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

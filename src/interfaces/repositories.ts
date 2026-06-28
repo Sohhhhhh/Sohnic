@@ -257,4 +257,5 @@ export interface ISupplierReturnsRepository {
     limit: number,
     q?: FilterSupplierReturnsDto,
   ): Promise<SupplierReturn[]>;
+  getOneSupplierReturn(id: string): Promise<SupplierReturn | undefined>;
 }

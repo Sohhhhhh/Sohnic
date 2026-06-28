@@ -7,6 +7,7 @@ import {
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { returnsController } from '../../containers/returns.container';
 import { isAuthenticated } from '../../containers/middleware.container';
+import { validateId } from '../../validators/common.validator';
 
 const router = Router();
 
@@ -24,6 +25,14 @@ router.get(
   isAuthorized('super_admin', 'accountant'),
   validateFilterSupplierReturns,
   returnsController.getAllSupplierReturns,
+);
+
+router.get(
+  '/supplier/:id',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validateId,
+  returnsController.getOneSupplierReturn,
 );
 
 export const returnsRoutes = router;
