@@ -7,6 +7,7 @@ import {
   ISupplierReturnsRepository,
 } from '../interfaces';
 import { CreateSupplierReturnDto } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
+import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
 
 export class ReturnsService implements IReturnsService {
   constructor(
@@ -47,6 +48,23 @@ export class ReturnsService implements IReturnsService {
       data: supplierReturn,
     };
   }
+
+  async getAllSupplierReturns(
+    page: number,
+    limit: number,
+    q?: FilterSupplierReturnsDto,
+  ) {
+    const supplierReturns =
+      await this.supplierReturnsRepo.getAllSupplierReturns(page, limit, q);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: supplierReturns.length,
+      data: supplierReturns,
+    };
+  }
+
+  // --- Helpers ---
 
   private async checkExistingInspection(id: string) {
     const inspection = await this.inspectionsRepo.getOne(id);

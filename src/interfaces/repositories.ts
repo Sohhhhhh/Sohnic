@@ -46,13 +46,14 @@ import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { CreateInspectionData } from '../dtos/inspections/createInspection.dto';
+import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
 import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrders.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
-import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
 import { CreateSupplierReturnData } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
+import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
 
 // ----- Record Types -----
 
@@ -251,4 +252,9 @@ export interface IInspectionsRepository {
 
 export interface ISupplierReturnsRepository {
   createSupplierReturn(dto: CreateSupplierReturnData): Promise<SupplierReturn>;
+  getAllSupplierReturns(
+    page: number,
+    limit: number,
+    q?: FilterSupplierReturnsDto,
+  ): Promise<SupplierReturn[]>;
 }
