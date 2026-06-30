@@ -85,6 +85,24 @@ export class ReturnsService implements IReturnsService {
     };
   }
 
+  async rejectSupplierReturn(id: string) {
+    const supplierReturn = await this.checkExistingSupplierReturn(id);
+    if (supplierReturn.status === 'completed')
+      throw new APIError(
+        `Cannot transition return request from completed to rejected`,
+        STATUS_CODES.BadRequest,
+      );
+
+    await this.supplierReturnsRepo.updateSupplierReturn(id, {
+      status: 'rejected',
+    });
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      message: `Return request rejected successfully`,
+    };
+  }
+
   async completeSupplierReturn(id: string) {
     await this.transitionReturn(id, 'completed');
 

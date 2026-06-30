@@ -44,6 +44,14 @@ router.patch(
 );
 
 router.patch(
+  '/supplier/:id/reject',
+  isAuthenticated,
+  isAuthorized('super_admin'),
+  validateId,
+  returnsController.rejectSupplierReturn,
+);
+
+router.patch(
   '/supplier/:id/complete',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),

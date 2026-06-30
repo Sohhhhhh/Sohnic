@@ -221,6 +221,7 @@ export interface IReturnsService {
   ): Promise<APIResponse>;
   getOneSupplierReturn(id: string): Promise<APIResponse>;
   acceptSupplierReturn(userId: string, id: string): Promise<APIResponse>;
+  rejectSupplierReturn(id: string): Promise<APIResponse>;
   completeSupplierReturn(id: string): Promise<APIResponse>;
 }
 
