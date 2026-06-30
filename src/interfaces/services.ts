@@ -220,6 +220,7 @@ export interface IReturnsService {
     q?: FilterSupplierReturnsDto,
   ): Promise<APIResponse>;
   getOneSupplierReturn(id: string): Promise<APIResponse>;
+  acceptSupplierReturn(userId: string, id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

@@ -35,4 +35,12 @@ router.get(
   returnsController.getOneSupplierReturn,
 );
 
+router.patch(
+  '/supplier/:id/accept',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validateId,
+  returnsController.acceptSupplieReturn,
+);
+
 export const returnsRoutes = router;

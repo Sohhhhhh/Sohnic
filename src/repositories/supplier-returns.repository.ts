@@ -52,4 +52,14 @@ export class SupplierReturnsRepository implements ISupplierReturnsRepository {
 
     return supplierReturn;
   }
+
+  async updateSupplierReturn(id: string, data: Partial<SupplierReturn>) {
+    const result = await db
+      .update(supplierReturns)
+      .set(data)
+      .where(eq(supplierReturns.id, id))
+      .returning();
+
+    return result[0];
+  }
 }

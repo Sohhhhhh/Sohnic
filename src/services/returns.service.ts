@@ -8,6 +8,9 @@ import {
 } from '../interfaces';
 import { CreateSupplierReturnDto } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
 import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
+import { SupplierReturn } from '../types/app.types';
+import { RETURN_REQS_VALID_TRANSITIONS } from '../constants/purchaseOrder.constants';
+import { ReturnRequestStatus } from '../../drizzle/schema';
 
 export class ReturnsService implements IReturnsService {
   constructor(
@@ -73,7 +76,35 @@ export class ReturnsService implements IReturnsService {
     };
   }
 
+  async acceptSupplierReturn(userId: string, id: string) {
+    await this.transitionReturn(id, 'approved', { approvedById: userId });
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      message: `Return request approved successfully`,
+    };
+  }
+
   // --- Helpers ---
+  private async transitionReturn(
+    id: string,
+    to: ReturnRequestStatus,
+    data?: Partial<SupplierReturn>,
+  ) {
+    const supplierReturn = await this.checkExistingSupplierReturn(id);
+    const validNext = RETURN_REQS_VALID_TRANSITIONS[supplierReturn.status];
+
+    if (validNext !== to)
+      throw new APIError(
+        `Cannot transition return request from "${supplierReturn.status}" to "${to}"`,
+        STATUS_CODES.BadRequest,
+      );
+
+    await this.supplierReturnsRepo.updateSupplierReturn(id, {
+      status: to,
+      ...data,
+    });
+  }
 
   private async checkExistingSupplierReturn(id: string) {
     const supplierReturn =

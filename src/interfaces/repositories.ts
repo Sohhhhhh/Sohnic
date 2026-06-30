@@ -258,4 +258,8 @@ export interface ISupplierReturnsRepository {
     q?: FilterSupplierReturnsDto,
   ): Promise<SupplierReturn[]>;
   getOneSupplierReturn(id: string): Promise<SupplierReturn | undefined>;
+  updateSupplierReturn(
+    id: string,
+    data: Partial<SupplierReturn>,
+  ): Promise<SupplierReturn>;
 }
