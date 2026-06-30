@@ -50,7 +50,7 @@ export default (
   if (env.NODE_ENV === 'production') sendErrorProd(error, res);
 };
 
-// ----HELPERS----
+// --- Helpers ---
 
 // Handle Zod validation errors
 const handleZodError = (err: ZodError): APIError => {

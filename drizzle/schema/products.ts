@@ -6,13 +6,18 @@ import {
   numeric,
   text,
   timestamp,
+  AnyPgColumn,
+  unique,
 } from 'drizzle-orm/pg-core';
 import { itemsType, sellableItemType } from './enums';
 
 export const categories = pgTable('categories', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
-  parentCategoryId: uuid('parent_category_id'),
+  parentCategoryId: uuid('parent_category_id').references(
+    (): AnyPgColumn => categories.id,
+    { onDelete: 'set null' },
+  ),
 });
 
 export const items = pgTable('items', {
@@ -24,7 +29,7 @@ export const items = pgTable('items', {
   createdAt: timestamp('created_at').defaultNow(),
 
   // sellable item only
-  categoryId: uuid('category_id'),
+  categoryId: uuid('category_id').references(() => categories.id, { onDelete: 'set null' }),
   sellableType: sellableItemType('sellable_type'), // 'finished' | 'resale'
   salePrice: numeric('sale_price', { precision: 10, scale: 2 }),
   manufacturingCost: numeric('manufacturing_cost', { precision: 10, scale: 2 }),
@@ -37,9 +42,17 @@ export const items = pgTable('items', {
   standardPrice: numeric('standard_price', { precision: 10, scale: 2 }),
 });
 
-export const billOfMaterials = pgTable('bill_of_materials', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  itemId: uuid('item_id').notNull(), // the sellable output
-  componentId: uuid('component_id').notNull(), // the raw material input
-  quantityPerUnit: integer('quantity_per_unit').notNull(),
-});
+export const billOfMaterials = pgTable(
+  'bill_of_materials',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    itemId: uuid('item_id')
+      .notNull()
+      .references(() => items.id, { onDelete: 'cascade' }), // the sellable output
+    componentId: uuid('component_id')
+      .notNull()
+      .references(() => items.id, { onDelete: 'cascade' }), // the raw material input
+    quantityPerUnit: integer('quantity_per_unit').notNull(),
+  },
+  (t) => [unique().on(t.itemId, t.componentId)],
+);

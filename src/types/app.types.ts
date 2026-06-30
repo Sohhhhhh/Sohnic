@@ -8,7 +8,25 @@ import {
   suppliers,
   users,
   purchaseOrders,
+  inspections,
+  supplierReturns,
 } from '../../drizzle/schema';
+
+export type BomLine = {
+  componentId: string;
+  quantityPerUnit: number;
+  name: string;
+  sku: string;
+  type: string;
+  sellableType: string | null;
+  unitOfMeasurement: string | null;
+};
+
+export type PurchaseOrderItem = {
+  itemId: string;
+  quantity: number;
+  unitPrice: string;
+};
 
 export type User = typeof users.$inferSelect;
 export type SafeUser = Omit<User, 'password'>;
@@ -20,13 +38,9 @@ export type Category = typeof categories.$inferSelect;
 export type Item = typeof items.$inferSelect;
 export type PurchaseRequest = typeof purchaseRequests.$inferSelect;
 export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
-export type SupplierQuotation = typeof supplierQuotations.$inferSelect;
-export type BomLine = {
-  componentId: string;
-  quantityPerUnit: number;
-  name: string;
-  sku: string;
-  type: string;
-  sellableType: string | null;
-  unitOfMeasurement: string | null;
+export type PurchaseOrderWithItems = PurchaseOrder & {
+  items: PurchaseOrderItem[];
 };
+export type SupplierQuotation = typeof supplierQuotations.$inferSelect;
+export type Inspection = typeof inspections.$inferSelect;
+export type SupplierReturn = typeof supplierReturns.$inferSelect;

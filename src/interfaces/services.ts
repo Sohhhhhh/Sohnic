@@ -25,7 +25,11 @@ import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseReque
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuotation.dto';
-import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
+import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrders.dto';
+import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
+import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
+import { CreateSupplierReturnDto } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
+import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
 
 // ----- Service Interfaces -----
 
@@ -195,6 +199,30 @@ export interface IPurchasingService {
   ): Promise<APIResponse>;
   shipPurchaseOrder(id: string): Promise<APIResponse>;
   deliverPurchaseOrder(id: string): Promise<APIResponse>;
+}
+
+export interface IInspectionsService {
+  create(inspectorId: string, dto: CreateInspectionDto): Promise<APIResponse>;
+  getOne(user: AuthenticatedUser, inspectionId: string): Promise<APIResponse>;
+  getAll(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+    q: FilterInspectionsDto,
+  ): Promise<APIResponse>;
+}
+
+export interface IReturnsService {
+  createSupplierReturn(dto: CreateSupplierReturnDto): Promise<APIResponse>;
+  getAllSupplierReturns(
+    page: number,
+    limit: number,
+    q?: FilterSupplierReturnsDto,
+  ): Promise<APIResponse>;
+  getOneSupplierReturn(id: string): Promise<APIResponse>;
+  acceptSupplierReturn(userId: string, id: string): Promise<APIResponse>;
+  rejectSupplierReturn(id: string): Promise<APIResponse>;
+  completeSupplierReturn(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

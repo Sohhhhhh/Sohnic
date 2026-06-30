@@ -13,13 +13,13 @@ import APIError from '../utils/APIError';
 import STATUS_CODES from '../utils/statusCodes';
 import { AuthenticatedUser, PurchaseOrder } from '../types/app.types';
 import { CreatePurchaseOrderDto } from '../dtos/purchasing/createPurchaseOrder.dto';
-import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrder.dto';
+import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrders.dto';
 import { CreatePurchaseRequestDto } from '../dtos/purchasing/createPurchaseRequest.dto';
 import { RejectPurchaseRequestDto } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuotation.dto';
 import { PurchaseOrderStatus } from '../../drizzle/schema';
-import { VALID_TRANSITIONS } from '../constants/purchaseOrder.constants';
+import { PURCH_ORDS_VALID_TRANSITIONS } from '../constants/purchaseOrder.constants';
 
 export class PurchasingService implements IPurchasingService {
   constructor(
@@ -351,7 +351,7 @@ export class PurchasingService implements IPurchasingService {
     data?: Partial<PurchaseOrder>,
   ) {
     const order = await this.checkExistingPurchOrder(id);
-    const validNext = VALID_TRANSITIONS[order.status];
+    const validNext = PURCH_ORDS_VALID_TRANSITIONS[order.status];
 
     if (validNext !== to)
       throw new APIError(

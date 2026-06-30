@@ -8,6 +8,7 @@ import {
   timestamp,
   unique,
 } from 'drizzle-orm/pg-core';
+import { items } from './products';
 
 export const suppliers = pgTable('suppliers', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -28,8 +29,12 @@ export const itemSuppliers = pgTable(
   'item_suppliers',
   {
     id: uuid('id').defaultRandom().primaryKey(),
-    itemId: uuid('item_id').notNull(),
-    supplierId: uuid('supplier_id').notNull(),
+    itemId: uuid('item_id')
+      .notNull()
+      .references(() => items.id, { onDelete: 'cascade' }),
+    supplierId: uuid('supplier_id')
+      .notNull()
+      .references(() => suppliers.id, { onDelete: 'cascade' }),
     price: numeric('price', { precision: 10, scale: 2 }).notNull(),
     leadTimeDays: integer('lead_time_days'),
     isPrimary: boolean('is_primary').notNull().default(false),
