@@ -45,4 +45,12 @@ export class ReturnsController {
 
     sendResponse(res, result);
   };
+
+  completeSupplierReturn: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.returnsService.completeSupplierReturn(id);
+
+    sendResponse(res, result);
+  };
 }

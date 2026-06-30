@@ -85,6 +85,15 @@ export class ReturnsService implements IReturnsService {
     };
   }
 
+  async completeSupplierReturn(id: string) {
+    await this.transitionReturn(id, 'completed');
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      message: `Return request completed successfully`,
+    };
+  }
+
   // --- Helpers ---
   private async transitionReturn(
     id: string,

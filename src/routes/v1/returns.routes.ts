@@ -38,9 +38,17 @@ router.get(
 router.patch(
   '/supplier/:id/accept',
   isAuthenticated,
-  isAuthorized('super_admin', 'accountant'),
+  isAuthorized('super_admin'),
   validateId,
   returnsController.acceptSupplieReturn,
+);
+
+router.patch(
+  '/supplier/:id/complete',
+  isAuthenticated,
+  isAuthorized('super_admin', 'accountant'),
+  validateId,
+  returnsController.completeSupplierReturn,
 );
 
 export const returnsRoutes = router;
