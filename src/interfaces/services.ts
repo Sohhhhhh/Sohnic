@@ -31,6 +31,7 @@ import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto'
 import { CreateSupplierReturnDto } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
 import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
+import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
 
 // ----- Service Interfaces -----
 
@@ -228,6 +229,12 @@ export interface IReturnsService {
 
 export interface IManufacturersService {
   create(dto: CreateManufacturerDto): Promise<APIResponse>;
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterManufacturersDto,
+  ): Promise<APIResponse>;
+  findOne(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

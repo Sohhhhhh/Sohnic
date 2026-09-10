@@ -1,7 +1,11 @@
 import { IManufacturersService } from '../interfaces';
 import { APIResponse } from '../types/api.types';
 import { sendResponse } from '../utils/sendResponse';
-import { createManufacturerValidatedCtrlr } from '../validators/manufacturers.validator';
+import { idValidatedCtrlr } from '../validators/common.validator';
+import {
+  createManufacturerValidatedCtrlr,
+  manufacturersQueryValidatedCtrlr,
+} from '../validators/manufacturers.validator';
 
 export class ManufacturersController {
   constructor(private readonly manufacturersService: IManufacturersService) {}
@@ -12,4 +16,21 @@ export class ManufacturersController {
     );
     sendResponse(res, result);
   };
+
+  findAll: manufacturersQueryValidatedCtrlr = async (req, res) => {
+    const { page = 1, limit = 10, ...q } = req.query;
+    const result: APIResponse = await this.manufacturersService.findAll(
+      +page,
+      +limit,
+      q,
+    );
+    sendResponse(res, result);
+  };
+
+  findOne: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.manufacturersService.findOne(id);
+    sendResponse(res, result);
+  };
 }
+

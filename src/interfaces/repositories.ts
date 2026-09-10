@@ -56,6 +56,7 @@ import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurcha
 import { CreateSupplierReturnData } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
 import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
+import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
 
 // ----- Record Types -----
 
@@ -269,4 +270,10 @@ export interface ISupplierReturnsRepository {
 export interface IManufacturersRepository {
   create(dto: CreateManufacturerDto): Promise<Manufacturer>;
   findOneByEmail(email: string): Promise<Manufacturer | undefined>;
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterManufacturersDto,
+  ): Promise<Manufacturer[]>;
+  findOne(id: string): Promise<Manufacturer | undefined>;
 }
