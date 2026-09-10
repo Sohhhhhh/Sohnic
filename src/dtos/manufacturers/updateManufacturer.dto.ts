@@ -3,6 +3,7 @@ import { createManufacturerSchema } from './createManufacturer.dto';
 
 export const updateManufacturerBaseSchema = createManufacturerSchema
   .omit({ email: true })
+  .extend({ isActive: z.boolean().optional() })
   .partial()
   .strict();
 

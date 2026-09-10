@@ -45,4 +45,20 @@ router.patch(
   manufacturersController.update,
 );
 
+router.patch(
+  '/:id/activate',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  manufacturersController.activate,
+);
+
+router.patch(
+  '/:id/deactivate',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  manufacturersController.deactivate,
+);
+
 export const manufacturersRoutes = router;

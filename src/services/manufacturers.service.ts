@@ -51,6 +51,40 @@ export class ManufacturersService implements IManufacturersService {
     };
   }
 
+  async activate(id: string) {
+    const manufacturer = await this.checkExistingManufacturerById(id);
+
+    if (manufacturer.isActive)
+      throw new APIError(
+        'The manufacturer is already active.',
+        STATUS_CODES.Conflict,
+      );
+
+    const updated = await this.manufacturersRepo.update(id, { isActive: true });
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: { manufacturer: updated },
+    };
+  }
+
+  async deactivate(id: string) {
+    const manufacturer = await this.checkExistingManufacturerById(id);
+
+    if (!manufacturer.isActive)
+      throw new APIError(
+        'The manufacturer is already deactivated.',
+        STATUS_CODES.Conflict,
+      );
+
+    const updated = await this.manufacturersRepo.update(id, { isActive: false });
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: { manufacturer: updated },
+    };
+  }
+
   // --- Helpers ---
   private async checkExistingManufacturerByEmail(email: string) {
     const manufacturer = await this.manufacturersRepo.findOneByEmail(email);

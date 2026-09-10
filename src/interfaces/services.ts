@@ -237,6 +237,8 @@ export interface IManufacturersService {
   ): Promise<APIResponse>;
   findOne(id: string): Promise<APIResponse>;
   update(id: string, dto: UpdateManufacturerDto): Promise<APIResponse>;
+  activate(id: string): Promise<APIResponse>;
+  deactivate(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

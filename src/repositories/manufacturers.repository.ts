@@ -27,11 +27,7 @@ export class ManufacturersRepository implements IManufacturersRepository {
     return manufacturer;
   }
 
-  async findAll(
-    page: number,
-    limit: number,
-    q?: FilterManufacturersDto,
-  ) {
+  async findAll(page: number, limit: number, q?: FilterManufacturersDto) {
     const offset = (page - 1) * limit;
 
     const conditions = [

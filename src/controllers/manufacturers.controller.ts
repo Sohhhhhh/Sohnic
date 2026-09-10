@@ -44,5 +44,17 @@ export class ManufacturersController {
       );
       sendResponse(res, result);
     };
+
+  activate: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.manufacturersService.activate(id);
+    sendResponse(res, result);
+  };
+
+  deactivate: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.manufacturersService.deactivate(id);
+    sendResponse(res, result);
+  };
 }
 
