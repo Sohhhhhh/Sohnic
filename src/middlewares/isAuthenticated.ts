@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 import { verifyAccessToken } from '../utils/token';
 import { IRolesRepository, IUsersRepository } from '../interfaces';
 

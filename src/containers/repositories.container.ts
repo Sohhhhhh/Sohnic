@@ -13,6 +13,7 @@ import { SupplierReturnsRepository } from '../repositories/supplier-returns.repo
 import { PurchaseRequestsRepository } from '../repositories/purchase-requests.repository';
 import { SetPasswordTokensRepository } from '../repositories/set-password-tokens.repository';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
+import { ManufacturersRepository } from '../repositories/manufacturers.repository';
 
 export const bomRepository = new BomRepository();
 export const usersRepository = new UsersRepository();
@@ -22,6 +23,7 @@ export const branchesRepository = new BranchesRepository();
 export const suppliersRepository = new SuppliersRepository();
 export const categoriesRepository = new CategoriesRepository();
 export const inspectionsRepository = new InspectionsRepository();
+export const manufacturersRepository = new ManufacturersRepository();
 export const refreshTokensRepository = new RefreshTokensRepository();
 export const itemSuppliersRepository = new ItemSuppliersRepository();
 export const purchaseOrdersRepository = new PurchaseOrdersRepository();

@@ -10,7 +10,7 @@ import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 import env from '../config/env';
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 
 const sendErrorDev = (err: APIError, res: Response) => {
   res.status(err.statusCode).json({

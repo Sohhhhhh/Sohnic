@@ -1,5 +1,5 @@
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 import {
   IUsersRepository,
   IBranchesRepository,

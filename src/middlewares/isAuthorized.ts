@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 import { UserRole } from '../../drizzle/schema';
 
 export const isAuthorized = (...roles: UserRole[]) => {

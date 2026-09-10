@@ -45,6 +45,7 @@ export const manufacturingOrderStatus = pgEnum('manufacturingOrderStatus', [
   'pending',
   'approved',
   'rejected',
+  'materials_sent',
   'in_production',
   'completed',
   'cancelled',
@@ -103,7 +104,6 @@ export const sellableItemType = pgEnum('sellableItemType', [
   'finished',
   'resale',
 ]);
-
 
 export type UserRole = (typeof userRole.enumValues)[number];
 export type RefreshTokensRevocationReason =

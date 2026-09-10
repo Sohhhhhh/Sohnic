@@ -19,7 +19,7 @@ export const manufacturers = pgTable('manufacturers', {
   country: varchar('country', { length: 255 }).notNull(),
   address: varchar('address', { length: 500 }).notNull(),
   phone: varchar('phone', { length: 50 }).notNull(),
-  email: varchar('email', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at')
@@ -48,6 +48,8 @@ export const manufacturingOrders = pgTable('manufacturing_orders', {
     precision: 12,
     scale: 2,
   }),
+  notes: varchar('notes', { length: 1000 }),
+  rejectionReason: varchar('rejection_reason', { length: 1000 }),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
@@ -61,5 +63,24 @@ export const manufacturingBatches = pgTable('manufacturing_batches', {
     .references(() => manufacturingOrders.id, { onDelete: 'cascade' }),
   quantityProduced: integer('quantity_produced').notNull(),
   productionDate: date('production_date'),
+  receivedById: uuid('received_by_id')
+    .notNull()
+    .references(() => users.id),
+  notes: varchar('notes', { length: 1000 }),
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+export const manufacturingOrderMaterials = pgTable(
+  'manufacturing_order_materials',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    manufacturingOrderId: uuid('manufacturing_order_id')
+      .notNull()
+      .references(() => manufacturingOrders.id, { onDelete: 'cascade' }),
+    materialId: uuid('material_id')
+      .notNull()
+      .references(() => items.id),
+    quantity: integer('quantity').notNull(),
+    unitCost: numeric('unit_cost', { precision: 10, scale: 2 }),
+  },
+);

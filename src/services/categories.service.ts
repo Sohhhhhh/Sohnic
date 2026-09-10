@@ -1,5 +1,5 @@
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 import { APIResponse } from '../types/api.types';
 import { ICategoriesRepository, ICategoriesService } from '../interfaces';
 import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';

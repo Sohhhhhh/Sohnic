@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 
 const IMMUTABLE_ITEM_FIELDS = [
   'type',

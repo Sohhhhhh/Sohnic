@@ -6,7 +6,7 @@ import {
 } from '../interfaces';
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 import { APIResponse } from '../types/api.types';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';

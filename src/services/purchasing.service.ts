@@ -10,7 +10,7 @@ import {
 } from '../interfaces';
 import { db } from '../config/drizzle';
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 import { AuthenticatedUser, PurchaseOrder } from '../types/app.types';
 import { CreatePurchaseOrderDto } from '../dtos/purchasing/createPurchaseOrder.dto';
 import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrders.dto';

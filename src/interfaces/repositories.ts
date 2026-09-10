@@ -16,6 +16,7 @@ import {
   Inspection,
   PurchaseOrderWithItems,
   SupplierReturn,
+  Manufacturer,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
@@ -54,6 +55,7 @@ import { SupplierQuotationsRepository } from '../repositories/supplier-quotation
 import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { CreateSupplierReturnData } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
 import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
+import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
 
 // ----- Record Types -----
 
@@ -262,4 +264,9 @@ export interface ISupplierReturnsRepository {
     id: string,
     data: Partial<SupplierReturn>,
   ): Promise<SupplierReturn>;
+}
+
+export interface IManufacturersRepository {
+  create(dto: CreateManufacturerDto): Promise<Manufacturer>;
+  findOneByEmail(email: string): Promise<Manufacturer | undefined>;
 }

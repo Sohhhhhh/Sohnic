@@ -5,7 +5,7 @@ import {
   IPurchaseOrdersRepository,
 } from '../interfaces';
 import APIError from '../utils/APIError';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 import { AuthenticatedUser } from '../types/app.types';
 import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
 import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';

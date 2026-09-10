@@ -4,7 +4,7 @@ import {
   IUsersRepository,
   IUsersService,
 } from '../interfaces';
-import STATUS_CODES from '../utils/statusCodes';
+import { STATUS_CODES } from '../utils/statusCodes';
 import { APIResponse } from '../types/api.types';
 import { AuthenticatedUser } from '../types/app.types';
 import APIError from '../utils/APIError';
