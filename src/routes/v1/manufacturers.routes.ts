@@ -6,6 +6,7 @@ import { manufacturersController } from '../../containers/manufacturers.containe
 import {
   validateCreateManufacturer,
   validateManufacturersQuery,
+  validateUpdateManufacturer,
 } from '../../validators/manufacturers.validator';
 import { validateId } from '../../validators/common.validator';
 
@@ -33,6 +34,15 @@ router.get(
   isAuthorized('super_admin', 'branch_admin', 'accountant', 'storage_manager'),
   validateId,
   manufacturersController.findOne,
+);
+
+router.patch(
+  '/:id',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  validateUpdateManufacturer,
+  manufacturersController.update,
 );
 
 export const manufacturersRoutes = router;

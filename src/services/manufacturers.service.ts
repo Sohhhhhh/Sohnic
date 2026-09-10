@@ -3,6 +3,7 @@ import { STATUS_CODES } from '../utils/statusCodes';
 import { IManufacturersRepository, IManufacturersService } from '../interfaces';
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
+import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 
 export class ManufacturersService implements IManufacturersService {
   constructor(private readonly manufacturersRepo: IManufacturersRepository) {}
@@ -33,6 +34,16 @@ export class ManufacturersService implements IManufacturersService {
 
   async findOne(id: string) {
     const manufacturer = await this.checkExistingManufacturerById(id);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      data: { manufacturer },
+    };
+  }
+
+  async update(id: string, dto: UpdateManufacturerDto) {
+    await this.checkExistingManufacturerById(id);
+    const manufacturer = await this.manufacturersRepo.update(id, dto);
 
     return {
       statusCode: STATUS_CODES.OK,

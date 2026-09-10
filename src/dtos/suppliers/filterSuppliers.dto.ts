@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { updateSupplierSchema } from './updateSupplier.dto';
+import { updateSupplierBaseSchema } from './updateSupplier.dto';
 
-export const filterSuppliersSchema = updateSupplierSchema
+export const filterSuppliersSchema = updateSupplierBaseSchema
   .pick({ city: true, country: true, companyName: true })
   .extend({
     isActive: z.enum(['true', 'false']).transform((val) => val === 'true'),

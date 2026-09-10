@@ -32,6 +32,7 @@ import { CreateSupplierReturnDto } from '../dtos/returns/supplier-returns/create
 import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
+import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 
 // ----- Service Interfaces -----
 
@@ -235,6 +236,7 @@ export interface IManufacturersService {
     q?: FilterManufacturersDto,
   ): Promise<APIResponse>;
   findOne(id: string): Promise<APIResponse>;
+  update(id: string, dto: UpdateManufacturerDto): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

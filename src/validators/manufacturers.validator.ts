@@ -1,6 +1,7 @@
 import { validate } from '../middlewares/validate';
 import { createManufacturerSchema } from '../dtos/manufacturers/createManufacturer.dto';
 import { manufacturersQuerySchema } from '../dtos/manufacturers/filterManufacturers.dto';
+import { updateManufacturerSchema } from '../dtos/manufacturers/updateManufacturer.dto';
 
 // CREATE MANUFACTURER
 export const validateCreateManufacturer = validate({
@@ -15,4 +16,11 @@ export const validateManufacturersQuery = validate({
 });
 export type manufacturersQueryValidatedCtrlr =
   typeof validateManufacturersQuery;
+
+// UPDATE MANUFACTURER
+export const validateUpdateManufacturer = validate({
+  body: updateManufacturerSchema,
+});
+export type updateManufacturerValidatedCtrlr =
+  typeof validateUpdateManufacturer;
 

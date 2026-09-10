@@ -57,6 +57,7 @@ import { CreateSupplierReturnData } from '../dtos/returns/supplier-returns/creat
 import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
+import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 
 // ----- Record Types -----
 
@@ -276,4 +277,5 @@ export interface IManufacturersRepository {
     q?: FilterManufacturersDto,
   ): Promise<Manufacturer[]>;
   findOne(id: string): Promise<Manufacturer | undefined>;
+  update(id: string, dto: UpdateManufacturerDto): Promise<Manufacturer>;
 }

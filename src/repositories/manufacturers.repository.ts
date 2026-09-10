@@ -5,6 +5,7 @@ import { manufacturers } from '../../drizzle/schema';
 import { IManufacturersRepository } from '../interfaces';
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
+import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 
 export class ManufacturersRepository implements IManufacturersRepository {
   async create(dto: CreateManufacturerDto) {
@@ -52,5 +53,15 @@ export class ManufacturersRepository implements IManufacturersRepository {
     return db.query.manufacturers.findFirst({
       where: eq(manufacturers.id, id),
     });
+  }
+
+  async update(id: string, dto: UpdateManufacturerDto) {
+    const updated = await db
+      .update(manufacturers)
+      .set({ ...dto })
+      .where(eq(manufacturers.id, id))
+      .returning();
+
+    return updated[0];
   }
 }

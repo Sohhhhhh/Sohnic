@@ -1,10 +1,11 @@
 import { IManufacturersService } from '../interfaces';
 import { APIResponse } from '../types/api.types';
 import { sendResponse } from '../utils/sendResponse';
-import { idValidatedCtrlr } from '../validators/common.validator';
+import { idValidatedCtrlr, CombinedValidator } from '../validators/common.validator';
 import {
   createManufacturerValidatedCtrlr,
   manufacturersQueryValidatedCtrlr,
+  updateManufacturerValidatedCtrlr,
 } from '../validators/manufacturers.validator';
 
 export class ManufacturersController {
@@ -32,5 +33,16 @@ export class ManufacturersController {
     const result: APIResponse = await this.manufacturersService.findOne(id);
     sendResponse(res, result);
   };
+
+  update: CombinedValidator<idValidatedCtrlr, updateManufacturerValidatedCtrlr> =
+    async (req, res) => {
+      const { id } = req.params;
+      const dto = req.body;
+      const result: APIResponse = await this.manufacturersService.update(
+        id,
+        dto,
+      );
+      sendResponse(res, result);
+    };
 }
 
