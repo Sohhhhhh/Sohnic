@@ -17,6 +17,7 @@ import {
   PurchaseOrderWithItems,
   SupplierReturn,
   Manufacturer,
+  ManufacturingOrder,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
@@ -58,6 +59,7 @@ import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filte
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
 import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
+import { CreateManufacturingOrderData } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 
 // ----- Record Types -----
 
@@ -278,4 +280,8 @@ export interface IManufacturersRepository {
   ): Promise<Manufacturer[]>;
   findOne(id: string): Promise<Manufacturer | undefined>;
   update(id: string, dto: UpdateManufacturerDto): Promise<Manufacturer>;
+}
+
+export interface IManufacturingOrdersRepository {
+  create(data: CreateManufacturingOrderData): Promise<ManufacturingOrder>;
 }

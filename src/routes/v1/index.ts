@@ -8,6 +8,7 @@ import { categoriesRoutes } from './categories.routes';
 import { purchasingRoutes } from './purchasing.routes';
 import { inspectionsRoutes } from './inspections.routes';
 import { manufacturersRoutes } from './manufacturers.routes';
+import { manufacturingOrdersRoutes } from './manufacturing-orders.routes';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/categories', categoriesRoutes);
 router.use('/purchasing', purchasingRoutes);
 router.use('/inspections', inspectionsRoutes);
 router.use('/manufacturers', manufacturersRoutes);
+router.use('/manufacturing-orders', manufacturingOrdersRoutes);
 
 export const v1Routes = router;

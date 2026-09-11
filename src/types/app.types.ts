@@ -11,6 +11,7 @@ import {
   inspections,
   supplierReturns,
   manufacturers,
+  manufacturingOrders,
 } from '../../drizzle/schema';
 
 export type BomLine = {
@@ -46,3 +47,4 @@ export type SupplierQuotation = typeof supplierQuotations.$inferSelect;
 export type Inspection = typeof inspections.$inferSelect;
 export type SupplierReturn = typeof supplierReturns.$inferSelect;
 export type Manufacturer = typeof manufacturers.$inferSelect;
+export type ManufacturingOrder = typeof manufacturingOrders.$inferSelect;

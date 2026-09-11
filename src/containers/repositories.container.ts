@@ -6,6 +6,7 @@ import { BranchesRepository } from '../repositories/branches.repository';
 import { SuppliersRepository } from '../repositories/suppliers.repository';
 import { CategoriesRepository } from '../repositories/categories.repository';
 import { InspectionsRepository } from '../repositories/inspections.repository';
+import { ManufacturersRepository } from '../repositories/manufacturers.repository';
 import { RefreshTokensRepository } from '../repositories/refresh-tokens.repository';
 import { ItemSuppliersRepository } from '../repositories/item-suppliers.repository';
 import { PurchaseOrdersRepository } from '../repositories/purchase-orders.repository';
@@ -13,7 +14,7 @@ import { SupplierReturnsRepository } from '../repositories/supplier-returns.repo
 import { PurchaseRequestsRepository } from '../repositories/purchase-requests.repository';
 import { SetPasswordTokensRepository } from '../repositories/set-password-tokens.repository';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
-import { ManufacturersRepository } from '../repositories/manufacturers.repository';
+import { ManufacturingOrdersRepository } from '../repositories/manufacturing-orders.repository';
 
 export const bomRepository = new BomRepository();
 export const usersRepository = new UsersRepository();
@@ -31,3 +32,5 @@ export const supplierReturnsRepository = new SupplierReturnsRepository();
 export const purchaseRequestsRepository = new PurchaseRequestsRepository();
 export const setPasswordTokensRepository = new SetPasswordTokensRepository();
 export const supplierQuotationsRepository = new SupplierQuotationsRepository();
+export const manufacturingOrdersRepository =
+  new ManufacturingOrdersRepository();

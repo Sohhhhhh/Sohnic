@@ -33,6 +33,7 @@ import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filte
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
 import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
+import { CreateManufacturingOrderDto } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 
 // ----- Service Interfaces -----
 
@@ -245,4 +246,11 @@ export interface IManufacturersService {
 
 export interface IEmailService {
   sendSetPasswordEmail(email: string, encodedToken: string): Promise<void>;
+}
+
+export interface IManufacturingOrdersService {
+  create(
+    createdById: string,
+    dto: CreateManufacturingOrderDto,
+  ): Promise<APIResponse>;
 }
