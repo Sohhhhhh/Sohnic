@@ -60,6 +60,7 @@ import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
 import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 import { CreateManufacturingOrderData } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
+import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
 
 // ----- Record Types -----
 
@@ -284,4 +285,10 @@ export interface IManufacturersRepository {
 
 export interface IManufacturingOrdersRepository {
   create(data: CreateManufacturingOrderData): Promise<ManufacturingOrder>;
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterManufacturingOrdersDto,
+  ): Promise<ManufacturingOrder[]>;
+  findOne(id: string): Promise<ManufacturingOrder | undefined>;
 }

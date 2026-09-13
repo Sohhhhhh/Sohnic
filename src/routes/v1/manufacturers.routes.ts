@@ -5,7 +5,7 @@ import { isAuthenticated } from '../../containers/middleware.container';
 import { manufacturersController } from '../../containers/manufacturers.container';
 import {
   validateCreateManufacturer,
-  validateManufacturersQuery,
+  validateFilterManufacturers,
   validateUpdateManufacturer,
 } from '../../validators/manufacturers.validator';
 import { validateId } from '../../validators/common.validator';
@@ -24,7 +24,7 @@ router.get(
   '/',
   isAuthenticated,
   isAuthorized('super_admin', 'branch_admin', 'accountant', 'storage_manager'),
-  validateManufacturersQuery,
+  validateFilterManufacturers,
   manufacturersController.findAll,
 );
 

@@ -11,11 +11,11 @@ export type createManufacturerValidatedCtrlr =
   typeof validateCreateManufacturer;
 
 // FILTER MANUFACTURERS (with pagination)
-export const validateManufacturersQuery = validate({
+export const validateFilterManufacturers = validate({
   query: manufacturersQuerySchema,
 });
 export type manufacturersQueryValidatedCtrlr =
-  typeof validateManufacturersQuery;
+  typeof validateFilterManufacturers;
 
 // UPDATE MANUFACTURER
 export const validateUpdateManufacturer = validate({
@@ -23,4 +23,3 @@ export const validateUpdateManufacturer = validate({
 });
 export type updateManufacturerValidatedCtrlr =
   typeof validateUpdateManufacturer;
-

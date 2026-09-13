@@ -18,11 +18,7 @@ export class ManufacturersService implements IManufacturersService {
     };
   }
 
-  async findAll(
-    page: number = 1,
-    limit: number = 10,
-    q?: FilterManufacturersDto,
-  ) {
+  async findAll(page: number, limit: number, q?: FilterManufacturersDto) {
     const manufacturers = await this.manufacturersRepo.findAll(page, limit, q);
 
     return {
@@ -77,7 +73,9 @@ export class ManufacturersService implements IManufacturersService {
         STATUS_CODES.Conflict,
       );
 
-    const updated = await this.manufacturersRepo.update(id, { isActive: false });
+    const updated = await this.manufacturersRepo.update(id, {
+      isActive: false,
+    });
 
     return {
       statusCode: STATUS_CODES.OK,

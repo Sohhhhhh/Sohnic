@@ -1,6 +1,5 @@
 import z from 'zod';
 
-// Nullable helper
 const toNullable = <T extends z.ZodTypeAny>(schema: T) =>
   schema.optional().nullable();
 

@@ -34,6 +34,7 @@ import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
 import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 import { CreateManufacturingOrderDto } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
+import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
 
 // ----- Service Interfaces -----
 
@@ -242,15 +243,21 @@ export interface IManufacturersService {
   deactivate(id: string): Promise<APIResponse>;
 }
 
-// ----- Utility Interfaces -----
-
-export interface IEmailService {
-  sendSetPasswordEmail(email: string, encodedToken: string): Promise<void>;
-}
-
 export interface IManufacturingOrdersService {
   create(
     createdById: string,
     dto: CreateManufacturingOrderDto,
   ): Promise<APIResponse>;
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterManufacturingOrdersDto,
+  ): Promise<APIResponse>;
+  findOne(id: string): Promise<APIResponse>;
+}
+
+// ----- Utility Interfaces -----
+
+export interface IEmailService {
+  sendSetPasswordEmail(email: string, encodedToken: string): Promise<void>;
 }
