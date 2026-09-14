@@ -254,6 +254,12 @@ export interface IManufacturingOrdersService {
     q?: FilterManufacturingOrdersDto,
   ): Promise<APIResponse>;
   findOne(id: string): Promise<APIResponse>;
+  approve(userId: string, id: string): Promise<APIResponse>;
+  reject(id: string, rejectionReason: string): Promise<APIResponse>;
+  sendMaterials(id: string): Promise<APIResponse>;
+  startProduction(id: string): Promise<APIResponse>;
+  complete(id: string): Promise<APIResponse>;
+  cancel(id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

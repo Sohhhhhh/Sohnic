@@ -291,4 +291,8 @@ export interface IManufacturingOrdersRepository {
     q?: FilterManufacturingOrdersDto,
   ): Promise<ManufacturingOrder[]>;
   findOne(id: string): Promise<ManufacturingOrder | undefined>;
+  updateOrder(
+    id: string,
+    data: Partial<ManufacturingOrder>,
+  ): Promise<ManufacturingOrder>;
 }

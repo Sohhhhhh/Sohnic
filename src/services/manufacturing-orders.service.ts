@@ -6,8 +6,10 @@ import {
 import APIError from '../utils/APIError';
 import { STATUS_CODES } from '../utils/statusCodes';
 import { IItemsRepository } from '../interfaces';
+import { ManufacturingOrderStatus } from '../../drizzle/schema';
 import { CreateManufacturingOrderDto } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
+import { MFG_ORDER_NON_CANCELLABLE } from '../constants/manufacturingOrders.constants';
 import { APIResponse } from '../types/api.types';
 
 export class ManufacturingOrdersService implements IManufacturingOrdersService {
@@ -56,6 +58,63 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
       data: order,
     };
   }
+  async approve(userId: string, id: string): Promise<APIResponse> {
+    await this.checkTransition(id, 'approved', { allowedFrom: ['pending'] });
+    const order = await this.manufacturingOrdersRepo.updateOrder(id, {
+      status: 'approved',
+      approvedById: userId,
+      approvalDate: new Date(),
+    });
+    return { statusCode: STATUS_CODES.OK, data: { order } };
+  }
+
+  async reject(id: string, rejectionReason: string): Promise<APIResponse> {
+    await this.checkTransition(id, 'rejected', { allowedFrom: ['pending'] });
+    const order = await this.manufacturingOrdersRepo.updateOrder(id, {
+      status: 'rejected',
+      rejectionReason,
+    });
+    return { statusCode: STATUS_CODES.OK, data: { order } };
+  }
+
+  async sendMaterials(id: string): Promise<APIResponse> {
+    await this.checkTransition(id, 'materials_sent', {
+      allowedFrom: ['approved'],
+    });
+    const order = await this.manufacturingOrdersRepo.updateOrder(id, {
+      status: 'materials_sent',
+    });
+    return { statusCode: STATUS_CODES.OK, data: { order } };
+  }
+
+  async startProduction(id: string): Promise<APIResponse> {
+    await this.checkTransition(id, 'in_production', {
+      allowedFrom: ['materials_sent'],
+    });
+    const order = await this.manufacturingOrdersRepo.updateOrder(id, {
+      status: 'in_production',
+    });
+    return { statusCode: STATUS_CODES.OK, data: { order } };
+  }
+  async complete(id: string): Promise<APIResponse> {
+    await this.checkTransition(id, 'completed', {
+      allowedFrom: ['in_production'],
+    });
+    const order = await this.manufacturingOrdersRepo.updateOrder(id, {
+      status: 'completed',
+    });
+    return { statusCode: STATUS_CODES.OK, data: { order } };
+  }
+
+  async cancel(id: string): Promise<APIResponse> {
+    await this.checkTransition(id, 'cancelled', {
+      blockedFrom: MFG_ORDER_NON_CANCELLABLE,
+    });
+    const order = await this.manufacturingOrdersRepo.updateOrder(id, {
+      status: 'cancelled',
+    });
+    return { statusCode: STATUS_CODES.OK, data: { order } };
+  }
 
   // --- Helpers ---
   private async checkExistingManufacturingOrder(id: string) {
@@ -99,6 +158,29 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
       throw new APIError(
         'The product must be a sellable item.',
         STATUS_CODES.BadRequest,
+      );
+  }
+
+  private async checkTransition(
+    id: string,
+    to: ManufacturingOrderStatus,
+    opts: {
+      allowedFrom?: ManufacturingOrderStatus[];
+      blockedFrom?: ManufacturingOrderStatus[];
+    },
+  ) {
+    const order = await this.checkExistingManufacturingOrder(id);
+
+    if (opts.allowedFrom && !opts.allowedFrom.includes(order.status))
+      throw new APIError(
+        `Order cannot be ${to} from status: "${order.status}".`,
+        STATUS_CODES.Conflict,
+      );
+
+    if (opts.blockedFrom && opts.blockedFrom.includes(order.status))
+      throw new APIError(
+        `Order cannot be ${to} when status is "${order.status}".`,
+        STATUS_CODES.Conflict,
       );
   }
 }

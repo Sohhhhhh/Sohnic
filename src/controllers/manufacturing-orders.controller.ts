@@ -37,4 +37,50 @@ export class ManufacturingOrdersController {
       await this.manufacturingOrdersService.findOne(id);
     sendResponse(res, result);
   };
+
+  approve: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.manufacturingOrdersService.approve(
+      req.user!.id,
+      id,
+    );
+    sendResponse(res, result);
+  };
+
+  reject: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse = await this.manufacturingOrdersService.reject(
+      id,
+      req.body.rejectionReason,
+    );
+    sendResponse(res, result);
+  };
+
+  sendMaterials: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.manufacturingOrdersService.sendMaterials(id);
+    sendResponse(res, result);
+  };
+
+  startProduction: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.manufacturingOrdersService.startProduction(id);
+    sendResponse(res, result);
+  };
+
+  complete: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.manufacturingOrdersService.complete(id);
+    sendResponse(res, result);
+  };
+
+  cancel: idValidatedCtrlr = async (req, res) => {
+    const { id } = req.params;
+    const result: APIResponse =
+      await this.manufacturingOrdersService.cancel(id);
+    sendResponse(res, result);
+  };
 }

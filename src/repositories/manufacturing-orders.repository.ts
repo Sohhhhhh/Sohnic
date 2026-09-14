@@ -5,6 +5,7 @@ import { manufacturingOrders } from '../../drizzle/schema';
 import { IManufacturingOrdersRepository } from '../interfaces';
 import { CreateManufacturingOrderData } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
+import { ManufacturingOrder } from '../types/app.types';
 
 export class ManufacturingOrdersRepository implements IManufacturingOrdersRepository {
   async create(data: CreateManufacturingOrderData) {
@@ -50,5 +51,14 @@ export class ManufacturingOrdersRepository implements IManufacturingOrdersReposi
     return db.query.manufacturingOrders.findFirst({
       where: eq(manufacturingOrders.id, id),
     });
+  }
+
+  async updateOrder(id: string, data: Partial<ManufacturingOrder>) {
+    const [order] = await db
+      .update(manufacturingOrders)
+      .set(data)
+      .where(eq(manufacturingOrders.id, id))
+      .returning();
+    return order;
   }
 }
