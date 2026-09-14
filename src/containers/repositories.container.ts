@@ -4,6 +4,7 @@ import { UsersRepository } from '../repositories/users.repository';
 import { ItemsRepository } from '../repositories/items.repository';
 import { BranchesRepository } from '../repositories/branches.repository';
 import { SuppliersRepository } from '../repositories/suppliers.repository';
+import { InventoryRepository } from '../repositories/inventory.repository';
 import { CategoriesRepository } from '../repositories/categories.repository';
 import { InspectionsRepository } from '../repositories/inspections.repository';
 import { ManufacturersRepository } from '../repositories/manufacturers.repository';
@@ -34,3 +35,4 @@ export const setPasswordTokensRepository = new SetPasswordTokensRepository();
 export const supplierQuotationsRepository = new SupplierQuotationsRepository();
 export const manufacturingOrdersRepository =
   new ManufacturingOrdersRepository();
+export const inventoryRepository = new InventoryRepository();

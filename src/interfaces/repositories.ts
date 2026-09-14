@@ -18,6 +18,8 @@ import {
   SupplierReturn,
   Manufacturer,
   ManufacturingOrder,
+  Inventory,
+  Warehouse,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
@@ -61,6 +63,7 @@ import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturer
 import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 import { CreateManufacturingOrderData } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
+import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
 
 // ----- Record Types -----
 
@@ -295,4 +298,26 @@ export interface IManufacturingOrdersRepository {
     id: string,
     data: Partial<ManufacturingOrder>,
   ): Promise<ManufacturingOrder>;
+}
+
+export interface IInventoryRepository {
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterInventoryDto,
+  ): Promise<(Inventory & { item: Item; warehouse: Warehouse })[]>;
+  findOne(id: string): Promise<Inventory | undefined>;
+  adjust(id: string, newQuantity: number): Promise<Inventory>;
+  findByMaterialIds(materialIds: string[]): Promise<Inventory[]>;
+  deductStockBatch(
+    materials: { materialId: string; quantity: number }[],
+    tx?: TX,
+  ): Promise<void>;
+  addStock(itemId: string, quantity: number): Promise<Inventory>;
+  upsert(
+    itemId: string,
+    warehouseId: string,
+    quantity: number,
+    tx?: TX,
+  ): Promise<Inventory>;
 }

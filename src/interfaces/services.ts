@@ -11,7 +11,12 @@ import { FilterItemsDto } from '../dtos/items/filterItems.dto';
 import { SetPasswordBodyDto } from '../dtos/users/setPassword.dto';
 import { ForgetPasswordDto } from '../dtos/users/forgetPassword.dto';
 import { ChangePasswordDto } from '../dtos/users/changePassword.dto';
-import { AuthenticatedUser, Item, SafeUser } from '../types/app.types';
+import {
+  AuthenticatedUser,
+  Inventory,
+  Item,
+  SafeUser,
+} from '../types/app.types';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
@@ -35,6 +40,9 @@ import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturer
 import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 import { CreateManufacturingOrderDto } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
+import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
+import { AdjustStockDto } from '../dtos/inventory/adjustStock.dto';
+import { TX } from './repositories';
 
 // ----- Service Interfaces -----
 
@@ -260,6 +268,31 @@ export interface IManufacturingOrdersService {
   startProduction(id: string): Promise<APIResponse>;
   complete(id: string): Promise<APIResponse>;
   cancel(id: string): Promise<APIResponse>;
+}
+
+export interface IInventoryService {
+  // public API endpoints
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterInventoryDto,
+  ): Promise<APIResponse>;
+  findOne(id: string): Promise<APIResponse>;
+  adjust(id: string, dto: AdjustStockDto): Promise<APIResponse>;
+
+  // internal — used by other modules
+  findByMaterialIds(materialIds: string[]): Promise<Inventory[]>;
+  deductStockBatch(
+    materials: { materialId: string; quantity: number }[],
+    tx?: TX,
+  ): Promise<void>;
+  addStock(itemId: string, quantity: number): Promise<Inventory>;
+  upsert(
+    itemId: string,
+    warehouseId: string,
+    quantity: number,
+    tx?: TX,
+  ): Promise<Inventory>;
 }
 
 // ----- Utility Interfaces -----
