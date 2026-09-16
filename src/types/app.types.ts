@@ -21,9 +21,10 @@ export type BomLine = {
   quantityPerUnit: number;
   name: string;
   sku: string;
-  type: string;
-  sellableType: string | null;
+  type: 'sellable_item' | 'raw_material';
+  sellableType: 'finished' | 'resale' | null;
   unitOfMeasurement: string | null;
+  standardPrice: string | null;
 };
 
 export type PurchaseOrderItem = {

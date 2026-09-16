@@ -288,6 +288,10 @@ export interface IManufacturersRepository {
 
 export interface IManufacturingOrdersRepository {
   create(data: CreateManufacturingOrderData): Promise<ManufacturingOrder>;
+  createWithMaterials(
+    dto: CreateManufacturingOrderData,
+    materials: { materialId: string; quantity: number; unitCost: string }[],
+  ): Promise<ManufacturingOrder>;
   findAll(
     page: number,
     limit: number,

@@ -1,7 +1,10 @@
 import { and, eq, gte, lte, SQL } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
-import { manufacturingOrders } from '../../drizzle/schema';
+import {
+  manufacturingOrderMaterials,
+  manufacturingOrders,
+} from '../../drizzle/schema';
 import { IManufacturingOrdersRepository } from '../interfaces';
 import { CreateManufacturingOrderData } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
@@ -15,6 +18,27 @@ export class ManufacturingOrdersRepository implements IManufacturingOrdersReposi
       .returning();
 
     return order[0];
+  }
+
+  async createWithMaterials(
+    dto: CreateManufacturingOrderData,
+    materials: { materialId: string; quantity: number; unitCost: string }[],
+  ) {
+    return db.transaction(async (tx) => {
+      const [order] = await tx
+        .insert(manufacturingOrders)
+        .values(dto)
+        .returning();
+
+      await tx.insert(manufacturingOrderMaterials).values(
+        materials.map((m) => ({
+          manufacturingOrderId: order.id,
+          ...m,
+        })),
+      );
+
+      return order;
+    });
   }
 
   async findAll(page: number, limit: number, q?: FilterManufacturingOrdersDto) {

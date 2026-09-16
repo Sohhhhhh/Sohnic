@@ -1,4 +1,6 @@
 import {
+  IBomRepository,
+  IInventoryRepository,
   IManufacturersRepository,
   IManufacturingOrdersRepository,
   IManufacturingOrdersService,
@@ -17,6 +19,8 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
     private readonly manufacturingOrdersRepo: IManufacturingOrdersRepository,
     private readonly manufacturersRepo: IManufacturersRepository,
     private readonly itemsRepo: IItemsRepository,
+    private readonly inventoryRepo: IInventoryRepository,
+    private readonly bomRepo: IBomRepository,
   ) {}
 
   async create(createdById: string, dto: CreateManufacturingOrderDto) {
@@ -25,10 +29,31 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
       this.checkExistingProduct(dto.productId),
     ]);
 
-    const order = await this.manufacturingOrdersRepo.create({
-      ...dto,
-      createdById,
-    });
+    // fetch BOM and calculate required
+    const bom = await this.bomRepo.getBomByItemId(dto.productId);
+    if (!bom.length)
+      throw new APIError(
+        'No BOM found for this product.',
+        STATUS_CODES.NotFound,
+      );
+
+    const requiredMaterials = bom.map((entry) => ({
+      materialId: entry.componentId,
+      quantity: entry.quantityPerUnit * dto.quantity,
+      unitCost: entry.standardPrice ?? '0',
+    }));
+
+    // 3. check stock for all materials in one query
+    await this.checkMaterialsStock(requiredMaterials);
+
+    // 4. create order + populate materials atomically
+    const order = await this.manufacturingOrdersRepo.createWithMaterials(
+      {
+        ...dto,
+        createdById,
+      },
+      requiredMaterials,
+    );
 
     return {
       statusCode: STATUS_CODES.Created,
@@ -158,6 +183,27 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
       throw new APIError(
         'The product must be a sellable item.',
         STATUS_CODES.BadRequest,
+      );
+  }
+
+  private async checkMaterialsStock(
+    materials: { materialId: string; quantity: number }[],
+  ) {
+    const ids = materials.map((m) => m.materialId);
+    const stocks = await this.inventoryRepo.findByMaterialIds(ids);
+
+    const insufficient = materials.filter((m) => {
+      const stock = stocks.find((s) => s.itemId === m.materialId);
+      return !stock || stock.quantity < m.quantity;
+    });
+
+    console.log('required:', materials);
+    console.log('found stocks:', stocks); // 👈 add this
+
+    if (insufficient.length)
+      throw new APIError(
+        `Insufficient stock for materials: ${insufficient.map((m) => m.materialId).join(', ')}`,
+        STATUS_CODES.Conflict,
       );
   }
 

@@ -27,6 +27,7 @@ export class BomRepository implements IBomRepository {
         type: items.type,
         sellableType: items.sellableType,
         unitOfMeasurement: items.unitOfMeasurement,
+        standardPrice: items.standardPrice,
       })
       .from(billOfMaterials)
       .innerJoin(items, eq(billOfMaterials.componentId, items.id))

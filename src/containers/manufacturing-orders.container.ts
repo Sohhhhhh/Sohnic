@@ -2,6 +2,8 @@ import {
   itemsRepository,
   manufacturersRepository,
   manufacturingOrdersRepository,
+  inventoryRepository,
+  bomRepository,
 } from './repositories.container';
 import { ManufacturingOrdersService } from '../services/manufacturing-orders.service';
 import { ManufacturingOrdersController } from '../controllers/manufacturing-orders.controller';
@@ -12,6 +14,8 @@ export const manufacturingOrdersService = new ManufacturingOrdersService(
   manufacturingOrdersRepository,
   manufacturersRepository,
   itemsRepository,
+  inventoryRepository,
+  bomRepository,
 );
 
 // ----- Controllers -----
