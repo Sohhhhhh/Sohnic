@@ -106,6 +106,10 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
     await this.checkTransition(id, 'materials_sent', {
       allowedFrom: ['approved'],
     });
+
+    const materials = await this.manufacturingOrdersRepo.findOrderMaterials(id);
+    await this.inventoryRepo.deductStockBatch(materials);
+
     const order = await this.manufacturingOrdersRepo.updateOrder(id, {
       status: 'materials_sent',
     });
@@ -122,19 +126,36 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
     return { statusCode: STATUS_CODES.OK, data: { order } };
   }
   async complete(id: string): Promise<APIResponse> {
-    await this.checkTransition(id, 'completed', {
+    const current = await this.checkTransition(id, 'completed', {
       allowedFrom: ['in_production'],
     });
+
+    await this.inventoryRepo.addStock(current.productId, current.quantity);
+
     const order = await this.manufacturingOrdersRepo.updateOrder(id, {
       status: 'completed',
+      actualCompletionDate: new Date().toISOString().split('T')[0],
     });
     return { statusCode: STATUS_CODES.OK, data: { order } };
   }
 
   async cancel(id: string): Promise<APIResponse> {
-    await this.checkTransition(id, 'cancelled', {
+    const current = await this.checkTransition(id, 'cancelled', {
       blockedFrom: MFG_ORDER_NON_CANCELLABLE,
     });
+
+    const MATERIALS_DEDUCTED: ManufacturingOrderStatus[] = [
+      'materials_sent',
+      'in_production',
+    ];
+    if (MATERIALS_DEDUCTED.includes(current.status)) {
+      const materials =
+        await this.manufacturingOrdersRepo.findOrderMaterials(id);
+      for (const m of materials) {
+        await this.inventoryRepo.addStock(m.materialId, m.quantity);
+      }
+    }
+
     const order = await this.manufacturingOrdersRepo.updateOrder(id, {
       status: 'cancelled',
     });
@@ -197,9 +218,6 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
       return !stock || stock.quantity < m.quantity;
     });
 
-    console.log('required:', materials);
-    console.log('found stocks:', stocks); // 👈 add this
-
     if (insufficient.length)
       throw new APIError(
         `Insufficient stock for materials: ${insufficient.map((m) => m.materialId).join(', ')}`,
@@ -228,5 +246,7 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
         `Order cannot be ${to} when status is "${order.status}".`,
         STATUS_CODES.Conflict,
       );
+
+    return order;
   }
 }

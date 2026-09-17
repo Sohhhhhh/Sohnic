@@ -74,7 +74,15 @@ export class ManufacturingOrdersRepository implements IManufacturingOrdersReposi
   async findOne(id: string) {
     return db.query.manufacturingOrders.findFirst({
       where: eq(manufacturingOrders.id, id),
+      with: { materials: true },
     });
+  }
+
+  async findOrderMaterials(orderId: string) {
+    return db
+      .select()
+      .from(manufacturingOrderMaterials)
+      .where(eq(manufacturingOrderMaterials.manufacturingOrderId, orderId));
   }
 
   async updateOrder(id: string, data: Partial<ManufacturingOrder>) {

@@ -17,6 +17,7 @@ import {
   manufacturers,
   manufacturingOrders,
   manufacturingBatches,
+  manufacturingOrderMaterials,
 } from './manufacturing';
 import {
   transferRequests,
@@ -350,8 +351,23 @@ export const manufacturingOrdersRelations = relations(
       fields: [manufacturingOrders.manufacturerId],
       references: [manufacturers.id],
     }),
+    materials: many(manufacturingOrderMaterials),
     batches: many(manufacturingBatches),
     returns: many(manufacturerReturns),
+  }),
+);
+
+export const manufacturingOrderMaterialsRelations = relations(
+  manufacturingOrderMaterials,
+  ({ one }) => ({
+    manufacturingOrder: one(manufacturingOrders, {
+      fields: [manufacturingOrderMaterials.manufacturingOrderId],
+      references: [manufacturingOrders.id],
+    }),
+    material: one(items, {
+      fields: [manufacturingOrderMaterials.materialId],
+      references: [items.id],
+    }),
   }),
 );
 

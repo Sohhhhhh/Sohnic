@@ -18,8 +18,6 @@ export class InventoryRepository implements IInventoryRepository {
     if (!result)
       throw new APIError('Main warehouse not found.', STATUS_CODES.NotFound);
 
-    console.log('main warehouse:', result);
-
     return result.id;
   }
 
@@ -61,9 +59,6 @@ export class InventoryRepository implements IInventoryRepository {
   async findByMaterialIds(materialIds: string[]) {
     const warehouseId = await this.getMainWarehouseId();
 
-    console.log('warehouseId:', warehouseId);
-    console.log('materialIds:', materialIds);
-
     const result = await db
       .select()
       .from(inventory)
@@ -74,7 +69,6 @@ export class InventoryRepository implements IInventoryRepository {
         ),
       );
 
-    console.log('result:', result);
     return result;
   }
 
