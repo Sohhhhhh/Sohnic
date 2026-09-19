@@ -37,8 +37,8 @@ export class InspectionsService implements IInspectionsService {
         break;
       }
       case 'transfer': {
-        await this.checkExistingTransferOrder(dto.transferOrderId);
-        // branchId = transferOrder.transferRequest.requestedByBranch;
+        await this.checkExistingTransferOrder(dto.transferRequestId);
+        // branchId = transferRequest.requestedByBranch;
         break;
       }
     }

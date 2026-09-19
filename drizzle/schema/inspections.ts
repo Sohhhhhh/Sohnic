@@ -11,7 +11,7 @@ import {
 import { users } from './users';
 import { items } from './products';
 import { branches } from './locations';
-import { transferOrders } from './transfers';
+import { transferRequests } from './transfers';
 import { purchaseOrders } from './purchasing';
 import { manufacturingBatches } from './manufacturing';
 import { inspectionStatus, inspectionType } from './enums';
@@ -24,8 +24,8 @@ export const inspections = pgTable(
     manufacturingBatchId: uuid('manufacturing_batch_id').references(
       () => manufacturingBatches.id,
     ),
-    transferOrderId: uuid('transfer_order_id').references(
-      () => transferOrders.id,
+    transferRequestId: uuid('transfer_request_id').references(
+      () => transferRequests.id,
     ),
     type: inspectionType('type').notNull(),
     inspectionDate: date('inspection_date').notNull(),
@@ -54,7 +54,7 @@ export const inspections = pgTable(
     ),
     unique('inspections_item_transfer_unq').on(
       table.itemId,
-      table.transferOrderId,
+      table.transferRequestId,
     ),
   ],
 );

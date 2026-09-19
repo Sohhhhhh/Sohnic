@@ -22,7 +22,6 @@ import {
 import {
   transferRequests,
   transferRequestItems,
-  transferOrders,
 } from './transfers';
 import { inspections } from './inspections';
 import {
@@ -54,7 +53,15 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   manufacturingOrdersApproved: many(manufacturingOrders, {
     relationName: 'approver',
   }),
-  transferRequestsApproved: many(transferRequests),
+  transferRequestsCreated: many(transferRequests, {
+    relationName: 'transferCreator',
+  }),
+  transferRequestsApproved: many(transferRequests, {
+    relationName: 'transferApprover',
+  }),
+  transferRequestsDispatched: many(transferRequests, {
+    relationName: 'transferDispatcher',
+  }),
   inspections: many(inspections),
   supplierReturnsAsInspector: many(supplierReturns, {
     relationName: 'supplierReturnInspector',
@@ -397,12 +404,24 @@ export const transferRequestsRelations = relations(
       references: [branches.id],
       relationName: 'requestedFrom',
     }),
+    createdBy: one(users, {
+      fields: [transferRequests.createdById],
+      references: [users.id],
+      relationName: 'transferCreator',
+    }),
     approvedBy: one(users, {
       fields: [transferRequests.approvedById],
       references: [users.id],
+      relationName: 'transferApprover',
+    }),
+    dispatchedBy: one(users, {
+      fields: [transferRequests.dispatchedById],
+      references: [users.id],
+      relationName: 'transferDispatcher',
     }),
     items: many(transferRequestItems),
-    orders: many(transferOrders),
+    inspections: many(inspections),
+    returns: many(transferReturns),
   }),
 );
 
@@ -420,17 +439,6 @@ export const transferRequestItemsRelations = relations(
   }),
 );
 
-export const transferOrdersRelations = relations(
-  transferOrders,
-  ({ one, many }) => ({
-    transferRequest: one(transferRequests, {
-      fields: [transferOrders.transferRequestId],
-      references: [transferRequests.id],
-    }),
-    inspections: many(inspections),
-    returns: many(transferReturns),
-  }),
-);
 
 // ─── inspections ───
 
@@ -443,9 +451,9 @@ export const inspectionsRelations = relations(inspections, ({ one }) => ({
     fields: [inspections.manufacturingBatchId],
     references: [manufacturingBatches.id],
   }),
-  transferOrder: one(transferOrders, {
-    fields: [inspections.transferOrderId],
-    references: [transferOrders.id],
+  transferRequest: one(transferRequests, {
+    fields: [inspections.transferRequestId],
+    references: [transferRequests.id],
   }),
   item: one(items, { fields: [inspections.itemId], references: [items.id] }),
   inspector: one(users, {
@@ -541,9 +549,9 @@ export const transferReturnsRelations = relations(
       fields: [transferReturns.inspectionId],
       references: [inspections.id],
     }),
-    transferOrder: one(transferOrders, {
-      fields: [transferReturns.transferOrderId],
-      references: [transferOrders.id],
+    transferRequest: one(transferRequests, {
+      fields: [transferReturns.transferRequestId],
+      references: [transferRequests.id],
     }),
     item: one(items, {
       fields: [transferReturns.itemId],

@@ -48,8 +48,8 @@ export class CategoriesService implements ICategoriesService {
   }
 
   async delete(id: string): Promise<APIResponse> {
-    (await this.checkExistingCategory(id),
-      await this.categoriesRepo.delete(id));
+    await this.checkExistingCategory(id);
+    await this.categoriesRepo.delete(id);
 
     return {
       statusCode: STATUS_CODES.NoContent,

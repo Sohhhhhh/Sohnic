@@ -2,12 +2,11 @@ import {
   pgTable,
   uuid,
   text,
-  date,
   timestamp,
   integer,
   unique,
 } from 'drizzle-orm/pg-core';
-import { transferRequestStatus, deliveryStatus } from './enums';
+import { transferRequestStatus } from './enums';
 import { branches } from './locations';
 import { users } from './users';
 import { items } from './products';
@@ -20,11 +19,21 @@ export const transferRequests = pgTable('transfer_requests', {
   requestedFromBranch: uuid('requested_from_branch')
     .notNull()
     .references(() => branches.id),
+  createdById: uuid('created_by_id')
+    .notNull()
+    .references(() => users.id),
   status: transferRequestStatus('status').notNull().default('pending'),
   notes: text('notes'),
+  rejectionReason: text('rejection_reason'),
   approvedById: uuid('approved_by_id').references(() => users.id),
   approvedAt: timestamp('approved_at'),
+  dispatchedById: uuid('dispatched_by_id').references(() => users.id),
+  dispatchedAt: timestamp('dispatched_at'),
+  deliveredAt: timestamp('delivered_at'),
   createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export const transferRequestItems = pgTable(
@@ -43,17 +52,3 @@ export const transferRequestItems = pgTable(
   },
   (t) => [unique().on(t.transferRequestId, t.itemId)],
 );
-
-export const transferOrders = pgTable('transfer_orders', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  transferRequestId: uuid('transfer_request_id')
-    .notNull()
-    .references(() => transferRequests.id, { onDelete: 'cascade' }),
-  expectedDeliveryDate: date('expected_delivery_date'),
-  actualDeliveryDate: date('actual_delivery_date'),
-  deliveryStatus: deliveryStatus('delivery_status')
-    .notNull()
-    .default('in_transit'),
-  notes: text('notes'),
-  createdAt: timestamp('created_at').defaultNow(),
-});

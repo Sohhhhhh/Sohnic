@@ -29,7 +29,7 @@ export const manufacturingInspectionSchema = baseInspectionSchema
 export const transferInspectionSchema = baseInspectionSchema
   .extend({
     type: z.literal('transfer'),
-    transferOrderId: z.string().uuid(),
+    transferRequestId: z.string().uuid(),
     inspectionResult: z.enum(['passed', 'failed']),
   })
   .strict();

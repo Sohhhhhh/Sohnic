@@ -3,7 +3,7 @@ import { pgTable, uuid, text, integer, timestamp } from 'drizzle-orm/pg-core';
 import { users } from './users';
 import { items } from './products';
 import { inspections } from './inspections';
-import { transferOrders } from './transfers';
+import { transferRequests } from './transfers';
 import { purchaseOrders } from './purchasing';
 import { returnRequestStatus } from './enums';
 import { manufacturers, manufacturingOrders } from './manufacturing';
@@ -67,9 +67,9 @@ export const manufacturerReturns = pgTable('manufacturer_returns', {
 
 export const transferReturns = pgTable('transfer_returns', {
   id: uuid('id').defaultRandom().primaryKey(),
-  transferOrderId: uuid('transfer_order_id')
+  transferRequestId: uuid('transfer_request_id')
     .notNull()
-    .references(() => transferOrders.id),
+    .references(() => transferRequests.id),
   itemId: uuid('item_id')
     .notNull()
     .references(() => items.id),

@@ -20,6 +20,7 @@ import {
   ManufacturingOrder,
   Inventory,
   Warehouse,
+  TransferRequest,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
@@ -64,6 +65,10 @@ import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.
 import { CreateManufacturingOrderData } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
 import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
+import {
+  CreateTransferRequestData,
+  CreateTransferRequestItemData,
+} from '../dtos/transfers/createTransferRequest.dto';
 
 // ----- Record Types -----
 
@@ -327,4 +332,9 @@ export interface IInventoryRepository {
     quantity: number,
     tx?: TX,
   ): Promise<Inventory>;
+}
+
+export interface ITransfersRepository {
+  create(dto: CreateTransferRequestData, tx?: TX): Promise<TransferRequest>;
+  createManyItems(dto: CreateTransferRequestItemData[], tx?: TX): Promise<void>;
 }

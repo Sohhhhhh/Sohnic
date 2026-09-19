@@ -43,6 +43,7 @@ import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filte
 import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
 import { AdjustStockDto } from '../dtos/inventory/adjustStock.dto';
 import { TX } from './repositories';
+import { CreateTransferRequestDto } from '../dtos/transfers/createTransferRequest.dto';
 
 // ----- Service Interfaces -----
 
@@ -293,6 +294,13 @@ export interface IInventoryService {
     quantity: number,
     tx?: TX,
   ): Promise<Inventory>;
+}
+
+export interface ITransfersService {
+  create(
+    user: AuthenticatedUser,
+    dto: CreateTransferRequestDto,
+  ): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

@@ -51,11 +51,6 @@ export const manufacturingOrderStatus = pgEnum('manufacturingOrderStatus', [
   'cancelled',
 ]);
 
-export const deliveryStatus = pgEnum('deliveryStatus', [
-  'in_transit',
-  'delivered',
-]);
-
 export const transferRequestStatus = pgEnum('transferRequestStatus', [
   'pending',
   'approved',
@@ -115,7 +110,6 @@ export type PurchaseOrderStatus =
   (typeof purchaseOrderStatus.enumValues)[number];
 export type ManufacturingOrderStatus =
   (typeof manufacturingOrderStatus.enumValues)[number];
-export type DeliveryStatus = (typeof deliveryStatus.enumValues)[number];
 export type TransferRequestStatus =
   (typeof transferRequestStatus.enumValues)[number];
 export type InspectionStatus = (typeof inspectionStatus.enumValues)[number];
