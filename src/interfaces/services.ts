@@ -44,6 +44,7 @@ import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
 import { AdjustStockDto } from '../dtos/inventory/adjustStock.dto';
 import { TX } from './repositories';
 import { CreateTransferRequestDto } from '../dtos/transfers/createTransferRequest.dto';
+import { FilterTransferRequestsDto } from '../dtos/transfers/filterTransferRequests.dto';
 
 // ----- Service Interfaces -----
 
@@ -301,6 +302,13 @@ export interface ITransfersService {
     user: AuthenticatedUser,
     dto: CreateTransferRequestDto,
   ): Promise<APIResponse>;
+  findAll(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+    q: FilterTransferRequestsDto,
+  ): Promise<APIResponse>;
+  findOne(user: AuthenticatedUser, id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

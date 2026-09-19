@@ -21,6 +21,7 @@ import {
   Inventory,
   Warehouse,
   TransferRequest,
+  TransferRequestWithItems,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
@@ -69,6 +70,7 @@ import {
   CreateTransferRequestData,
   CreateTransferRequestItemData,
 } from '../dtos/transfers/createTransferRequest.dto';
+import { FilterTransferRequestsDto } from '../dtos/transfers/filterTransferRequests.dto';
 
 // ----- Record Types -----
 
@@ -337,4 +339,10 @@ export interface IInventoryRepository {
 export interface ITransfersRepository {
   create(dto: CreateTransferRequestData, tx?: TX): Promise<TransferRequest>;
   createManyItems(dto: CreateTransferRequestItemData[], tx?: TX): Promise<void>;
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterTransferRequestsDto,
+  ): Promise<TransferRequestWithItems[]>;
+  findOne(id: string): Promise<TransferRequestWithItems | undefined>;
 }

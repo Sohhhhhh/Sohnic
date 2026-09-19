@@ -15,6 +15,7 @@ import {
   inventory,
   warehouses,
   transferRequests,
+  transferRequestItems,
 } from '../../drizzle/schema';
 
 export type BomLine = {
@@ -55,3 +56,7 @@ export type ManufacturingOrder = typeof manufacturingOrders.$inferSelect;
 export type Inventory = typeof inventory.$inferSelect;
 export type Warehouse = typeof warehouses.$inferSelect;
 export type TransferRequest = typeof transferRequests.$inferSelect;
+export type TransferRequestItem = typeof transferRequestItems.$inferSelect;
+export type TransferRequestWithItems = TransferRequest & {
+  items: TransferRequestItem[];
+};
