@@ -3,6 +3,9 @@ import { Router } from 'express';
 import {
   validateCreateTransferRequest,
   validateFilterTransferRequests,
+  validateApproveTransferRequest,
+  validateRejectTransferRequest,
+  validateReceiveTransferRequest,
 } from '../../validators/transfers.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
 import { validateId } from '../../validators/common.validator';
@@ -33,6 +36,57 @@ router.get(
   isAuthorized('super_admin', 'branch_admin', 'storage_manager'),
   validateId,
   transfersController.findOne,
+);
+
+router.patch(
+  '/:id/approve',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  validateApproveTransferRequest,
+  transfersController.approve,
+);
+
+router.patch(
+  '/:id/reject',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  validateRejectTransferRequest,
+  transfersController.reject,
+);
+
+router.patch(
+  '/:id/dispatch',
+  isAuthenticated,
+  isAuthorized('super_admin', 'storage_manager'),
+  validateId,
+  transfersController.dispatch,
+);
+
+router.patch(
+  '/:id/receive',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin', 'storage_manager'),
+  validateId,
+  validateReceiveTransferRequest,
+  transfersController.receive,
+);
+
+router.patch(
+  '/:id/complete',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  transfersController.complete,
+);
+
+router.patch(
+  '/:id/cancel',
+  isAuthenticated,
+  isAuthorized('super_admin', 'branch_admin'),
+  validateId,
+  transfersController.cancel,
 );
 
 export const transfersRoutes = router;

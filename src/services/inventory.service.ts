@@ -32,15 +32,15 @@ export class InventoryService implements IInventoryService {
     return { statusCode: STATUS_CODES.OK, data: updated };
   }
 
-  async findByMaterialIds(materialIds: string[]) {
-    return this.inventoryRepo.findByMaterialIds(materialIds);
+  async findByItemIds(itemIds: string[]) {
+    return this.inventoryRepo.findByItemIds(itemIds);
   }
 
   async deductStockBatch(
-    materials: { materialId: string; quantity: number }[],
+    items: { itemId: string; quantity: number }[],
     tx?: any,
   ) {
-    return this.inventoryRepo.deductStockBatch(materials, tx);
+    return this.inventoryRepo.deductStockBatch(items, tx);
   }
 
   async addStock(itemId: string, quantity: number) {

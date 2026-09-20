@@ -45,4 +45,14 @@ export class InspectionsRepository implements IInspectionsRepository {
       orderBy: (inspections, { desc }) => [desc(inspections.createdAt)],
     });
   }
+
+  async findPassedByTransferRequest(requestId: string) {
+    return db.query.inspections.findMany({
+      where: and(
+        eq(inspections.transferRequestId, requestId),
+        eq(inspections.type, 'transfer'),
+        eq(inspections.inspectionResult, 'passed'),
+      ),
+    });
+  }
 }

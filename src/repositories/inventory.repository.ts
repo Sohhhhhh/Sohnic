@@ -56,7 +56,7 @@ export class InventoryRepository implements IInventoryRepository {
     return updated;
   }
 
-  async findByMaterialIds(materialIds: string[]) {
+  async findByItemIds(itemIds: string[]) {
     const warehouseId = await this.getMainWarehouseId();
 
     const result = await db
@@ -64,7 +64,7 @@ export class InventoryRepository implements IInventoryRepository {
       .from(inventory)
       .where(
         and(
-          inArray(inventory.itemId, materialIds),
+          inArray(inventory.itemId, itemIds),
           eq(inventory.warehouseId, warehouseId),
         ),
       );
@@ -73,20 +73,20 @@ export class InventoryRepository implements IInventoryRepository {
   }
 
   async deductStockBatch(
-    materials: { materialId: string; quantity: number }[],
+    items: { itemId: string; quantity: number }[],
     tx?: any,
   ) {
     const client = tx || db;
     const warehouseId = await this.getMainWarehouseId();
 
     await Promise.all(
-      materials.map(({ materialId, quantity }) =>
+      items.map(({ itemId, quantity }) =>
         client
           .update(inventory)
           .set({ quantity: sql`${inventory.quantity} - ${quantity}` })
           .where(
             and(
-              eq(inventory.itemId, materialId),
+              eq(inventory.itemId, itemId),
               eq(inventory.warehouseId, warehouseId),
             ),
           ),
@@ -107,6 +107,16 @@ export class InventoryRepository implements IInventoryRepository {
       )
       .returning();
     return updated;
+  }
+
+  async getWarehouseByBranchId(branchId: string) {
+    const [warehouse] = await db
+      .select()
+      .from(warehouses)
+      .where(eq(warehouses.branchId, branchId))
+      .limit(1);
+
+    return warehouse;
   }
 
   async upsert(itemId: string, warehouseId: string, quantity: number, tx?: TX) {

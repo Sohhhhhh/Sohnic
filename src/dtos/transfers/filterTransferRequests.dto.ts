@@ -14,6 +14,7 @@ export const filterTransferRequestsSchema = z.object({
       'in_transit',
       'received',
       'completed',
+      'cancelled',
     ])
     .optional(),
 });

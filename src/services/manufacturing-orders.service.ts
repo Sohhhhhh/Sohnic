@@ -108,7 +108,9 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
     });
 
     const materials = await this.manufacturingOrdersRepo.findOrderMaterials(id);
-    await this.inventoryRepo.deductStockBatch(materials);
+    await this.inventoryRepo.deductStockBatch(
+      materials.map((m) => ({ itemId: m.materialId, quantity: m.quantity })),
+    );
 
     const order = await this.manufacturingOrdersRepo.updateOrder(id, {
       status: 'materials_sent',
@@ -211,7 +213,7 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
     materials: { materialId: string; quantity: number }[],
   ) {
     const ids = materials.map((m) => m.materialId);
-    const stocks = await this.inventoryRepo.findByMaterialIds(ids);
+    const stocks = await this.inventoryRepo.findByItemIds(ids);
 
     const insufficient = materials.filter((m) => {
       const stock = stocks.find((s) => s.itemId === m.materialId);
@@ -220,7 +222,7 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
 
     if (insufficient.length)
       throw new APIError(
-        `Insufficient stock for materials: ${insufficient.map((m) => m.materialId).join(', ')}`,
+        `Insufficient stock for items: ${insufficient.map((m) => m.materialId).join(', ')}`,
         STATUS_CODES.Conflict,
       );
   }

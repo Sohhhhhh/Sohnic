@@ -58,6 +58,7 @@ export const transferRequestStatus = pgEnum('transferRequestStatus', [
   'in_transit',
   'received',
   'completed',
+  'cancelled',
 ]);
 
 export const inspectionStatus = pgEnum('inspectionStatus', [

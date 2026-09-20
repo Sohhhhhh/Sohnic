@@ -65,4 +65,42 @@ export class TransfersRepository implements ITransfersRepository {
       },
     });
   }
+
+  async updateRequest(
+    id: string,
+    data: Partial<typeof transferRequests.$inferInsert>,
+    tx?: TX,
+  ) {
+    const client = tx || db;
+
+    const result = await client
+      .update(transferRequests)
+      .set(data)
+      .where(eq(transferRequests.id, id))
+      .returning();
+
+    return result[0];
+  }
+
+  async updateRequestItem(
+    transferRequestId: string,
+    itemId: string,
+    data: Partial<typeof transferRequestItems.$inferInsert>,
+    tx?: TX,
+  ) {
+    const client = tx || db;
+
+    const result = await client
+      .update(transferRequestItems)
+      .set(data)
+      .where(
+        and(
+          eq(transferRequestItems.transferRequestId, transferRequestId),
+          eq(transferRequestItems.itemId, itemId),
+        ),
+      )
+      .returning();
+
+    return result[0];
+  }
 }

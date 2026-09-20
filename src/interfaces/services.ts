@@ -45,6 +45,9 @@ import { AdjustStockDto } from '../dtos/inventory/adjustStock.dto';
 import { TX } from './repositories';
 import { CreateTransferRequestDto } from '../dtos/transfers/createTransferRequest.dto';
 import { FilterTransferRequestsDto } from '../dtos/transfers/filterTransferRequests.dto';
+import { ApproveTransferRequestDto } from '../dtos/transfers/approveTransferRequest.dto';
+import { RejectTransferRequestDto } from '../dtos/transfers/rejectTransferRequest.dto';
+import { ReceiveTransferRequestDto } from '../dtos/transfers/receiveTransferRequest.dto';
 
 // ----- Service Interfaces -----
 
@@ -283,9 +286,9 @@ export interface IInventoryService {
   adjust(id: string, dto: AdjustStockDto): Promise<APIResponse>;
 
   // internal — used by other modules
-  findByMaterialIds(materialIds: string[]): Promise<Inventory[]>;
+  findByItemIds(itemIds: string[]): Promise<Inventory[]>;
   deductStockBatch(
-    materials: { materialId: string; quantity: number }[],
+    items: { itemId: string; quantity: number }[],
     tx?: TX,
   ): Promise<void>;
   addStock(itemId: string, quantity: number): Promise<Inventory>;
@@ -309,6 +312,24 @@ export interface ITransfersService {
     q: FilterTransferRequestsDto,
   ): Promise<APIResponse>;
   findOne(user: AuthenticatedUser, id: string): Promise<APIResponse>;
+  approve(
+    user: AuthenticatedUser,
+    id: string,
+    dto: ApproveTransferRequestDto,
+  ): Promise<APIResponse>;
+  reject(
+    user: AuthenticatedUser,
+    id: string,
+    dto: RejectTransferRequestDto,
+  ): Promise<APIResponse>;
+  dispatch(user: AuthenticatedUser, id: string): Promise<APIResponse>;
+  receive(
+    user: AuthenticatedUser,
+    id: string,
+    dto: ReceiveTransferRequestDto,
+  ): Promise<APIResponse>;
+  complete(user: AuthenticatedUser, id: string): Promise<APIResponse>;
+  cancel(user: AuthenticatedUser, id: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

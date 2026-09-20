@@ -1,0 +1,1 @@
+ALTER TYPE "public"."transferRequestStatus" ADD VALUE 'cancelled';

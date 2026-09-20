@@ -21,6 +21,7 @@ import {
   Inventory,
   Warehouse,
   TransferRequest,
+  TransferRequestItem,
   TransferRequestWithItems,
 } from '../types/app.types';
 import {
@@ -265,6 +266,7 @@ export interface IInspectionsRepository {
     limit: number,
     q?: FilterInspectionsDto,
   ): Promise<Inspection[]>;
+  findPassedByTransferRequest(requestId: string): Promise<Inspection[]>;
 }
 
 export interface ISupplierReturnsRepository {
@@ -322,12 +324,13 @@ export interface IInventoryRepository {
   ): Promise<(Inventory & { item: Item; warehouse: Warehouse })[]>;
   findOne(id: string): Promise<Inventory | undefined>;
   adjust(id: string, newQuantity: number): Promise<Inventory>;
-  findByMaterialIds(materialIds: string[]): Promise<Inventory[]>;
+  findByItemIds(itemIds: string[]): Promise<Inventory[]>;
   deductStockBatch(
-    materials: { materialId: string; quantity: number }[],
+    items: { itemId: string; quantity: number }[],
     tx?: TX,
   ): Promise<void>;
   addStock(itemId: string, quantity: number): Promise<Inventory>;
+  getWarehouseByBranchId(branchId: string): Promise<Warehouse>;
   upsert(
     itemId: string,
     warehouseId: string,
@@ -345,4 +348,15 @@ export interface ITransfersRepository {
     q?: FilterTransferRequestsDto,
   ): Promise<TransferRequestWithItems[]>;
   findOne(id: string): Promise<TransferRequestWithItems | undefined>;
+  updateRequest(
+    id: string,
+    data: Partial<TransferRequest>,
+    tx?: TX,
+  ): Promise<TransferRequest>;
+  updateRequestItem(
+    transferRequestId: string,
+    itemId: string,
+    data: Partial<TransferRequestItem>,
+    tx?: TX,
+  ): Promise<TransferRequestItem>;
 }
