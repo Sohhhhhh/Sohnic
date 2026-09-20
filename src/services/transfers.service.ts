@@ -161,7 +161,7 @@ export class TransfersService implements ITransfersService {
     await this.checkMainStock(items);
 
     const updated = await db.transaction(async (tx) => {
-      await this.inventoryRepo.deductStockBatch(items, tx);
+      await this.inventoryRepo.deductMainWarehouseStockBatch(items, tx);
 
       return this.transfersRepo.updateRequest(
         id,

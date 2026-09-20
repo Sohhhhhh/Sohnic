@@ -36,11 +36,11 @@ export class InventoryService implements IInventoryService {
     return this.inventoryRepo.findByItemIds(itemIds);
   }
 
-  async deductStockBatch(
+  async deductMainWarehouseStockBatch(
     items: { itemId: string; quantity: number }[],
     tx?: any,
   ) {
-    return this.inventoryRepo.deductStockBatch(items, tx);
+    return this.inventoryRepo.deductMainWarehouseStockBatch(items, tx);
   }
 
   async addStock(itemId: string, quantity: number) {

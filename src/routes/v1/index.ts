@@ -11,12 +11,14 @@ import { purchasingRoutes } from './purchasing.routes';
 import { inspectionsRoutes } from './inspections.routes';
 import { manufacturersRoutes } from './manufacturers.routes';
 import { manufacturingOrdersRoutes } from './manufacturing-orders.routes';
+import { salesRoutes } from './sales.routes';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
 router.use('/items', itemsRoutes);
+router.use('/sales', salesRoutes);
 router.use('/returns', returnsRoutes);
 router.use('/transfers', transfersRoutes);
 router.use('/inventory', inventoryRoutes);

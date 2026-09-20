@@ -68,4 +68,13 @@ export class ItemsRepository implements IItemsRepository {
       ),
     });
   }
+
+  async findSellableByIds(ids: string[]): Promise<Item[]> {
+    return db.query.items.findMany({
+      where: and(
+        inArray(items.id, ids),
+        eq(items.type, 'sellable_item'),
+      ),
+    });
+  }
 }

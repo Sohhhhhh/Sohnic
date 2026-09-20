@@ -19,10 +19,7 @@ import {
   manufacturingBatches,
   manufacturingOrderMaterials,
 } from './manufacturing';
-import {
-  transferRequests,
-  transferRequestItems,
-} from './transfers';
+import { transferRequests, transferRequestItems } from './transfers';
 import { inspections } from './inspections';
 import {
   supplierReturns,
@@ -438,7 +435,6 @@ export const transferRequestItemsRelations = relations(
     }),
   }),
 );
-
 
 // ─── inspections ───
 

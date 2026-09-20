@@ -48,6 +48,7 @@ import { FilterTransferRequestsDto } from '../dtos/transfers/filterTransferReque
 import { ApproveTransferRequestDto } from '../dtos/transfers/approveTransferRequest.dto';
 import { RejectTransferRequestDto } from '../dtos/transfers/rejectTransferRequest.dto';
 import { ReceiveTransferRequestDto } from '../dtos/transfers/receiveTransferRequest.dto';
+import { CreateSaleDto } from '../dtos/sales/createSale.dto';
 
 // ----- Service Interfaces -----
 
@@ -287,7 +288,7 @@ export interface IInventoryService {
 
   // internal — used by other modules
   findByItemIds(itemIds: string[]): Promise<Inventory[]>;
-  deductStockBatch(
+  deductMainWarehouseStockBatch(
     items: { itemId: string; quantity: number }[],
     tx?: TX,
   ): Promise<void>;
@@ -330,6 +331,10 @@ export interface ITransfersService {
   ): Promise<APIResponse>;
   complete(user: AuthenticatedUser, id: string): Promise<APIResponse>;
   cancel(user: AuthenticatedUser, id: string): Promise<APIResponse>;
+}
+
+export interface ISalesService {
+  create(user: AuthenticatedUser, dto: CreateSaleDto): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

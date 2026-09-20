@@ -72,7 +72,7 @@ export class InventoryRepository implements IInventoryRepository {
     return result;
   }
 
-  async deductStockBatch(
+  async deductMainWarehouseStockBatch(
     items: { itemId: string; quantity: number }[],
     tx?: any,
   ) {
@@ -92,6 +92,41 @@ export class InventoryRepository implements IInventoryRepository {
           ),
       ),
     );
+  }
+
+  async deductStockBatchByWarehouse(
+    warehouseId: string,
+    items: { itemId: string; quantity: number }[],
+    tx?: any,
+  ) {
+    const client = tx || db;
+    await Promise.all(
+      items.map(({ itemId, quantity }) =>
+        client
+          .update(inventory)
+          .set({ quantity: sql`${inventory.quantity} - ${quantity}` })
+          .where(
+            and(
+              eq(inventory.itemId, itemId),
+              eq(inventory.warehouseId, warehouseId),
+            ),
+          ),
+      ),
+    );
+  }
+
+  async findStockByWarehouse(warehouseId: string, itemIds: string[], tx?: TX) {
+    const client = tx || db;
+    const rows = await client
+      .select({ itemId: inventory.itemId, quantity: inventory.quantity })
+      .from(inventory)
+      .where(
+        and(
+          eq(inventory.warehouseId, warehouseId),
+          inArray(inventory.itemId, itemIds),
+        ),
+      );
+    return rows;
   }
 
   async addStock(itemId: string, quantity: number) {

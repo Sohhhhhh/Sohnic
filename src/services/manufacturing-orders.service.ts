@@ -108,7 +108,7 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
     });
 
     const materials = await this.manufacturingOrdersRepo.findOrderMaterials(id);
-    await this.inventoryRepo.deductStockBatch(
+    await this.inventoryRepo.deductMainWarehouseStockBatch(
       materials.map((m) => ({ itemId: m.materialId, quantity: m.quantity })),
     );
 
@@ -165,6 +165,7 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
   }
 
   // --- Helpers ---
+
   private async checkExistingManufacturingOrder(id: string) {
     const order = await this.manufacturingOrdersRepo.findOne(id);
 

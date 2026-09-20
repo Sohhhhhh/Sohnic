@@ -23,6 +23,9 @@ import {
   TransferRequest,
   TransferRequestItem,
   TransferRequestWithItems,
+  Sale,
+  SaleItem,
+  Customer,
 } from '../types/app.types';
 import {
   AddBomComponentDto,
@@ -72,6 +75,11 @@ import {
   CreateTransferRequestItemData,
 } from '../dtos/transfers/createTransferRequest.dto';
 import { FilterTransferRequestsDto } from '../dtos/transfers/filterTransferRequests.dto';
+import {
+  CreateCustomerData,
+  CreateSaleData,
+  CreateSaleItemData,
+} from '../dtos/sales/createSale.dto';
 
 // ----- Record Types -----
 
@@ -193,6 +201,7 @@ export interface IItemsRepository {
   update(id: string, dto: UpdateItemDto): Promise<Item>;
   delete(id: string, tx?: TX): Promise<void>;
   findManyByIds(ids: string[]): Promise<Item[]>;
+  findSellableByIds(ids: string[]): Promise<Item[]>;
 }
 
 export interface IBomRepository {
@@ -325,11 +334,21 @@ export interface IInventoryRepository {
   findOne(id: string): Promise<Inventory | undefined>;
   adjust(id: string, newQuantity: number): Promise<Inventory>;
   findByItemIds(itemIds: string[]): Promise<Inventory[]>;
-  deductStockBatch(
+  deductMainWarehouseStockBatch(
+    items: { itemId: string; quantity: number }[],
+    tx?: TX,
+  ): Promise<void>;
+  deductStockBatchByWarehouse(
+    warehouseId: string,
     items: { itemId: string; quantity: number }[],
     tx?: TX,
   ): Promise<void>;
   addStock(itemId: string, quantity: number): Promise<Inventory>;
+  findStockByWarehouse(
+    warehouseId: string,
+    itemIds: string[],
+    tx?: TX,
+  ): Promise<{ itemId: string; quantity: number }[]>;
   getWarehouseByBranchId(branchId: string): Promise<Warehouse>;
   upsert(
     itemId: string,
@@ -359,4 +378,17 @@ export interface ITransfersRepository {
     data: Partial<TransferRequestItem>,
     tx?: TX,
   ): Promise<TransferRequestItem>;
+}
+
+export interface ISalesRepository {
+  createSale(data: CreateSaleData, tx?: TX): Promise<Sale>;
+  createSaleItems(items: CreateSaleItemData[], tx?: TX): Promise<SaleItem[]>;
+  findSaleWithItems(
+    id: string,
+  ): Promise<(Sale & { items: SaleItem[] }) | undefined>;
+}
+
+export interface ICustomersRepository {
+  findById(id: string): Promise<Customer | undefined>;
+  create(data: CreateCustomerData, tx?: TX): Promise<Customer>;
 }
