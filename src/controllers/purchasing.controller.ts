@@ -33,7 +33,7 @@ export class PurchasingController {
     req,
     res,
   ) => {
-    const { page, limit, ...q } = req.query;
+    const { page = 1, limit = 10, ...q } = req.query;
     const { user } = req;
     const result: APIResponse =
       await this.purchasingService.getAllPurchaseRequests(

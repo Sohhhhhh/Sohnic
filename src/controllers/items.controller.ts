@@ -23,7 +23,7 @@ export class ItemsController {
   };
 
   findAll: filterItemsValidatedCtrlr = async (req, res) => {
-    const { page, limit, ...q } = req.query;
+    const { page = 1, limit = 10, ...q } = req.query;
     const result: APIResponse = await this.itemsService.findAll(
       +page,
       +limit,

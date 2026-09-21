@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../config/drizzle';
 import { customers } from '../../drizzle/schema';
 import { ICustomersRepository, TX } from '../interfaces';
-import { CreateCustomerData } from '../dtos/sales/createSale.dto';
+import { CreateCustomerDto } from '../dtos/customers/createCustomer.dto';
 import { UpdateCustomerDto } from '../dtos/customers/updateCustomer.dto';
 
 export class CustomersRepository implements ICustomersRepository {
@@ -18,7 +18,7 @@ export class CustomersRepository implements ICustomersRepository {
     });
   }
 
-  async create(data: CreateCustomerData, tx?: TX) {
+  async create(data: CreateCustomerDto, tx?: TX) {
     const client = tx || db;
     const [customer] = await client.insert(customers).values(data).returning();
     return customer;

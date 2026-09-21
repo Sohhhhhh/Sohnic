@@ -17,7 +17,7 @@ export class ReturnsController {
   };
 
   getAllSupplierReturns: filterSuppRetsValidatedCtrlr = async (req, res) => {
-    const { page, limit, ...q } = req.query;
+    const { page = 1, limit = 10, ...q } = req.query;
     const result: APIResponse = await this.returnsService.getAllSupplierReturns(
       +page,
       +limit,

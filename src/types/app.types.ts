@@ -66,3 +66,7 @@ export type TransferRequestWithItems = TransferRequest & {
 export type Sale = typeof orders.$inferSelect;
 export type SaleItem = typeof orderItems.$inferSelect;
 export type Customer = typeof customers.$inferSelect;
+export type SaleWithData = Sale & {
+  items: SaleItem[];
+  customer: Customer;
+};

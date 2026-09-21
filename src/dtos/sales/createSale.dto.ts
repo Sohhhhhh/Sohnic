@@ -1,18 +1,10 @@
 import { z } from 'zod';
+import { createCustomerSchema } from '../customers/createCustomer.dto';
 
 export const createSaleSchema = z
   .object({
     customerId: z.string().uuid().optional(),
-    customer: z
-      .object({
-        firstName: z.string().min(1),
-        lastName: z.string().min(1),
-        type: z
-          .enum(['individual', 'business', 'educational'])
-          .default('individual'),
-        phone: z.string().min(1),
-      })
-      .optional(),
+    customer: createCustomerSchema.optional(),
     paymentMethod: z.enum([
       'cash',
       'credit_card',
@@ -52,5 +44,3 @@ export type CreateSaleItemData = {
   quantity: number;
   unitPrice: string;
 };
-
-export type CreateCustomerData = NonNullable<CreateSaleDto['customer']>;

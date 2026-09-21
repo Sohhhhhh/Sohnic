@@ -51,6 +51,7 @@ import { ReceiveTransferRequestDto } from '../dtos/transfers/receiveTransferRequ
 import { CreateSaleDto } from '../dtos/sales/createSale.dto';
 import { CreateCustomerDto } from '../dtos/customers/createCustomer.dto';
 import { UpdateCustomerDto } from '../dtos/customers/updateCustomer.dto';
+import { FilterSalesDto } from '../dtos/sales/filterSales.dto';
 
 // ----- Service Interfaces -----
 
@@ -337,6 +338,13 @@ export interface ITransfersService {
 
 export interface ISalesService {
   create(user: AuthenticatedUser, dto: CreateSaleDto): Promise<APIResponse>;
+  findAll(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+    q: FilterSalesDto,
+  ): Promise<APIResponse>;
+  findOne(user: AuthenticatedUser, id: string): Promise<APIResponse>;
 }
 
 export interface ICustomersService {

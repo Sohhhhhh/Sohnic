@@ -20,7 +20,7 @@ export class InspectionsController {
   };
 
   getAll: filterInspectionsValidatedCtrlr = async (req, res) => {
-    const { page, limit, ...q } = req.query;
+    const { page = 1, limit = 10, ...q } = req.query;
     const { user } = req;
 
     const result: APIResponse = await this.inspectionsService.getAll(

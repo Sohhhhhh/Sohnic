@@ -1,11 +1,3 @@
-import { db } from '../config/drizzle';
-import APIError from '../utils/APIError';
-import { STATUS_CODES } from '../utils/statusCodes';
-import { AuthenticatedUser } from '../types/app.types';
-import {
-  CreateCustomerData,
-  CreateSaleDto,
-} from '../dtos/sales/createSale.dto';
 import {
   ISalesRepository,
   ISalesService,
@@ -14,6 +6,13 @@ import {
   ICustomersRepository,
   TX,
 } from '../interfaces';
+import { db } from '../config/drizzle';
+import APIError from '../utils/APIError';
+import { STATUS_CODES } from '../utils/statusCodes';
+import { AuthenticatedUser } from '../types/app.types';
+import { CreateSaleDto } from '../dtos/sales/createSale.dto';
+import { CreateCustomerDto } from '../dtos/customers/createCustomer.dto';
+import { FilterSalesDto } from '../dtos/sales/filterSales.dto';
 
 export class SalesService implements ISalesService {
   constructor(
@@ -86,6 +85,46 @@ export class SalesService implements ISalesService {
     return { statusCode: STATUS_CODES.Created, data: { ...sale, items } };
   }
 
+  async findAll(
+    user: AuthenticatedUser,
+    page: number,
+    limit: number,
+    q: FilterSalesDto,
+  ) {
+    if (user.role.role === 'branch_admin') {
+      if (q.branchId && q.branchId !== user.branchId)
+        throw new APIError(
+          'You can only view your own branch sales.',
+          STATUS_CODES.Forbidden,
+        );
+
+      q.branchId = user.branchId;
+    }
+
+    const sales = await this.salesRepo.findAll(page, limit, q);
+
+    return {
+      statusCode: STATUS_CODES.OK,
+      size: sales.length,
+      data: sales,
+    };
+  }
+
+  async findOne(user: AuthenticatedUser, id: string) {
+    const sale = await this.salesRepo.findSaleWithItems(id);
+
+    if (!sale)
+      throw new APIError('No sale found with this id.', STATUS_CODES.NotFound);
+
+    if (user.role.role === 'branch_admin' && sale.branchId !== user.branchId)
+      throw new APIError(
+        'You can only view your own branch sales.',
+        STATUS_CODES.Forbidden,
+      );
+
+    return { statusCode: STATUS_CODES.OK, data: sale };
+  }
+
   // --- Helpers ---
 
   private async checkExistingSellableItems(itemIds: string[]) {
@@ -110,15 +149,22 @@ export class SalesService implements ISalesService {
 
   private async resolveCustomer(
     customerId?: string,
-    customer?: CreateCustomerData,
+    customer?: CreateCustomerDto,
     tx?: TX,
   ) {
     if (customerId) {
       const existing = await this.customersRepo.findById(customerId);
       if (!existing)
-        throw new APIError('Customer not found.', STATUS_CODES.NotFound);
+        throw new APIError(
+          'No customer found with this id.',
+          STATUS_CODES.NotFound,
+        );
       return existing.id;
     }
+
+    const existing = await this.customersRepo.findByPhone(customer!.phone);
+    if (existing) return existing.id;
+
     const newCustomer = await this.customersRepo.create(customer!, tx);
     return newCustomer.id;
   }

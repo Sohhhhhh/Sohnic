@@ -26,7 +26,12 @@ import {
   Sale,
   SaleItem,
   Customer,
+  SaleWithData,
 } from '../types/app.types';
+import {
+  CreateSaleData,
+  CreateSaleItemData,
+} from '../dtos/sales/createSale.dto';
 import {
   AddBomComponentDto,
   UpdateBomComponentDto,
@@ -36,6 +41,10 @@ import {
   CreatePurchaseOrderData,
   CreatePurchaseOrderItemData,
 } from '../dtos/purchasing/createPurchaseOrder.dto';
+import {
+  CreateTransferRequestData,
+  CreateTransferRequestItemData,
+} from '../dtos/transfers/createTransferRequest.dto';
 import {
   CreatePurchaseRequestData,
   CreatePurchaseRequestItemData,
@@ -48,39 +57,32 @@ import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { FilterItemsDto } from '../dtos/items/filterItems.dto';
+import { FilterSalesDto } from '../dtos/sales/filterSales.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
+import { CreateCustomerDto } from '../dtos/customers/createCustomer.dto';
+import { UpdateCustomerDto } from '../dtos/customers/updateCustomer.dto';
 import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
 import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
 import { AddItemSupplierDto } from '../dtos/suppliers/addItemSupplier.dto';
 import { FilterSuppliersDto } from '../dtos/suppliers/filterSuppliers.dto';
+import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
 import { EditItemSupplierDto } from '../dtos/suppliers/editItemSupplier.dto';
 import { CreateInspectionData } from '../dtos/inspections/createInspection.dto';
 import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
 import { FilterItemSuppliersDto } from '../dtos/suppliers/filterItemSuppliers.dto';
+import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
+import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrders.dto';
+import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
+import { FilterTransferRequestsDto } from '../dtos/transfers/filterTransferRequests.dto';
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
 import { CreateSupplierReturnData } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
 import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
-import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
-import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
-import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 import { CreateManufacturingOrderData } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
-import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
-import {
-  CreateTransferRequestData,
-  CreateTransferRequestItemData,
-} from '../dtos/transfers/createTransferRequest.dto';
-import { FilterTransferRequestsDto } from '../dtos/transfers/filterTransferRequests.dto';
-import {
-  CreateCustomerData,
-  CreateSaleData,
-  CreateSaleItemData,
-} from '../dtos/sales/createSale.dto';
-import { UpdateCustomerDto } from '../dtos/customers/updateCustomer.dto';
 
 // ----- Record Types -----
 
@@ -384,14 +386,17 @@ export interface ITransfersRepository {
 export interface ISalesRepository {
   createSale(data: CreateSaleData, tx?: TX): Promise<Sale>;
   createSaleItems(items: CreateSaleItemData[], tx?: TX): Promise<SaleItem[]>;
-  findSaleWithItems(
-    id: string,
-  ): Promise<(Sale & { items: SaleItem[] }) | undefined>;
+  findSaleWithItems(id: string): Promise<SaleWithData | undefined>;
+  findAll(
+    page: number,
+    limit: number,
+    q?: FilterSalesDto,
+  ): Promise<SaleWithData[]>;
 }
 
 export interface ICustomersRepository {
   findById(id: string): Promise<Customer | undefined>;
   findByPhone(phone: string): Promise<Customer | undefined>;
-  create(data: CreateCustomerData, tx?: TX): Promise<Customer>;
+  create(data: CreateCustomerDto, tx?: TX): Promise<Customer>;
   update(id: string, data: UpdateCustomerDto): Promise<Customer>;
 }
