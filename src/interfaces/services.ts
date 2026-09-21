@@ -49,6 +49,8 @@ import { ApproveTransferRequestDto } from '../dtos/transfers/approveTransferRequ
 import { RejectTransferRequestDto } from '../dtos/transfers/rejectTransferRequest.dto';
 import { ReceiveTransferRequestDto } from '../dtos/transfers/receiveTransferRequest.dto';
 import { CreateSaleDto } from '../dtos/sales/createSale.dto';
+import { CreateCustomerDto } from '../dtos/customers/createCustomer.dto';
+import { UpdateCustomerDto } from '../dtos/customers/updateCustomer.dto';
 
 // ----- Service Interfaces -----
 
@@ -335,6 +337,12 @@ export interface ITransfersService {
 
 export interface ISalesService {
   create(user: AuthenticatedUser, dto: CreateSaleDto): Promise<APIResponse>;
+}
+
+export interface ICustomersService {
+  create(dto: CreateCustomerDto): Promise<APIResponse>;
+  update(id: string, dto: UpdateCustomerDto): Promise<APIResponse>;
+  findByPhone(phone: string): Promise<APIResponse>;
 }
 
 // ----- Utility Interfaces -----

@@ -80,6 +80,7 @@ import {
   CreateSaleData,
   CreateSaleItemData,
 } from '../dtos/sales/createSale.dto';
+import { UpdateCustomerDto } from '../dtos/customers/updateCustomer.dto';
 
 // ----- Record Types -----
 
@@ -390,5 +391,7 @@ export interface ISalesRepository {
 
 export interface ICustomersRepository {
   findById(id: string): Promise<Customer | undefined>;
+  findByPhone(phone: string): Promise<Customer | undefined>;
   create(data: CreateCustomerData, tx?: TX): Promise<Customer>;
+  update(id: string, data: UpdateCustomerDto): Promise<Customer>;
 }

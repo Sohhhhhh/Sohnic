@@ -12,6 +12,7 @@ import { inspectionsRoutes } from './inspections.routes';
 import { manufacturersRoutes } from './manufacturers.routes';
 import { manufacturingOrdersRoutes } from './manufacturing-orders.routes';
 import { salesRoutes } from './sales.routes';
+import { customersRoutes } from './customers.routes';
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use('/users', usersRoutes);
 router.use('/items', itemsRoutes);
 router.use('/sales', salesRoutes);
 router.use('/returns', returnsRoutes);
+router.use('/customers', customersRoutes);
 router.use('/transfers', transfersRoutes);
 router.use('/inventory', inventoryRoutes);
 router.use('/suppliers', suppliersRoutes);
