@@ -21,11 +21,7 @@ import {
 } from './manufacturing';
 import { transferRequests, transferRequestItems } from './transfers';
 import { inspections } from './inspections';
-import {
-  supplierReturns,
-  manufacturerReturns,
-  transferReturns,
-} from './returns';
+import { returns } from './returns';
 
 // ─── Users ───
 
@@ -60,23 +56,11 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     relationName: 'transferDispatcher',
   }),
   inspections: many(inspections),
-  supplierReturnsAsInspector: many(supplierReturns, {
-    relationName: 'supplierReturnInspector',
+  returnsAsInspector: many(returns, {
+    relationName: 'returnInspector',
   }),
-  supplierReturnsAsApprover: many(supplierReturns, {
-    relationName: 'supplierReturnApprover',
-  }),
-  manufacturerReturnsAsInspector: many(manufacturerReturns, {
-    relationName: 'manufacturerReturnInspector',
-  }),
-  manufacturerReturnsAsApprover: many(manufacturerReturns, {
-    relationName: 'manufacturerReturnApprover',
-  }),
-  transferReturnsAsInspector: many(transferReturns, {
-    relationName: 'transferReturnInspector',
-  }),
-  transferReturnsAsApprover: many(transferReturns, {
-    relationName: 'transferReturnApprover',
+  returnsAsApprover: many(returns, {
+    relationName: 'returnApprover',
   }),
 }));
 
@@ -199,7 +183,6 @@ export const suppliersRelations = relations(suppliers, ({ many }) => ({
   itemSuppliers: many(itemSuppliers),
   quotations: many(supplierQuotations),
   purchaseOrders: many(purchaseOrders),
-  returns: many(supplierReturns),
 }));
 
 export const itemSuppliersRelations = relations(itemSuppliers, ({ one }) => ({
@@ -299,7 +282,6 @@ export const purchaseOrdersRelations = relations(
     }),
     items: many(purchaseOrderItems),
     inspections: many(inspections),
-    returns: many(supplierReturns),
   }),
 );
 
@@ -331,7 +313,6 @@ export const inventoryRelations = relations(inventory, ({ one }) => ({
 
 export const manufacturersRelations = relations(manufacturers, ({ many }) => ({
   manufacturingOrders: many(manufacturingOrders),
-  returns: many(manufacturerReturns),
 }));
 
 export const manufacturingOrdersRelations = relations(
@@ -357,7 +338,6 @@ export const manufacturingOrdersRelations = relations(
     }),
     materials: many(manufacturingOrderMaterials),
     batches: many(manufacturingBatches),
-    returns: many(manufacturerReturns),
   }),
 );
 
@@ -418,7 +398,6 @@ export const transferRequestsRelations = relations(
     }),
     items: many(transferRequestItems),
     inspections: many(inspections),
-    returns: many(transferReturns),
   }),
 );
 
@@ -460,98 +439,27 @@ export const inspectionsRelations = relations(inspections, ({ one }) => ({
     fields: [inspections.branchId],
     references: [branches.id],
   }),
+  return: one(returns, {
+    fields: [inspections.id],
+    references: [returns.inspectionId],
+  }),
 }));
 
 // ─── Returns ───
 
-export const supplierReturnsRelations = relations(
-  supplierReturns,
-  ({ one }) => ({
-    inspector: one(users, {
-      fields: [supplierReturns.inspectorId],
-      references: [users.id],
-      relationName: 'supplierReturnInspector',
-    }),
-    approver: one(users, {
-      fields: [supplierReturns.approvedById],
-      references: [users.id],
-      relationName: 'supplierReturnApprover',
-    }),
-    inspection: one(inspections, {
-      fields: [supplierReturns.inspectionId],
-      references: [inspections.id],
-    }),
-    supplier: one(suppliers, {
-      fields: [supplierReturns.supplierId],
-      references: [suppliers.id],
-    }),
-    purchaseOrder: one(purchaseOrders, {
-      fields: [supplierReturns.purchaseOrderId],
-      references: [purchaseOrders.id],
-    }),
-    item: one(items, {
-      fields: [supplierReturns.itemId],
-      references: [items.id],
-    }),
+export const returnsRelations = relations(returns, ({ one }) => ({
+  inspector: one(users, {
+    fields: [returns.inspectorId],
+    references: [users.id],
+    relationName: 'returnInspector',
   }),
-);
-
-export const manufacturerReturnsRelations = relations(
-  manufacturerReturns,
-  ({ one }) => ({
-    inspector: one(users, {
-      fields: [manufacturerReturns.inspectorId],
-      references: [users.id],
-      relationName: 'manufacturerReturnInspector',
-    }),
-    approver: one(users, {
-      fields: [manufacturerReturns.approvedById],
-      references: [users.id],
-      relationName: 'manufacturerReturnApprover',
-    }),
-    inspection: one(inspections, {
-      fields: [manufacturerReturns.inspectionId],
-      references: [inspections.id],
-    }),
-    manufacturer: one(manufacturers, {
-      fields: [manufacturerReturns.manufacturerId],
-      references: [manufacturers.id],
-    }),
-    manufacturingOrder: one(manufacturingOrders, {
-      fields: [manufacturerReturns.manufacturingOrderId],
-      references: [manufacturingOrders.id],
-    }),
-    item: one(items, {
-      fields: [manufacturerReturns.itemId],
-      references: [items.id],
-    }),
+  approver: one(users, {
+    fields: [returns.approvedById],
+    references: [users.id],
+    relationName: 'returnApprover',
   }),
-);
-
-export const transferReturnsRelations = relations(
-  transferReturns,
-  ({ one }) => ({
-    inspector: one(users, {
-      fields: [transferReturns.inspectorId],
-      references: [users.id],
-      relationName: 'transferReturnInspector',
-    }),
-    approver: one(users, {
-      fields: [transferReturns.approvedById],
-      references: [users.id],
-      relationName: 'transferReturnApprover',
-    }),
-    inspection: one(inspections, {
-      fields: [transferReturns.inspectionId],
-      references: [inspections.id],
-    }),
-    transferRequest: one(transferRequests, {
-      fields: [transferReturns.transferRequestId],
-      references: [transferRequests.id],
-    }),
-    item: one(items, {
-      fields: [transferReturns.itemId],
-      references: [items.id],
-    }),
+  inspection: one(inspections, {
+    fields: [returns.inspectionId],
+    references: [inspections.id],
   }),
-);
+}));

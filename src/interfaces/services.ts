@@ -33,12 +33,13 @@ import { CreateSupplierQuotationDto } from '../dtos/purchasing/createSupplierQuo
 import { FilterPurchaseOrdersDto } from '../dtos/purchasing/filterPurchaseOrders.dto';
 import { CreateInspectionDto } from '../dtos/inspections/createInspection.dto';
 import { FilterInspectionsDto } from '../dtos/inspections/filterInspections.dto';
-import { CreateSupplierReturnDto } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
-import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
+import { CreateReturnDto } from '../dtos/returns/createReturn.dto';
+import { FilterReturnsDto } from '../dtos/returns/filterReturns.dto';
 import { CreateManufacturerDto } from '../dtos/manufacturers/createManufacturer.dto';
 import { FilterManufacturersDto } from '../dtos/manufacturers/filterManufacturers.dto';
 import { UpdateManufacturerDto } from '../dtos/manufacturers/updateManufacturer.dto';
 import { CreateManufacturingOrderDto } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
+import { CreateManufacturingBatchDto } from '../dtos/manufacturing-batches/createManufacturingBatch.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
 import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
 import { AdjustStockDto } from '../dtos/inventory/adjustStock.dto';
@@ -235,16 +236,16 @@ export interface IInspectionsService {
 }
 
 export interface IReturnsService {
-  createSupplierReturn(dto: CreateSupplierReturnDto): Promise<APIResponse>;
-  getAllSupplierReturns(
+  create(dto: CreateReturnDto): Promise<APIResponse>;
+  findAll(
     page: number,
     limit: number,
-    q?: FilterSupplierReturnsDto,
+    q?: FilterReturnsDto,
   ): Promise<APIResponse>;
-  getOneSupplierReturn(id: string): Promise<APIResponse>;
-  acceptSupplierReturn(userId: string, id: string): Promise<APIResponse>;
-  rejectSupplierReturn(id: string): Promise<APIResponse>;
-  completeSupplierReturn(id: string): Promise<APIResponse>;
+  findOne(id: string): Promise<APIResponse>;
+  accept(userId: string, id: string): Promise<APIResponse>;
+  reject(id: string): Promise<APIResponse>;
+  complete(id: string): Promise<APIResponse>;
 }
 
 export interface IManufacturersService {
@@ -277,6 +278,20 @@ export interface IManufacturingOrdersService {
   startProduction(id: string): Promise<APIResponse>;
   complete(id: string): Promise<APIResponse>;
   cancel(id: string): Promise<APIResponse>;
+}
+
+export interface IManufacturingBatchesService {
+  create(
+    orderId: string,
+    receivedById: string,
+    dto: CreateManufacturingBatchDto,
+  ): Promise<APIResponse>;
+  findByOrder(
+    orderId: string,
+    page: number,
+    limit: number,
+  ): Promise<APIResponse>;
+  findOne(batchId: string): Promise<APIResponse>;
 }
 
 export interface IInventoryService {

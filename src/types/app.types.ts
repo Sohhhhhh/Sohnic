@@ -9,9 +9,10 @@ import {
   users,
   purchaseOrders,
   inspections,
-  supplierReturns,
+  returns,
   manufacturers,
   manufacturingOrders,
+  manufacturingBatches,
   inventory,
   warehouses,
   transferRequests,
@@ -53,9 +54,10 @@ export type PurchaseOrderWithItems = PurchaseOrder & {
 };
 export type SupplierQuotation = typeof supplierQuotations.$inferSelect;
 export type Inspection = typeof inspections.$inferSelect;
-export type SupplierReturn = typeof supplierReturns.$inferSelect;
+export type Return = typeof returns.$inferSelect;
 export type Manufacturer = typeof manufacturers.$inferSelect;
 export type ManufacturingOrder = typeof manufacturingOrders.$inferSelect;
+export type ManufacturingBatch = typeof manufacturingBatches.$inferSelect;
 export type Inventory = typeof inventory.$inferSelect;
 export type Warehouse = typeof warehouses.$inferSelect;
 export type TransferRequest = typeof transferRequests.$inferSelect;

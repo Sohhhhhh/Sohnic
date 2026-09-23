@@ -55,4 +55,14 @@ export class InspectionsRepository implements IInspectionsRepository {
       ),
     });
   }
+
+  async findPassedByManufacturingBatch(batchId: string) {
+    return db.query.inspections.findFirst({
+      where: and(
+        eq(inspections.manufacturingBatchId, batchId),
+        eq(inspections.type, 'manufacturing_batch'),
+        eq(inspections.inspectionResult, 'passed'),
+      ),
+    });
+  }
 }

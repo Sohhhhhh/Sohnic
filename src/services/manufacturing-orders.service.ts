@@ -128,11 +128,9 @@ export class ManufacturingOrdersService implements IManufacturingOrdersService {
     return { statusCode: STATUS_CODES.OK, data: { order } };
   }
   async complete(id: string): Promise<APIResponse> {
-    const current = await this.checkTransition(id, 'completed', {
+    await this.checkTransition(id, 'completed', {
       allowedFrom: ['in_production'],
     });
-
-    await this.inventoryRepo.addStock(current.productId, current.quantity);
 
     const order = await this.manufacturingOrdersRepo.updateOrder(id, {
       status: 'completed',

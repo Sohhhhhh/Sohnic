@@ -1,7 +1,6 @@
 import {
-  purchaseOrdersRepository,
   inspectionsRepository,
-  supplierReturnsRepository,
+  returnsRepository,
 } from './repositories.container';
 import { ReturnsService } from '../services/returns.service';
 import { ReturnsController } from '../controllers/returns.controller';
@@ -9,9 +8,8 @@ import { ReturnsController } from '../controllers/returns.controller';
 // ----- Services -----
 
 export const returnsSrevice = new ReturnsService(
-  supplierReturnsRepository,
+  returnsRepository,
   inspectionsRepository,
-  purchaseOrdersRepository,
 );
 
 // ----- Controllers -----

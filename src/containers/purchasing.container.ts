@@ -2,6 +2,7 @@ import {
   itemsRepository,
   branchesRepository,
   suppliersRepository,
+  inventoryRepository,
   purchaseRequestsRepository,
   supplierQuotationsRepository,
   itemSuppliersRepository,
@@ -20,6 +21,7 @@ export const purchasingService = new PurchasingService(
   suppliersRepository,
   itemSuppliersRepository,
   purchaseOrdersRepository,
+  inventoryRepository,
 );
 
 // ----- Controllers -----

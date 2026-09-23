@@ -1,32 +1,24 @@
 import APIError from '../utils/APIError';
-import { STATUS_CODES } from '../utils/statusCodes';
 import {
   IInspectionsRepository,
-  IPurchaseOrdersRepository,
+  IReturnsRepository,
   IReturnsService,
-  ISupplierReturnsRepository,
 } from '../interfaces';
-import { CreateSupplierReturnDto } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
-import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
-import { SupplierReturn } from '../types/app.types';
-import { RETURN_REQS_VALID_TRANSITIONS } from '../constants/purchaseOrder.constants';
+import { Return } from '../types/app.types';
+import { STATUS_CODES } from '../utils/statusCodes';
 import { ReturnRequestStatus } from '../../drizzle/schema';
+import { CreateReturnDto } from '../dtos/returns/createReturn.dto';
+import { FilterReturnsDto } from '../dtos/returns/filterReturns.dto';
+import { RETURN_REQS_VALID_TRANSITIONS } from '../constants/purchaseOrder.constants';
 
 export class ReturnsService implements IReturnsService {
   constructor(
-    private readonly supplierReturnsRepo: ISupplierReturnsRepository,
+    private readonly returnsRepo: IReturnsRepository,
     private readonly inspectionsRepo: IInspectionsRepository,
-    private readonly purchaseOrdersRepo: IPurchaseOrdersRepository,
   ) {}
 
-  async createSupplierReturn(dto: CreateSupplierReturnDto) {
+  async create(dto: CreateReturnDto) {
     const inspection = await this.checkExistingInspection(dto.inspectionId);
-
-    if (inspection.type !== 'order')
-      throw new APIError(
-        'Inspection must be for a purchase order',
-        STATUS_CODES.BadRequest,
-      );
 
     if (inspection.inspectionResult === 'passed')
       throw new APIError(
@@ -34,49 +26,46 @@ export class ReturnsService implements IReturnsService {
         STATUS_CODES.BadRequest,
       );
 
-    const order = await this.checkExistingPurchOrder(inspection.orderId!);
+    const type =
+      inspection.type === 'order'
+        ? 'supplier'
+        : inspection.type === 'manufacturing_batch'
+          ? 'manufacturer'
+          : 'transfer';
 
-    const supplierReturn = await this.supplierReturnsRepo.createSupplierReturn({
-      reason: dto.reason,
-      itemId: inspection.itemId,
-      supplierId: order.supplierId,
-      inspectionId: dto.inspectionId,
+    const ret = await this.returnsRepo.create({
+      type,
+      ...dto,
       inspectorId: inspection.inspectorId,
-      purchaseOrderId: inspection.orderId!,
       quantity: inspection.quantityRejected,
     });
 
     return {
       statusCode: STATUS_CODES.Created,
-      data: supplierReturn,
+      data: ret,
     };
   }
 
-  async getAllSupplierReturns(
-    page: number,
-    limit: number,
-    q?: FilterSupplierReturnsDto,
-  ) {
-    const supplierReturns =
-      await this.supplierReturnsRepo.getAllSupplierReturns(page, limit, q);
+  async findAll(page: number, limit: number, q?: FilterReturnsDto) {
+    const rets = await this.returnsRepo.findAll(page, limit, q);
 
     return {
       statusCode: STATUS_CODES.OK,
-      size: supplierReturns.length,
-      data: supplierReturns,
+      size: rets.length,
+      data: rets,
     };
   }
 
-  async getOneSupplierReturn(id: string) {
-    const supplierReturn = await this.checkExistingSupplierReturn(id);
+  async findOne(id: string) {
+    const rets = await this.checkExistingReturn(id);
 
     return {
       statusCode: STATUS_CODES.OK,
-      data: supplierReturn,
+      data: rets,
     };
   }
 
-  async acceptSupplierReturn(userId: string, id: string) {
+  async accept(userId: string, id: string) {
     await this.transitionReturn(id, 'approved', { approvedById: userId });
 
     return {
@@ -85,15 +74,15 @@ export class ReturnsService implements IReturnsService {
     };
   }
 
-  async rejectSupplierReturn(id: string) {
-    const supplierReturn = await this.checkExistingSupplierReturn(id);
-    if (supplierReturn.status === 'completed')
+  async reject(id: string) {
+    const rets = await this.checkExistingReturn(id);
+    if (rets.status === 'completed')
       throw new APIError(
         `Cannot transition return request from completed to rejected`,
         STATUS_CODES.BadRequest,
       );
 
-    await this.supplierReturnsRepo.updateSupplierReturn(id, {
+    await this.returnsRepo.updateOne(id, {
       status: 'rejected',
     });
 
@@ -103,7 +92,7 @@ export class ReturnsService implements IReturnsService {
     };
   }
 
-  async completeSupplierReturn(id: string) {
+  async complete(id: string) {
     await this.transitionReturn(id, 'completed');
 
     return {
@@ -116,33 +105,29 @@ export class ReturnsService implements IReturnsService {
   private async transitionReturn(
     id: string,
     to: ReturnRequestStatus,
-    data?: Partial<SupplierReturn>,
+    data?: Partial<Return>,
   ) {
-    const supplierReturn = await this.checkExistingSupplierReturn(id);
-    const validNext = RETURN_REQS_VALID_TRANSITIONS[supplierReturn.status];
+    const ret = await this.checkExistingReturn(id);
+    const validNext = RETURN_REQS_VALID_TRANSITIONS[ret.status];
 
     if (validNext !== to)
       throw new APIError(
-        `Cannot transition return request from "${supplierReturn.status}" to "${to}"`,
+        `Cannot transition return request from "${ret.status}" to "${to}"`,
         STATUS_CODES.BadRequest,
       );
 
-    await this.supplierReturnsRepo.updateSupplierReturn(id, {
+    await this.returnsRepo.updateOne(id, {
       status: to,
       ...data,
     });
   }
 
-  private async checkExistingSupplierReturn(id: string) {
-    const supplierReturn =
-      await this.supplierReturnsRepo.getOneSupplierReturn(id);
-    if (!supplierReturn)
-      throw new APIError(
-        `No supplier return found with this id`,
-        STATUS_CODES.NotFound,
-      );
+  private async checkExistingReturn(id: string) {
+    const ret = await this.returnsRepo.findOne(id);
+    if (!ret)
+      throw new APIError(`No return found with this id`, STATUS_CODES.NotFound);
 
-    return supplierReturn;
+    return ret;
   }
 
   private async checkExistingInspection(id: string) {
@@ -154,16 +139,5 @@ export class ReturnsService implements IReturnsService {
       );
 
     return inspection;
-  }
-
-  private async checkExistingPurchOrder(id: string) {
-    const order = await this.purchaseOrdersRepo.getOrder(id);
-    if (!order)
-      throw new APIError(
-        'No purchase order found with this id',
-        STATUS_CODES.NotFound,
-      );
-
-    return order;
   }
 }

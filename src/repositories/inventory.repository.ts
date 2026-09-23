@@ -7,7 +7,7 @@ import APIError from '../utils/APIError';
 import { STATUS_CODES } from '../utils/statusCodes';
 
 export class InventoryRepository implements IInventoryRepository {
-  private async getMainWarehouseId(): Promise<string> {
+  async getMainWarehouseId(): Promise<string> {
     const [result] = await db
       .select({ id: warehouses.id })
       .from(warehouses)

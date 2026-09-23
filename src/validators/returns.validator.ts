@@ -1,15 +1,15 @@
 import { validate } from '../middlewares/validate';
-import { createSupplierReturnSchema } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
-import { filterSupplierReturnsQuerySchema } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
+import { createReturnSchema } from '../dtos/returns/createReturn.dto';
+import { filterReturnsQuerySchema } from '../dtos/returns/filterReturns.dto';
 
-// CREATE SUPPLIER RETURN
-export const validateCreateSupplierReturn = validate({
-  body: createSupplierReturnSchema,
+// CREATE RETURN
+export const validateCreateReturn = validate({
+  body: createReturnSchema,
 });
-export type createSuppRetValidatedCtrlr = typeof validateCreateSupplierReturn;
+export type createSuppRetValidatedCtrlr = typeof validateCreateReturn;
 
-// FILTER SUPPLIER RETURNS
-export const validateFilterSupplierReturns = validate({
-  query: filterSupplierReturnsQuerySchema,
+// FILTER RETURNS
+export const validateFilterReturns = validate({
+  query: filterReturnsQuerySchema,
 });
-export type filterSuppRetsValidatedCtrlr = typeof validateFilterSupplierReturns;
+export type filterSuppRetsValidatedCtrlr = typeof validateFilterReturns;

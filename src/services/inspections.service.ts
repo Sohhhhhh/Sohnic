@@ -2,7 +2,11 @@ import {
   IInspectionsRepository,
   IInspectionsService,
   IItemsRepository,
+  IBranchesRepository,
+  IInventoryRepository,
+  IManufacturingBatchesRepository,
   IPurchaseOrdersRepository,
+  ITransfersRepository,
 } from '../interfaces';
 import APIError from '../utils/APIError';
 import { STATUS_CODES } from '../utils/statusCodes';
@@ -15,7 +19,10 @@ export class InspectionsService implements IInspectionsService {
     private readonly inspectionsRepo: IInspectionsRepository,
     private readonly itemsRepo: IItemsRepository,
     private readonly purchaseOrdersRepo: IPurchaseOrdersRepository,
-    // add both manufacturing and transfers
+    private readonly manufacturingBatchesRepo: IManufacturingBatchesRepository,
+    private readonly branchesRepo: IBranchesRepository,
+    private readonly inventoryRepo: IInventoryRepository,
+    private readonly transfersRepo: ITransfersRepository,
   ) {}
 
   async create(inspectorId: string, dto: CreateInspectionDto) {
@@ -31,14 +38,47 @@ export class InspectionsService implements IInspectionsService {
         branchId = order.branchId;
         break;
       }
+
       case 'manufacturing_batch': {
-        await this.checkExistingManufacturingBatch(dto.manufacturingBatchId);
-        // branchId = batch.manufacturingOrder.branchId;
+        const [batch, fetched] = await Promise.all([
+          this.checkExistingManufacturingBatch(dto.manufacturingBatchId),
+          this.branchesRepo.getMainBranchId(),
+        ]);
+
+        branchId = fetched;
+
+        if (dto.quantityReceived > batch.quantityProduced)
+          throw new APIError(
+            'Quantity received cannot exceed batch quantity produced',
+            STATUS_CODES.BadRequest,
+          );
+
+        if (dto.inspectionResult === 'passed') {
+          const existingPassed =
+            await this.inspectionsRepo.findPassedByManufacturingBatch(
+              dto.manufacturingBatchId,
+            );
+          if (existingPassed)
+            throw new APIError(
+              'A passed inspection already exists for this batch',
+              STATUS_CODES.Conflict,
+            );
+
+          const acceptedQty = dto.quantityReceived - dto.quantityRejected;
+          if (acceptedQty > 0)
+            await this.inventoryRepo.addStock(
+              batch.manufacturingOrder.productId,
+              acceptedQty,
+            );
+        }
         break;
       }
+
       case 'transfer': {
-        await this.checkExistingTransferOrder(dto.transferRequestId);
-        // branchId = transferRequest.requestedByBranch;
+        const transfer = await this.checkExistingTransferOrder(
+          dto.transferRequestId,
+        );
+        branchId = transfer.requestedByBranch;
         break;
       }
     }
@@ -124,11 +164,25 @@ export class InspectionsService implements IInspectionsService {
   }
 
   private async checkExistingManufacturingBatch(id: string) {
-    return true;
+    const batch = await this.manufacturingBatchesRepo.findOne(id);
+    if (!batch)
+      throw new APIError(
+        'No manufacturing batch found with this id',
+        STATUS_CODES.NotFound,
+      );
+
+    return batch;
   }
 
   private async checkExistingTransferOrder(id: string) {
-    return false;
+    const transfer = await this.transfersRepo.findOne(id);
+    if (!transfer)
+      throw new APIError(
+        'No transfer order found with this id',
+        STATUS_CODES.NotFound,
+      );
+
+    return transfer;
   }
 
   private checkBranchAccess(user: AuthenticatedUser, branchId: string) {

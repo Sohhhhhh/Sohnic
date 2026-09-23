@@ -73,6 +73,12 @@ export const inspectionType = pgEnum('inspectionType', [
   'transfer',
 ]);
 
+export const returnType = pgEnum('returnType', [
+  'supplier',
+  'manufacturer',
+  'transfer',
+]);
+
 export const returnRequestStatus = pgEnum('returnRequestStatus', [
   'pending',
   'approved',
@@ -121,3 +127,4 @@ export type ItemsType = (typeof itemsType.enumValues)[number];
 export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
 export type CustomerType = (typeof customerType.enumValues)[number];
 export type SellableItemType = (typeof sellableItemType.enumValues)[number];
+export type ReturnType = (typeof returnType.enumValues)[number];

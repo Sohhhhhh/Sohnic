@@ -15,9 +15,9 @@ import {
   PurchaseOrder,
   Inspection,
   PurchaseOrderWithItems,
-  SupplierReturn,
   Manufacturer,
   ManufacturingOrder,
+  ManufacturingBatch,
   Inventory,
   Warehouse,
   TransferRequest,
@@ -27,6 +27,7 @@ import {
   SaleItem,
   Customer,
   SaleWithData,
+  Return,
 } from '../types/app.types';
 import {
   CreateSaleData,
@@ -58,6 +59,8 @@ import { CreateItemDto } from '../dtos/items/createItem.dto';
 import { UpdateItemDto } from '../dtos/items/updateItem.dto';
 import { FilterItemsDto } from '../dtos/items/filterItems.dto';
 import { FilterSalesDto } from '../dtos/sales/filterSales.dto';
+import { CreateReturnData } from '../dtos/returns/createReturn.dto';
+import { FilterReturnsDto } from '../dtos/returns/filterReturns.dto';
 import { CreateSupplierDto } from '../dtos/suppliers/createSupplier.dto';
 import { UpdateSupplierDto } from '../dtos/suppliers/updateSupplier.dto';
 import { CreateCustomerDto } from '../dtos/customers/createCustomer.dto';
@@ -79,9 +82,8 @@ import { FilterTransferRequestsDto } from '../dtos/transfers/filterTransferReque
 import { FilterPurchaseRequestsDto } from '../dtos/purchasing/filterPurchaseRequests.dto';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 import { UpdatePurchaseRequestStatusData } from '../dtos/purchasing/rejectPurchaseRequest.dto';
-import { CreateSupplierReturnData } from '../dtos/returns/supplier-returns/createSupplierReturn.dto';
-import { FilterSupplierReturnsDto } from '../dtos/returns/supplier-returns/filterSupplierReturns.dto';
 import { CreateManufacturingOrderData } from '../dtos/manufacturing-orders/createManufacturingOrder.dto';
+import { CreateManufacturingBatchData } from '../dtos/manufacturing-batches/createManufacturingBatch.dto';
 import { FilterManufacturingOrdersDto } from '../dtos/manufacturing-orders/filterManufacturingOrder.dto';
 
 // ----- Record Types -----
@@ -143,6 +145,7 @@ export interface IRolesRepository {
 
 export interface IBranchesRepository {
   getById(id: string): Promise<Record<string, unknown> | undefined>;
+  getMainBranchId(): Promise<string>;
 }
 
 export interface ISuppliersRepository {
@@ -279,20 +282,16 @@ export interface IInspectionsRepository {
     q?: FilterInspectionsDto,
   ): Promise<Inspection[]>;
   findPassedByTransferRequest(requestId: string): Promise<Inspection[]>;
+  findPassedByManufacturingBatch(
+    batchId: string,
+  ): Promise<Inspection | undefined>;
 }
 
-export interface ISupplierReturnsRepository {
-  createSupplierReturn(dto: CreateSupplierReturnData): Promise<SupplierReturn>;
-  getAllSupplierReturns(
-    page: number,
-    limit: number,
-    q?: FilterSupplierReturnsDto,
-  ): Promise<SupplierReturn[]>;
-  getOneSupplierReturn(id: string): Promise<SupplierReturn | undefined>;
-  updateSupplierReturn(
-    id: string,
-    data: Partial<SupplierReturn>,
-  ): Promise<SupplierReturn>;
+export interface IReturnsRepository {
+  create(dto: CreateReturnData): Promise<Return>;
+  findAll(page: number, limit: number, q?: FilterReturnsDto): Promise<Return[]>;
+  findOne(id: string): Promise<Return | undefined>;
+  updateOne(id: string, data: Partial<Return>): Promise<Return>;
 }
 
 export interface IManufacturersRepository {
@@ -328,7 +327,23 @@ export interface IManufacturingOrdersRepository {
   ): Promise<ManufacturingOrder>;
 }
 
+export interface IManufacturingBatchesRepository {
+  create(data: CreateManufacturingBatchData): Promise<ManufacturingBatch>;
+  findByOrder(
+    orderId: string,
+    page: number,
+    limit: number,
+  ): Promise<ManufacturingBatch[]>;
+  findOne(id: string): Promise<
+    | (ManufacturingBatch & {
+        manufacturingOrder: { productId: string };
+      })
+    | undefined
+  >;
+}
+
 export interface IInventoryRepository {
+  getMainWarehouseId(): Promise<string>;
   findAll(
     page: number,
     limit: number,

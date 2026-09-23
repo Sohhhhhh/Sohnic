@@ -8,17 +8,15 @@ import { filterSuppRetsValidatedCtrlr } from '../validators/returns.validator';
 export class ReturnsController {
   constructor(private readonly returnsService: IReturnsService) {}
 
-  createSupplierReturn: createSuppRetValidatedCtrlr = async (req, res) => {
-    const result: APIResponse = await this.returnsService.createSupplierReturn(
-      req.body,
-    );
+  create: createSuppRetValidatedCtrlr = async (req, res) => {
+    const result: APIResponse = await this.returnsService.create(req.body);
 
     sendResponse(res, result);
   };
 
-  getAllSupplierReturns: filterSuppRetsValidatedCtrlr = async (req, res) => {
+  findAll: filterSuppRetsValidatedCtrlr = async (req, res) => {
     const { page = 1, limit = 10, ...q } = req.query;
-    const result: APIResponse = await this.returnsService.getAllSupplierReturns(
+    const result: APIResponse = await this.returnsService.findAll(
       +page,
       +limit,
       q,
@@ -27,37 +25,31 @@ export class ReturnsController {
     sendResponse(res, result);
   };
 
-  getOneSupplierReturn: idValidatedCtrlr = async (req, res) => {
+  findOne: idValidatedCtrlr = async (req, res) => {
     const { id } = req.params;
-    const result: APIResponse =
-      await this.returnsService.getOneSupplierReturn(id);
+    const result: APIResponse = await this.returnsService.findOne(id);
 
     sendResponse(res, result);
   };
 
-  acceptSupplieReturn: idValidatedCtrlr = async (req, res) => {
+  accept: idValidatedCtrlr = async (req, res) => {
     const { id } = req.params;
     const { id: userId } = req.user!;
-    const result: APIResponse = await this.returnsService.acceptSupplierReturn(
-      userId,
-      id,
-    );
+    const result: APIResponse = await this.returnsService.accept(userId, id);
 
     sendResponse(res, result);
   };
 
-  rejectSupplierReturn: idValidatedCtrlr = async (req, res) => {
+  reject: idValidatedCtrlr = async (req, res) => {
     const { id } = req.params;
-    const result: APIResponse =
-      await this.returnsService.rejectSupplierReturn(id);
+    const result: APIResponse = await this.returnsService.reject(id);
 
     sendResponse(res, result);
   };
 
-  completeSupplierReturn: idValidatedCtrlr = async (req, res) => {
+  complete: idValidatedCtrlr = async (req, res) => {
     const { id } = req.params;
-    const result: APIResponse =
-      await this.returnsService.completeSupplierReturn(id);
+    const result: APIResponse = await this.returnsService.complete(id);
 
     sendResponse(res, result);
   };

@@ -3,6 +3,7 @@ import {
   IPurchasingService,
   IBranchesRepository,
   ISuppliersRepository,
+  IInventoryRepository,
   IPurchaseRequestsRepository,
   ISupplierQuotationsRepository,
   IItemSuppliersRepository,
@@ -30,6 +31,7 @@ export class PurchasingService implements IPurchasingService {
     private readonly suppliersRepo: ISuppliersRepository,
     private readonly itemSuppliersRepo: IItemSuppliersRepository,
     private readonly purchaseOrdersRepo: IPurchaseOrdersRepository,
+    private readonly inventoryRepo: IInventoryRepository,
   ) {}
 
   async createPurchaseRequest(
@@ -240,6 +242,12 @@ export class PurchasingService implements IPurchasingService {
     if (quotation.validUntil < new Date().toISOString().split('T')[0])
       throw new APIError('This quotation has expired', STATUS_CODES.BadRequest);
 
+    if (!quotation.items.length)
+      throw new APIError(
+        'This quotation has no items',
+        STATUS_CODES.BadRequest,
+      );
+
     const totalPrice = quotation.items
       .reduce(
         (sum, item) => sum + item.quantity * parseFloat(item.unitPrice),
@@ -318,9 +326,20 @@ export class PurchasingService implements IPurchasingService {
   }
 
   async deliverPurchaseOrder(id: string) {
-    return this.transitionOrder(id, 'delivered', {
+    const order = await this.checkExistingPurchOrder(id);
+
+    const result = await this.transitionOrder(id, 'delivered', {
       actualDeliveryDate: new Date().toISOString().split('T')[0],
     });
+
+    const warehouseId = await this.inventoryRepo.getMainWarehouseId();
+    await Promise.all(
+      order.items.map((item) =>
+        this.inventoryRepo.upsert(item.itemId, warehouseId, item.quantity),
+      ),
+    );
+
+    return result;
   }
 
   async cancelPurchaseOrder(user: AuthenticatedUser, id: string) {

@@ -6,9 +6,11 @@ import {
   validateRejectManufacturingOrders,
 } from '../../validators/manufacturing-orders.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
-import { validateId } from '../../validators/common.validator';
+import { validateId, validatePagination } from '../../validators/common.validator';
+import { validateCreateManufacturingBatch } from '../../validators/manufacturing-batches.validator';
 import { isAuthenticated } from '../../containers/middleware.container';
 import { manufacturingOrdersController } from '../../containers/manufacturing-orders.container';
+import { manufacturingBatchesController } from '../../containers/manufacturing-batches.container';
 
 const router = Router();
 
@@ -83,6 +85,42 @@ router.patch(
   isAuthorized('super_admin', 'branch_admin'),
   validateId,
   manufacturingOrdersController.cancel,
+);
+
+router.post(
+  '/:id/batches',
+  isAuthenticated,
+  isAuthorized('storage_manager', 'super_admin'),
+  validateId,
+  validateCreateManufacturingBatch,
+  manufacturingBatchesController.create,
+);
+
+router.get(
+  '/:id/batches',
+  isAuthenticated,
+  isAuthorized(
+    'super_admin',
+    'branch_admin',
+    'storage_manager',
+    'accountant',
+  ),
+  validateId,
+  validatePagination,
+  manufacturingBatchesController.findByOrder,
+);
+
+router.get(
+  '/batches/:id',
+  isAuthenticated,
+  isAuthorized(
+    'super_admin',
+    'branch_admin',
+    'storage_manager',
+    'accountant',
+  ),
+  validateId,
+  manufacturingBatchesController.findOne,
 );
 
 export const manufacturingOrdersRoutes = router;

@@ -3,6 +3,7 @@ import { RolesRepository } from '../repositories/roles.repository';
 import { UsersRepository } from '../repositories/users.repository';
 import { ItemsRepository } from '../repositories/items.repository';
 import { SalesRepository } from '../repositories/sales.repository';
+import { ReturnsRepository } from '../repositories/returns.repository';
 import { BranchesRepository } from '../repositories/branches.repository';
 import { CustomersRepository } from '../repositories/customers.repository';
 import { SuppliersRepository } from '../repositories/suppliers.repository';
@@ -14,17 +15,18 @@ import { ManufacturersRepository } from '../repositories/manufacturers.repositor
 import { RefreshTokensRepository } from '../repositories/refresh-tokens.repository';
 import { ItemSuppliersRepository } from '../repositories/item-suppliers.repository';
 import { PurchaseOrdersRepository } from '../repositories/purchase-orders.repository';
-import { SupplierReturnsRepository } from '../repositories/supplier-returns.repository';
 import { PurchaseRequestsRepository } from '../repositories/purchase-requests.repository';
 import { SetPasswordTokensRepository } from '../repositories/set-password-tokens.repository';
 import { SupplierQuotationsRepository } from '../repositories/supplier-quotations.repository';
 import { ManufacturingOrdersRepository } from '../repositories/manufacturing-orders.repository';
+import { ManufacturingBatchesRepository } from '../repositories/manufacturing-batches.repository';
 
 export const bomRepository = new BomRepository();
 export const usersRepository = new UsersRepository();
 export const rolesRepository = new RolesRepository();
 export const itemsRepository = new ItemsRepository();
 export const salesRepository = new SalesRepository();
+export const returnsRepository = new ReturnsRepository();
 export const branchesRepository = new BranchesRepository();
 export const suppliersRepository = new SuppliersRepository();
 export const inventoryRepository = new InventoryRepository();
@@ -36,9 +38,10 @@ export const manufacturersRepository = new ManufacturersRepository();
 export const refreshTokensRepository = new RefreshTokensRepository();
 export const itemSuppliersRepository = new ItemSuppliersRepository();
 export const purchaseOrdersRepository = new PurchaseOrdersRepository();
-export const supplierReturnsRepository = new SupplierReturnsRepository();
 export const purchaseRequestsRepository = new PurchaseRequestsRepository();
 export const setPasswordTokensRepository = new SetPasswordTokensRepository();
 export const supplierQuotationsRepository = new SupplierQuotationsRepository();
 export const manufacturingOrdersRepository =
   new ManufacturingOrdersRepository();
+export const manufacturingBatchesRepository =
+  new ManufacturingBatchesRepository();

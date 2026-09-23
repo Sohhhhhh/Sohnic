@@ -1,18 +1,18 @@
 import {
   pgTable,
   uuid,
-  date,
   text,
   varchar,
   integer,
   timestamp,
-  unique,
 } from 'drizzle-orm/pg-core';
 import { users } from './users';
+import { sql } from 'drizzle-orm';
 import { items } from './products';
 import { branches } from './locations';
-import { transferRequests } from './transfers';
+import { check } from 'drizzle-orm/pg-core';
 import { purchaseOrders } from './purchasing';
+import { transferRequests } from './transfers';
 import { manufacturingBatches } from './manufacturing';
 import { inspectionStatus, inspectionType } from './enums';
 
@@ -28,11 +28,11 @@ export const inspections = pgTable(
       () => transferRequests.id,
     ),
     type: inspectionType('type').notNull(),
-    inspectionDate: date('inspection_date').notNull(),
+    inspectionDate: timestamp('inspection_date').notNull(),
     inspectionResult: inspectionStatus('inspection_result').notNull(),
     branchId: uuid('branch_id')
       .notNull()
-      .references(() => branches.id, { onDelete: 'cascade' }),
+      .references(() => branches.id, { onDelete: 'restrict' }),
     notes: text('notes'),
     defectType: varchar('defect_type', { length: 255 }),
     quantityOrdered: integer('quantity_ordered').notNull(),
@@ -45,16 +45,31 @@ export const inspections = pgTable(
       .notNull()
       .references(() => users.id),
     createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
+
   (table) => [
-    unique('inspections_item_order_unq').on(table.itemId, table.orderId),
-    unique('inspections_item_batch_unq').on(
-      table.itemId,
-      table.manufacturingBatchId,
+    check(
+      'inspections_type_fk_chk',
+      sql`
+    (type='order' AND order_id IS NOT NULL AND manufacturing_batch_id IS NULL AND transfer_request_id IS NULL)
+    OR (type='manufacturing_batch' AND order_id IS NULL AND manufacturing_batch_id IS NOT NULL AND transfer_request_id IS NULL)
+    OR (type='transfer' AND order_id IS NULL AND manufacturing_batch_id IS NULL AND transfer_request_id IS NOT NULL)
+  `,
     ),
-    unique('inspections_item_transfer_unq').on(
-      table.itemId,
-      table.transferRequestId,
+    check(
+      'inspections_qty_chk',
+      sql`quantity_received >= 0 
+  AND quantity_rejected >= 0 
+  AND quantity_rejected <= quantity_received
+  AND quantity_ordered >= quantity_received`,
+    ),
+    check(
+      'inspections_defect_chk',
+      sql`(inspection_result='passed' AND defect_type IS NULL) 
+  OR (inspection_result IN ('failed','needs_rework') AND defect_type IS NOT NULL)`,
     ),
   ],
 );

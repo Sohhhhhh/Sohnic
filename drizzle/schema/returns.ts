@@ -1,87 +1,24 @@
 import { pgTable, uuid, text, integer, timestamp } from 'drizzle-orm/pg-core';
 
 import { users } from './users';
-import { items } from './products';
 import { inspections } from './inspections';
-import { transferRequests } from './transfers';
-import { purchaseOrders } from './purchasing';
-import { returnRequestStatus } from './enums';
-import { manufacturers, manufacturingOrders } from './manufacturing';
-import { suppliers } from './suppliers';
+import { returnRequestStatus, returnType } from './enums';
 
-export const supplierReturns = pgTable('supplier_returns', {
+export const returns = pgTable('returns', {
   id: uuid('id').defaultRandom().primaryKey(),
-  supplierId: uuid('supplier_id')
-    .notNull()
-    .references(() => suppliers.id),
-  purchaseOrderId: uuid('purchase_order_id')
-    .notNull()
-    .references(() => purchaseOrders.id),
-  itemId: uuid('item_id')
-    .notNull()
-    .references(() => items.id),
-  quantity: integer('quantity').notNull(),
-  reason: text('reason'),
-  status: returnRequestStatus('status').notNull().default('pending'),
-  inspectorId: uuid('inspector_id').references(() => users.id),
-  approvedById: uuid('approved_by_id').references(() => users.id),
+  type: returnType('type').notNull(),
   inspectionId: uuid('inspection_id')
     .notNull()
     .unique()
     .references(() => inspections.id),
-  submissionDate: timestamp('submission_date').defaultNow(),
-  reviewDate: timestamp('review_date'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at')
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-});
-
-export const manufacturerReturns = pgTable('manufacturer_returns', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  manufacturerId: uuid('manufacturer_id')
-    .notNull()
-    .references(() => manufacturers.id),
-  manufacturingOrderId: uuid('manufacturing_order_id')
-    .notNull()
-    .references(() => manufacturingOrders.id),
-  itemId: uuid('item_id')
-    .notNull()
-    .references(() => items.id),
   quantity: integer('quantity').notNull(),
   reason: text('reason'),
   status: returnRequestStatus('status').notNull().default('pending'),
-  inspectorId: uuid('inspector_id').references(() => users.id),
+  inspectorId: uuid('inspector_id')
+    .notNull()
+    .references(() => users.id),
   approvedById: uuid('approved_by_id').references(() => users.id),
-  inspectionId: uuid('inspection_id')
-    .notNull()
-    .unique()
-    .references(() => inspections.id),
-  submissionDate: timestamp('submission_date').defaultNow(),
-  reviewDate: timestamp('review_date'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at')
-    .defaultNow()
-    .$onUpdate(() => new Date()),
-});
-
-export const transferReturns = pgTable('transfer_returns', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  transferRequestId: uuid('transfer_request_id')
-    .notNull()
-    .references(() => transferRequests.id),
-  itemId: uuid('item_id')
-    .notNull()
-    .references(() => items.id),
-  quantity: integer('quantity').notNull(),
-  reason: text('reason'),
-  status: returnRequestStatus('status').notNull().default('pending'),
-  inspectorId: uuid('inspector_id').references(() => users.id),
-  approvedById: uuid('approved_by_id').references(() => users.id),
-  inspectionId: uuid('inspection_id')
-    .notNull()
-    .unique()
-    .references(() => inspections.id),
+  rejectionReason: text('rejection_reason'),
   submissionDate: timestamp('submission_date').defaultNow(),
   reviewDate: timestamp('review_date'),
   createdAt: timestamp('created_at').defaultNow(),

@@ -1,62 +1,62 @@
 import { Router } from 'express';
 
-import {
-  validateCreateSupplierReturn,
-  validateFilterSupplierReturns,
-} from '../../validators/returns.validator';
 import { isAuthorized } from '../../middlewares/isAuthorized';
+import { validateId } from '../../validators/common.validator';
 import { returnsController } from '../../containers/returns.container';
 import { isAuthenticated } from '../../containers/middleware.container';
-import { validateId } from '../../validators/common.validator';
+import {
+  validateCreateReturn,
+  validateFilterReturns,
+} from '../../validators/returns.validator';
 
 const router = Router();
 
 router.post(
-  '/supplier',
+  '/',
   isAuthenticated,
   isAuthorized('accountant', 'super_admin'),
-  validateCreateSupplierReturn,
-  returnsController.createSupplierReturn,
+  validateCreateReturn,
+  returnsController.create,
 );
 
 router.get(
-  '/supplier',
+  '/',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
-  validateFilterSupplierReturns,
-  returnsController.getAllSupplierReturns,
+  validateFilterReturns,
+  returnsController.findAll,
 );
 
 router.get(
-  '/supplier/:id',
+  '/:id',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
   validateId,
-  returnsController.getOneSupplierReturn,
+  returnsController.findOne,
 );
 
 router.patch(
-  '/supplier/:id/accept',
+  '/:id/accept',
   isAuthenticated,
   isAuthorized('super_admin'),
   validateId,
-  returnsController.acceptSupplieReturn,
+  returnsController.accept,
 );
 
 router.patch(
-  '/supplier/:id/reject',
+  '/:id/reject',
   isAuthenticated,
   isAuthorized('super_admin'),
   validateId,
-  returnsController.rejectSupplierReturn,
+  returnsController.reject,
 );
 
 router.patch(
-  '/supplier/:id/complete',
+  '/:id/complete',
   isAuthenticated,
   isAuthorized('super_admin', 'accountant'),
   validateId,
-  returnsController.completeSupplierReturn,
+  returnsController.complete,
 );
 
 export const returnsRoutes = router;
