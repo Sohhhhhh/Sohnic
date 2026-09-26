@@ -166,4 +166,16 @@ export class InventoryRepository implements IInventoryRepository {
       .returning();
     return record;
   }
+
+  async stocktake(
+    id: string,
+    data: { quantity: number; lastStocktakeDate: string },
+  ) {
+    const [updated] = await db
+      .update(inventory)
+      .set(data)
+      .where(eq(inventory.id, id))
+      .returning();
+    return updated;
+  }
 }

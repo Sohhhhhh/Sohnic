@@ -53,6 +53,7 @@ import { CreateSaleDto } from '../dtos/sales/createSale.dto';
 import { CreateCustomerDto } from '../dtos/customers/createCustomer.dto';
 import { UpdateCustomerDto } from '../dtos/customers/updateCustomer.dto';
 import { FilterSalesDto } from '../dtos/sales/filterSales.dto';
+import { StocktakeDto } from '../dtos/inventory/stocktake.dto';
 
 // ----- Service Interfaces -----
 
@@ -302,7 +303,16 @@ export interface IInventoryService {
     q?: FilterInventoryDto,
   ): Promise<APIResponse>;
   findOne(id: string): Promise<APIResponse>;
-  adjust(id: string, dto: AdjustStockDto): Promise<APIResponse>;
+  adjust(
+    user: AuthenticatedUser,
+    id: string,
+    dto: AdjustStockDto,
+  ): Promise<APIResponse>;
+  stocktake(
+    user: AuthenticatedUser,
+    id: string,
+    data: StocktakeDto,
+  ): Promise<APIResponse>;
 
   // internal — used by other modules
   findByItemIds(itemIds: string[]): Promise<Inventory[]>;

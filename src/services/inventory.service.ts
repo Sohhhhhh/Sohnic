@@ -4,6 +4,8 @@ import { APIResponse } from '../types/api.types';
 import { IInventoryRepository, IInventoryService, TX } from '../interfaces';
 import { AdjustStockDto } from '../dtos/inventory/adjustStock.dto';
 import { FilterInventoryDto } from '../dtos/inventory/filterInventory.dto';
+import { AuthenticatedUser } from '../types/app.types';
+import { StocktakeDto } from '../dtos/inventory/stocktake.dto';
 
 export class InventoryService implements IInventoryService {
   constructor(private readonly inventoryRepo: IInventoryRepository) {}
@@ -18,8 +20,23 @@ export class InventoryService implements IInventoryService {
     return { statusCode: STATUS_CODES.OK, data: record };
   }
 
-  async adjust(id: string, dto: AdjustStockDto): Promise<APIResponse> {
+  async adjust(
+    user: AuthenticatedUser,
+    id: string,
+    dto: AdjustStockDto,
+  ): Promise<APIResponse> {
     const record = await this.checkExistingInventory(id);
+
+    if (user.role.role === 'storage_manager') {
+      const warehouse = await this.inventoryRepo.getWarehouseByBranchId(
+        user.branchId,
+      );
+      if (record.warehouseId !== warehouse.id)
+        throw new APIError(
+          'You can only adjust inventory in your own branch',
+          STATUS_CODES.Forbidden,
+        );
+    }
 
     const newQuantity = record.quantity + dto.quantity;
     if (newQuantity < 0)
@@ -29,6 +46,31 @@ export class InventoryService implements IInventoryService {
       );
 
     const updated = await this.inventoryRepo.adjust(id, newQuantity);
+    return { statusCode: STATUS_CODES.OK, data: updated };
+  }
+
+  async stocktake(
+    user: AuthenticatedUser,
+    id: string,
+    dto: StocktakeDto,
+  ): Promise<APIResponse> {
+    const record = await this.checkExistingInventory(id);
+
+    if (user.role.role === 'storage_manager') {
+      const warehouse = await this.inventoryRepo.getWarehouseByBranchId(
+        user.branchId,
+      );
+      if (record.warehouseId !== warehouse.id)
+        throw new APIError(
+          'You can only stocktake inventory in your own branch',
+          STATUS_CODES.Forbidden,
+        );
+    }
+
+    const updated = await this.inventoryRepo.stocktake(id, {
+      quantity: dto.actualQuantity,
+      lastStocktakeDate: new Date().toISOString().split('T')[0],
+    });
     return { statusCode: STATUS_CODES.OK, data: updated };
   }
 

@@ -77,8 +77,11 @@ export class PurchaseOrdersRepository implements IPurchaseOrdersRepository {
   async updateOrder(
     id: string,
     data: Partial<typeof purchaseOrders.$inferInsert>,
+    tx?: TX,
   ) {
-    const result = await db
+    const client = tx || db;
+
+    const result = await client
       .update(purchaseOrders)
       .set(data)
       .where(eq(purchaseOrders.id, id))

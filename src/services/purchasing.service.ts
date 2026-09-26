@@ -327,19 +327,39 @@ export class PurchasingService implements IPurchasingService {
 
   async deliverPurchaseOrder(id: string) {
     const order = await this.checkExistingPurchOrder(id);
+    const validNext = PURCH_ORDS_VALID_TRANSITIONS[order.status];
 
-    const result = await this.transitionOrder(id, 'delivered', {
-      actualDeliveryDate: new Date().toISOString().split('T')[0],
-    });
+    if (validNext !== 'delivered')
+      throw new APIError(
+        `Cannot transition order from "${order.status}" to "delivered"`,
+        STATUS_CODES.BadRequest,
+      );
 
     const warehouseId = await this.inventoryRepo.getMainWarehouseId();
-    await Promise.all(
-      order.items.map((item) =>
-        this.inventoryRepo.upsert(item.itemId, warehouseId, item.quantity),
-      ),
-    );
 
-    return result;
+    return db.transaction(async (tx) => {
+      const updatedOrder = await this.purchaseOrdersRepo.updateOrder(
+        id,
+        {
+          status: 'delivered',
+          actualDeliveryDate: new Date().toISOString().split('T')[0],
+        },
+        tx,
+      );
+
+      await Promise.all(
+        order.items.map((item) =>
+          this.inventoryRepo.upsert(
+            item.itemId,
+            warehouseId,
+            item.quantity,
+            tx,
+          ),
+        ),
+      );
+
+      return { statusCode: STATUS_CODES.OK, data: updatedOrder };
+    });
   }
 
   async cancelPurchaseOrder(user: AuthenticatedUser, id: string) {

@@ -270,7 +270,11 @@ export interface IPurchaseOrdersRepository {
   ): Promise<PurchaseOrder[]>;
   getOrder(id: string): Promise<PurchaseOrderWithItems | undefined>;
   getOrderByQuotationId(id: string): Promise<PurchaseOrder | undefined>;
-  updateOrder(id: string, data: Partial<PurchaseOrder>): Promise<PurchaseOrder>;
+  updateOrder(
+    id: string,
+    data: Partial<PurchaseOrder>,
+    tx?: TX,
+  ): Promise<PurchaseOrder>;
 }
 
 export interface IInspectionsRepository {
@@ -373,6 +377,10 @@ export interface IInventoryRepository {
     warehouseId: string,
     quantity: number,
     tx?: TX,
+  ): Promise<Inventory>;
+  stocktake(
+    id: string,
+    data: { quantity: number; lastStocktakeDate: string },
   ): Promise<Inventory>;
 }
 

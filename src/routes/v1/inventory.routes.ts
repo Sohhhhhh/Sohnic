@@ -9,6 +9,7 @@ import {
 import {
   validateFilterInventory,
   validateAdjustStock,
+  validateStocktake,
 } from '../../validators/inventory.validator';
 
 const router = Router();
@@ -37,6 +38,15 @@ router.patch(
   validateId,
   validateAdjustStock,
   inventoryController.adjust,
+);
+
+router.patch(
+  '/:id/stocktake',
+  isAuthenticated,
+  isAuthorized('super_admin', 'storage_manager'),
+  validateId,
+  validateStocktake,
+  inventoryController.stocktake,
 );
 
 export const inventoryRoutes = router;
