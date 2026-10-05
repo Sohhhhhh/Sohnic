@@ -12,7 +12,7 @@ export class BranchesRepository implements IBranchesRepository {
     });
   }
 
-  async getMainBranchId(): Promise<string> {
+  async getMainBranchId() {
     const [branch] = await db
       .select({ id: branches.id })
       .from(branches)
@@ -23,5 +23,9 @@ export class BranchesRepository implements IBranchesRepository {
       throw new APIError('Main branch not found.', STATUS_CODES.NotFound);
 
     return branch.id;
+  }
+
+  async getAll() {
+    return db.query.branches.findMany({ where: eq(branches.isActive, true) });
   }
 }

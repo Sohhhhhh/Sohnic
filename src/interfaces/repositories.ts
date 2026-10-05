@@ -28,6 +28,10 @@ import {
   Customer,
   SaleWithData,
   Return,
+  Branch,
+  AuthenticatedUser,
+  SaleByCustomer,
+  TopItem,
 } from '../types/app.types';
 import {
   CreateSaleData,
@@ -38,6 +42,7 @@ import {
   UpdateBomComponentDto,
 } from '../dtos/items/bom.dto';
 import { db } from '../config/drizzle';
+import { UserRole } from '../../drizzle/schema';
 import {
   CreatePurchaseOrderData,
   CreatePurchaseOrderItemData,
@@ -121,6 +126,7 @@ export interface IUsersRepository {
   updateBranch(userId: string, branchId: string): Promise<SafeUser>;
   updateRole(userId: string, branchId: string): Promise<SafeUser>;
   updateIsActive(userId: string, isActive: boolean): Promise<SafeUser>;
+  findByRoles(roles: UserRole[]): Promise<AuthenticatedUser[]>;
 }
 
 export interface IRefreshTokensRepository {
@@ -144,8 +150,9 @@ export interface IRolesRepository {
 }
 
 export interface IBranchesRepository {
-  getById(id: string): Promise<Record<string, unknown> | undefined>;
+  getById(id: string): Promise<Branch | undefined>;
   getMainBranchId(): Promise<string>;
+  getAll(): Promise<Branch[]>;
 }
 
 export interface ISuppliersRepository {
@@ -275,6 +282,9 @@ export interface IPurchaseOrdersRepository {
     data: Partial<PurchaseOrder>,
     tx?: TX,
   ): Promise<PurchaseOrder>;
+
+  // reporting
+  getTotalExpenses(branchId: string, from: Date, to: Date): Promise<number>;
 }
 
 export interface IInspectionsRepository {
@@ -329,6 +339,9 @@ export interface IManufacturingOrdersRepository {
     id: string,
     data: Partial<ManufacturingOrder>,
   ): Promise<ManufacturingOrder>;
+
+  // reporting
+  getManufacturingCosts(from: Date, to: Date): Promise<number>;
 }
 
 export interface IManufacturingBatchesRepository {
@@ -415,6 +428,21 @@ export interface ISalesRepository {
     limit: number,
     q?: FilterSalesDto,
   ): Promise<SaleWithData[]>;
+
+  // reporting
+  getTotalRevenue(branchId: string, from: Date, to: Date): Promise<number>;
+  getCOGS(branchId: string, from: Date, to: Date): Promise<number>;
+  getTopItems(
+    branchId: string,
+    from: Date,
+    to: Date,
+    limit?: number,
+  ): Promise<TopItem[]>;
+  getSalesByCustomerType(
+    branchId: string,
+    from: Date,
+    to: Date,
+  ): Promise<SaleByCustomer[]>;
 }
 
 export interface ICustomersRepository {

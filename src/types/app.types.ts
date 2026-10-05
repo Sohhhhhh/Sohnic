@@ -20,6 +20,7 @@ import {
   orders,
   orderItems,
   customers,
+  branches,
 } from '../../drizzle/schema';
 
 export type BomLine = {
@@ -42,6 +43,7 @@ export type PurchaseOrderItem = {
 export type User = typeof users.$inferSelect;
 export type SafeUser = Omit<User, 'password'>;
 export type Role = typeof roles.$inferSelect;
+export type Branch = typeof branches.$inferSelect;
 export type AuthenticatedUser = SafeUser & { role: Role };
 export type Supplier = typeof suppliers.$inferSelect;
 export type ItemSupplier = typeof itemSuppliers.$inferSelect;
@@ -71,4 +73,26 @@ export type Customer = typeof customers.$inferSelect;
 export type SaleWithData = Sale & {
   items: SaleItem[];
   customer: Customer;
+};
+
+export type BranchReport = {
+  branch: Branch;
+  revenue: number;
+  cogs: number;
+  grossProfit: number;
+  expenses: number;
+  topItems: TopItem[];
+  byCustomerType: SaleByCustomer[];
+};
+
+export type SaleByCustomer = {
+  type: string;
+  total: string | null;
+  count: number;
+};
+
+export type TopItem = {
+  name: string;
+  totalQty: string | null;
+  totalRevenue: string;
 };

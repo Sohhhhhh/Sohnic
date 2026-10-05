@@ -1,4 +1,5 @@
 import app from './app';
+import './jobs/reports.job';
 import env from './config/env';
 
 process.on('uncaughtException', (err: Error) => {

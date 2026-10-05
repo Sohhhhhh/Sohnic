@@ -6,6 +6,8 @@ const createTransporter = () => {
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
     secure: false,
+    pool: true,
+    maxConnections: 1,
     auth: {
       user: env.SMTP_USER,
       pass: env.SMTP_PASS,

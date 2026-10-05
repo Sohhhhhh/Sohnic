@@ -378,6 +378,8 @@ export interface ICustomersService {
   findByPhone(phone: string): Promise<APIResponse>;
 }
 
+export interface IReportingsService {}
+
 // ----- Utility Interfaces -----
 
 export interface IEmailService {

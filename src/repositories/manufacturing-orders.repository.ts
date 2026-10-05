@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, SQL } from 'drizzle-orm';
+import { and, eq, gte, lte, sum, SQL } from 'drizzle-orm';
 
 import { db } from '../config/drizzle';
 import {
@@ -92,5 +92,19 @@ export class ManufacturingOrdersRepository implements IManufacturingOrdersReposi
       .where(eq(manufacturingOrders.id, id))
       .returning();
     return order;
+  }
+
+  async getManufacturingCosts(from: Date, to: Date) {
+    const [costs] = await db
+      .select({ total: sum(manufacturingOrders.totalManufacturingCost) })
+      .from(manufacturingOrders)
+      .where(
+        and(
+          gte(manufacturingOrders.createdAt, from),
+          lte(manufacturingOrders.createdAt, to),
+        ),
+      );
+
+    return +(costs.total ?? 0);
   }
 }

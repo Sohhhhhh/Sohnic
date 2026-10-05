@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../config/drizzle';
-import { users } from '../../drizzle/schema';
+import { UserRole, users } from '../../drizzle/schema';
 import { sanitizeUser } from '../utils/sanitize';
-import { SafeUser, User } from '../types/app.types';
+import { AuthenticatedUser, SafeUser, User } from '../types/app.types';
 import { CreateUserDto } from '../dtos/users/createUser.dto';
 import { IUsersRepository } from '../interfaces/repositories';
 
@@ -112,5 +112,14 @@ export class UsersRepository implements IUsersRepository {
       .returning();
 
     return user[0];
+  }
+
+  async findByRoles(roles: UserRole[]): Promise<AuthenticatedUser[]> {
+    const rows = await db.query.users.findMany({
+      where: eq(users.isActive, true),
+      with: { role: true },
+    });
+
+    return rows.filter((u) => roles.includes(u.role.role));
   }
 }

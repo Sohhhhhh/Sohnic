@@ -1,4 +1,13 @@
-import { eq, getTableColumns, SQL, and, desc } from 'drizzle-orm';
+import {
+  eq,
+  getTableColumns,
+  SQL,
+  and,
+  desc,
+  lte,
+  gte,
+  sum,
+} from 'drizzle-orm';
 
 import {
   purchaseOrders,
@@ -88,5 +97,21 @@ export class PurchaseOrdersRepository implements IPurchaseOrdersRepository {
       .returning();
 
     return result[0];
+  }
+
+  async getTotalExpenses(branchId: string, from: Date, to: Date) {
+    const [expenses] = await db
+      .select({ total: sum(purchaseOrders.totalPrice) })
+      .from(purchaseOrders)
+      .where(
+        and(
+          eq(purchaseOrders.branchId, branchId),
+          eq(purchaseOrders.status, 'delivered'),
+          gte(purchaseOrders.actualDeliveryDate, from as unknown as string),
+          lte(purchaseOrders.actualDeliveryDate, to as unknown as string),
+        ),
+      );
+
+    return +(expenses.total ?? 0);
   }
 }
